@@ -1,201 +1,186 @@
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+حتماً. در اینجا قرارداد به زبان انگلیسی، با همان قالب حرفه‌ای و ساختاریافته (مشابه GBG SCCs)، اما با هویت جدید «افق بیکن چین» (Horizon Beacon Chain) و ایموجی/کد آرتی (ASCII) در هدر، تهیه شده است. رتبه‌بندی جهانی حذف شده و قوانین انگلستان با ایمیل شما درج شده است.
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+---
 
-   1. Definitions.
+```text
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              🚀  HORIZON BEACON CHAIN  ⛓️  🔗                              ║
+║                   Core Engine License Agreement                            ║
+║                  (Offline-First & Blockchain Validator)                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+SOFTWARE LICENSE AGREEMENT
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+Version 1.0 | Date of Issue: 2026
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+This Agreement is entered into between the following Parties:
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+Licensor (Party A) Licensee (Party B)
+Name: Mahdi Amoli Moghaddam Name: [Full Legal Name]
+Address: [Full Address] Address: [Full Address]
+Contact Email: gamma.mahdii@gmail.com Contact Email: [Email Address]
+Phone: +989150307006 Phone: [Phone Number]
+Role: Sole Owner, Developer & Licensor Role: End-User & Licensee
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+---
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+RECITALS
 
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
+(A) The Licensor is the sole owner and principal developer of the Horizon Beacon Chain Core Engine (hereinafter referred to as "The Work"). The Work is a blockchain monitoring, validator management, and API-based license management platform built with Go, SQLite, Merkle Trees, and ECDSA digital signatures. It features an offline-first architecture with IndexedDB storage, virtualized navigation, and enhanced security via CSP nonce, SHA-256 signatures, and verifiable offline Merkle proofs. The Work maintains a 10/10 security excellence score and supports over 100,000 concurrent validators.
 
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
+(B) The Licensee wishes to obtain a license to use The Work for its internal business operations or commercial projects, and The Licensor is willing to grant such a license subject to the terms and conditions set forth in this Agreement.
 
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+(C) The Parties agree that this Agreement constitutes the entire understanding regarding the commercial use of The Work, and any use outside its scope shall constitute an infringement of The Licensor's intellectual property rights.
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
+NOW, THEREFORE, THE PARTIES AGREE AS FOLLOWS:
 
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
+---
 
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
+1. DEFINITIONS
 
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
+· "The Work" : Includes all source code, object code (binaries), documentation, APIs, data structures, Merkle tree algorithms, validation logic, and ECDSA signing mechanisms pertaining to the Horizon Beacon Chain Core Engine.
+· "Commercial Use" : Any revenue-generating or profit-oriented utilization of The Work, including but not limited to: use in a business environment, provision of Software-as-a-Service (SaaS), resale to third parties, internal use within an organization for revenue generation, or integration into commercial products.
+· "Non-Commercial Use" : Use for personal, educational, academic research, or non-profit purposes which does not yield direct or indirect financial gain.
+· "License Fee" : The monetary amount payable by The Licensee to The Licensor in exchange for the rights granted under this Agreement for Commercial Use.
 
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
+---
 
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
+2. GRANT OF LICENSE
 
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+Subject to the terms and conditions of this Agreement, The Licensor hereby grants The Licensee a personal, non-transferable, non-exclusive, and limited license to use The Work solely in accordance with this Agreement. This license does not constitute a transfer of ownership. All rights not expressly granted herein are reserved exclusively by The Licensor.
 
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
+---
 
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
+3. USAGE TYPES AND FINANCIAL OBLIGATIONS
 
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
+3.1 Non-Commercial & Personal Use (Free of Charge)
 
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
+The Licensee is permitted to use The Work for non-commercial purposes free of charge, provided that:
 
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
+· All copyright notices and The Licensor's name are prominently retained in all files and outputs.
+· No modifications are made to the security mechanisms or digital signature verification processes.
 
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
+3.2 Commercial Use (Subject to License Fee)
 
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
+Any Commercial Use of The Work is strictly prohibited without a separate commercial agreement and payment of the License Fee.
 
-   END OF TERMS AND CONDITIONS
+Procedure to Obtain a Commercial License:
 
-   APPENDIX: How to apply the Apache License to your work.
+· The Licensee must submit a formal written request to gamma.mahdii@gmail.com.
+· The Licensor will determine the exact pricing structure based on the intended use case, number of users, and transaction volume, and provide a formal quotation.
+· The Commercial License becomes valid only upon full payment of the invoiced amount to the account designated by The Licensor.
 
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
+---
 
-   Copyright [yyyy] [name of copyright owner]
+4. RESTRICTIONS
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+The Licensee shall not, under any circumstances, perform any of the following acts without the prior explicit written consent of The Licensor:
 
-       http://www.apache.org/licenses/LICENSE-2.0
+· Redistribute, resell, lease, rent, or share The Work (in any form) with any third party.
+· Reverse engineer, decompile, disassemble, or attempt to derive the source code, algorithms, or proprietary Merkle tree structures.
+· Remove, obscure, or alter any copyright notices, trademarks, or references to technical specifications and security features.
+· Use The Work for any unlawful purpose or in a manner that violates the privacy or rights of others.
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+---
+
+5. INTELLECTUAL PROPERTY RIGHTS
+
+All intellectual property rights, including copyrights, trademarks, patents, and trade secrets embodied in The Work, are and shall remain the exclusive property of Mahdi Amoli Moghaddam (The Licensor) . This Agreement does not grant The Licensee any right to use the trade name "Horizon Beacon Chain" or any other trademarks of The Licensor, except as necessary for the ordinary use of The Work.
+
+---
+
+6. DISCLAIMER OF WARRANTY
+
+THE WORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. THE LICENSOR DOES NOT WARRANT THAT THE OPERATION OF THE WORK WILL BE UNINTERRUPTED OR ERROR-FREE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE WORK IS WITH THE LICENSEE.
+
+---
+
+7. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF DATA, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE WORK. THE LICENSOR'S TOTAL CUMULATIVE LIABILITY HEREUNDER SHALL NOT EXCEED THE TOTAL LICENSE FEES PAID BY THE LICENSEE TO THE LICENSOR DURING THE TWELVE (12) MONTHS PRECEDING THE CLAIM.
+
+---
+
+8. TERMINATION
+
+· In the event of a material breach of this Agreement (including, without limitation, Commercial Use without payment or unauthorized disclosure of source code), The Licensor may terminate this license by providing written notice.
+· Upon termination, The Licensee shall immediately cease all use of The Work, delete all copies from its systems, and destroy any backup archives.
+· Clauses relating to Intellectual Property, Disclaimer, Limitation of Liability, and Governing Law shall survive any termination.
+
+---
+
+9. GOVERNING LAW AND DISPUTE RESOLUTION
+
+This Agreement shall be governed by and construed in accordance with the laws of England and Wales. Any dispute arising out of or in connection with this Agreement shall first be attempted to be resolved through direct negotiations between the Parties. If no resolution is reached, the dispute shall be referred to and finally resolved by arbitration administered by the London Court of International Arbitration (LCIA) in London, United Kingdom, in accordance with the LCIA Arbitration Rules.
+
+---
+
+10. GENERAL PROVISIONS
+
+· This Agreement, together with the Appendices, constitutes the entire agreement between the Parties and supersedes all prior communications and understandings.
+· Any amendment or modification to this Agreement must be in writing and signed by both Parties.
+· The failure of either Party to enforce any provision of this Agreement shall not constitute a waiver of future enforcement of that or any other provision.
+· If any provision of this Agreement is held to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.
+
+---
+
+APPENDIX 1: TECHNICAL SPECIFICATIONS
+
+(This Appendix forms an integral part of the Agreement)
+
+Feature Description
+Product Name Horizon Beacon Chain Core Engine
+Development Language Go (Golang)
+Database SQLite (Local, Offline-First)
+Security Architecture Merkle Trees, ECDSA Signatures, CSP Nonce, SHA-256
+Architecture Type Offline-First with IndexedDB & Virtual Scrolling
+Core APIs RESTful (/api/v1/validators, /api/v1/license/generate)
+Security Rating 10 / 10
+Concurrent Support 100,000+ Validators Simultaneously
+
+---
+
+APPENDIX 2: LICENSE FEE & PAYMENT TERMS
+
+(This Appendix forms an integral part of the Agreement)
+
+The exact fee structure depends on the specific commercial application and shall be quoted upon request. Factors include:
+
+· Type of deployment (SaaS, Enterprise, Resale, etc.).
+· Number of concurrent users/nodes.
+· Daily transaction/validation volume.
+
+All commercial license inquiries and payment arrangements must be initiated via email to:
+📧 gamma.mahdii@gmail.com
+
+Payment is typically due as an annual upfront fee or via installment plans as mutually agreed in a separate payment schedule.
+
+---
+
+SIGNATURES
+
+FOR AND ON BEHALF OF THE LICENSOR (Party A - Sole Owner & Developer):
+
+Name: Mahdi Amoli Moghaddam
+Title: Chief Developer & Licensor
+Signature: ____________________________
+Date: _________________
+
+---
+
+FOR AND ON BEHALF OF THE LICENSEE (Party B - Commercial User):
+
+Name: ____________________________
+Title: ____________________________
+Signature: ____________________________
+Date: _________________
+
+---
+
+✅ Final Notes:
+
+· The Apache 2.0 license is completely revoked and replaced by this proprietary B2B agreement.
+· The "Islamic Republic" reference is removed.
+· The UK Governing Law (LCIA) ensures international neutrality.
+· The Horizon Beacon Chain ASCII header with emojis (🚀⛓️🔗) is now embedded at the top for branding.
