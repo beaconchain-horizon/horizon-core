@@ -30,7 +30,7 @@ type Transaction struct {
 func connectOnlineDB() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "postgresql://root:Ck925kQ1Qe3ypJvDyLIDoX3g@horizon:5432/postgres?sslmode=disable"
+		dsn = os.Getenv("DATABASE_URL")
 	}
 	var err error
 	if strings.HasPrefix(dsn, "sqlite://") {
