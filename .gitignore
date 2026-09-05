@@ -1,13 +1,10 @@
-# Environment files
 .env
 .env.*
 !.env.example
-
-# Binaries
 main
 *.exe
 *.db
-
-# OS files
+*.sqlite
 .DS_Store
 Thumbs.db
+*.log
