@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	onlineDB  *gorm.DB // PostgreSQL
-	offlineDB *gorm.DB // SQLite
+	onlineDB  *gorm.DB
+	offlineDB *gorm.DB
 )
 
 type Transaction struct {
@@ -68,6 +68,7 @@ func main() {
 	godotenv.Load()
 	connectOnlineDB()
 	connectOfflineDB()
+
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -76,8 +77,13 @@ func main() {
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
-	r.GET("/", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
-	r.GET("/api/v1/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "online"}) })
+
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+	r.GET("/api/v1/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "online"})
+	})
 	r.POST("/api/v1/transactions", func(c *gin.Context) {
 		var tx Transaction
 		c.ShouldBindJSON(&tx)
@@ -107,6 +113,7 @@ func main() {
 		syncTransactions()
 		c.JSON(200, gin.H{"message": "Sync done"})
 	})
+
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		port = "8080"
