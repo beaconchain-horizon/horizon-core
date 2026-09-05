@@ -1,0 +1,13 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Binaries
+main
+*.exe
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
