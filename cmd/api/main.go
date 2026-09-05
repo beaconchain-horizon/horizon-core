@@ -4,13 +4,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -32,23 +33,28 @@ func connectOnlineDB() {
 		dsn = "postgresql://root:Ck925kQ1Qe3ypJvDyLIDoX3g@horizon:5432/postgres?sslmode=disable"
 	}
 	var err error
-	onlineDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if strings.HasPrefix(dsn, "sqlite://") {
+		dsn = strings.TrimPrefix(dsn, "sqlite://")
+		onlineDB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	} else {
+		onlineDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	}
 	if err != nil {
-		log.Printf("⚠️ خطا در اتصال به PostgreSQL: %v", err)
+		log.Printf("Error connecting to primary DB: %v", err)
 		return
 	}
 	onlineDB.AutoMigrate(&Transaction{})
-	log.Println("✅ اتصال به PostgreSQL برقرار شد")
+	log.Println("Connected to primary DB")
 }
 
 func connectOfflineDB() {
 	var err error
 	offlineDB, err = gorm.Open(sqlite.Open("horizon_offline.db"), &gorm.Config{})
 	if err != nil {
-		log.Fatal("خطا در اتصال به SQLite:", err)
+		log.Fatal("Error connecting to SQLite:", err)
 	}
 	offlineDB.AutoMigrate(&Transaction{})
-	log.Println("✅ اتصال به SQLite برقرار شد")
+	log.Println("Connected to SQLite")
 }
 
 func syncTransactions() {
@@ -79,10 +85,10 @@ func main() {
 	}))
 
 	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 	r.GET("/api/v1/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "online"})
+		c.JSON(http.StatusOK, gin.H{"status": "online"})
 	})
 	r.POST("/api/v1/transactions", func(c *gin.Context) {
 		var tx Transaction
@@ -90,12 +96,12 @@ func main() {
 		if onlineDB == nil {
 			tx.Status = "offline"
 			offlineDB.Create(&tx)
-			c.JSON(201, gin.H{"message": "ذخیره آفلاین", "transaction": tx})
+			c.JSON(http.StatusCreated, gin.H{"message": "Saved offline", "transaction": tx})
 			return
 		}
 		tx.Status = "confirmed"
 		onlineDB.Create(&tx)
-		c.JSON(201, gin.H{"message": "ذخیره آنلاین", "transaction": tx})
+		c.JSON(http.StatusCreated, gin.H{"message": "Saved online", "transaction": tx})
 	})
 	r.GET("/api/v1/transactions", func(c *gin.Context) {
 		var offline, online []Transaction
@@ -103,15 +109,15 @@ func main() {
 		if onlineDB != nil {
 			onlineDB.Find(&online)
 		}
-		c.JSON(200, gin.H{"offline": offline, "online": online})
+		c.JSON(http.StatusOK, gin.H{"offline": offline, "online": online})
 	})
 	r.POST("/api/v1/sync", func(c *gin.Context) {
 		if c.GetHeader("X-Admin-Key") != os.Getenv("ADMIN_TOKEN") {
-			c.JSON(401, gin.H{"error": "Unauthorized"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
 		syncTransactions()
-		c.JSON(200, gin.H{"message": "Sync done"})
+		c.JSON(http.StatusOK, gin.H{"message": "Sync done"})
 	})
 
 	port := os.Getenv("SERVER_PORT")
