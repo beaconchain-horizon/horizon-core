@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Core | اکوسیستم مالی آفلاین</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
+        body { background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050a); color: #eef2ff; min-height: 100vh; display: flex; flex-direction: column; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; flex: 1; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #1a2240; margin-bottom: 3rem; }
+        .logo { font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #fff, #4f9eff, #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav a { color: #8fa2dc; text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
+        .nav a:hover { color: #fff; }
+        .hero { text-align: center; padding: 3rem 0; margin-bottom: 2rem; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, #fff, #4f9eff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .hero p { font-size: 1.2rem; color: #8fa2dc; max-width: 700px; margin: 0 auto 2rem; }
+        .cta { display: inline-block; background: #4f9eff; color: #000; padding: 0.8rem 2rem; border-radius: 2rem; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .cta:hover { background: #3a7bd5; transform: translateY(-2px); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .card { background: rgba(20, 26, 44, 0.7); border: 1px solid #1a2240; border-radius: 1.5rem; padding: 2rem; transition: 0.3s; text-decoration: none; color: #eef2ff; display: block; }
+        .card:hover { border-color: #4f9eff; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(79, 158, 255, 0.1); }
+        .card i { font-size: 2.5rem; color: #4f9eff; margin-bottom: 1rem; }
+        .card h2 { font-size: 1.4rem; margin-bottom: 0.5rem; color: #fff; }
+        .card p { font-size: 0.9rem; color: #8fa2dc; line-height: 1.6; }
+        .footer { text-align: center; padding: 1rem 0; border-top: 1px solid #1a2240; color: #475569; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Horizon Core</div>
+            <nav class="nav">
+                <a href="index.html">خانه</a>
+                <a href="admin.html">پنل مدیریت</a>
+                <a href="bank.html">پنل بانک</a>
+                <a href="industry.html">پنل صنایع</a>
+            </nav>
+        </div>
+        <div class="hero">
+            <h1>موتور مرکزی هورایزن</h1>
+            <p>زیرساخت امن، آفلاین و مستقل برای مدیریت تراکنش‌ها، لایسنس‌ها و اعتبارسنجی.</p>
+            <a href="admin.html" class="cta">ورود به پنل مدیریت</a>
+        </div>
+        <div class="grid">
+            <a href="admin.html" class="card">
+                <i class="fas fa-user-shield"></i>
+                <h2>پنل مدیریتی</h2>
+                <p>مدیریت کامل سیستم و تولید لایسنس.</p>
+            </a>
+            <a href="bank.html" class="card">
+                <i class="fas fa-university"></i>
+                <h2>پنل بانک</h2>
+                <p>ویژه شبکه‌های بانکی و شعب.</p>
+            </a>
+            <a href="industry.html" class="card">
+                <i class="fas fa-industry"></i>
+                <h2>پنل صنایع</h2>
+                <p>ویژه پالایشگاه‌ها و معادن.</p>
+            </a>
+        </div>
+    </div>
+    <div class="footer">Horizon Core 2026 - تمامی حقوق محفوظ است.</div>
+</body>
+</html>

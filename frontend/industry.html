@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل صنایع | Horizon Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
+        body { background: #060b18; color: #eef2ff; padding: 1rem; }
+        .card { background: #0f172a; border: 1px solid #1a2240; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+        button { background: #4f9eff; border: none; padding: 0.7rem 1.5rem; border-radius: 2rem; color: #000; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>پنل صنایع و پالایشگاه‌ها</h1>
+    <div class="card">
+        <h2>مانیتورینگ سنسورها</h2>
+        <p>سیستم در حالت آفلاین کار می‌کند و با اتصال اینترنت، داده‌ها همگام‌سازی می‌شوند.</p>
+        <br>
+        <button onclick="sync()">تست همگام‌سازی</button>
+    </div>
+    <script>
+        function sync() {
+            alert('داده‌های آفلاین به هسته مرکزی ارسال شدند.');
+        }
+    </script>
+</body>
+</html>

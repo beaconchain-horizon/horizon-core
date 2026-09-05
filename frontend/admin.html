@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت | Horizon Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
+        body { background: #060b18; color: #eef2ff; padding: 1rem; }
+        .card { background: #0f172a; border: 1px solid #1a2240; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+        input, select { width: 100%; padding: 0.6rem; margin-bottom: 1rem; background: #020617; border: 1px solid #1a2240; border-radius: 0.5rem; color: white; }
+        button { background: #4f9eff; border: none; padding: 0.7rem 1.5rem; border-radius: 2rem; color: #000; font-weight: bold; cursor: pointer; }
+        .console-box { background: #020617; padding: 1rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.8rem; color: #4ade80; border: 1px solid #4f9eff; }
+    </style>
+</head>
+<body>
+    <h1>پنل مدیریتی Horizon</h1>
+    <div class="card">
+        <h2>تولید لایسنس</h2>
+        <input type="text" id="productId" placeholder="Product ID">
+        <input type="text" id="userId" placeholder="User ID">
+        <button onclick="generateLicense()">تولید لایسنس</button>
+        <div class="console-box" id="output">خروجی اینجا نمایش داده می‌شود...</div>
+    </div>
+    <script>
+        const API_BASE = 'https://horizon-backend.liara.run';
+        async function generateLicense() {
+            const body = { product_id: document.getElementById('productId').value, user_id: document.getElementById('userId').value, duration: 8760 };
+            document.getElementById('output').innerText = 'در حال تولید...';
+            try {
+                const res = await fetch(API_BASE + '/api/v1/license/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const data = await res.json();
+                document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+            } catch (e) { document.getElementById('output').innerText = 'Error: ' + e.message; }
+        }
+    </script>
+</body>
+</html>
