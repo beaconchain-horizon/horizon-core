@@ -1,20 +1,22 @@
 # 🔷 Horizon Core Engine
 
 > **Offline‑first, API‑based blockchain validator and license manager.**  
-> Built with **Go**, **SQLite**, **Merkle trees**, and **ECDSA signatures**.
+> Built with **Go**, **PostgreSQL (Core) + SQLite (Offline Cache)**, **Merkle trees**, and **ECDSA signatures**.
 
-Horizon is an open‑source, security‑hardened blockchain monitoring platform that powers a volume‑based prepaid API model using provable Merkle trees.
+Horizon is a sovereign, security‑hardened platform that powers a volume‑based prepaid API model using provable Merkle trees.  
+It operates fully **offline‑first**, meaning all transactions are cached locally and automatically synced to the core engine when connectivity is restored.
 
 ---
 
 ## 🚀 Features
 
-- 🔹 **REST API** for validator management (`/api/v1/validators`)
-- 🔹 **Prepaid license generation** using Merkle tree (`/api/v1/license/generate`)
-- 🔹 **ECDSA digital signatures** for license integrity and verification
-- 🔹 **SQLite** local storage (offline‑ready, zero external dependencies)
-- 🔹 **Environment configuration** via `.env` file
-- 🔹 **Offline‑first architecture** with IndexedDB caching and virtual scrolling
+- 🔹 **Hybrid Database:** PostgreSQL (Core) + SQLite (Local/Offline Cache)
+- 🔹 **REST API** for branches, transactions, and licenses (`/api/v1/...`)
+- 🔹 **Prepaid license generation** using Merkle tree proofs
+- 🔹 **ECDSA digital signatures** for license integrity and transaction verification
+- 🔹 **Auto-Sync Engine:** Automatically synchronizes offline data to the core when the internet is available
+- 🔹 **Multi-Client Support:** Mobile, Video Recorder, and Bank Branch interfaces
+- 🔹 **Environment configuration** via `.env` file (supports Liara Cloud)
 - 🔹 **Security‑hardened** with CSP nonce, SHA‑256 signatures, and offline Merkle proofs
 
 ---
@@ -26,7 +28,7 @@ Horizon is an open‑source, security‑hardened blockchain monitoring platform 
 | **World Rank** | 🥉 **#3** among blockchain explorers (May 2026) |
 | **Security Score** | 🔒 **10/10** – CSP, XSS, GDPR compliant |
 | **Validator Support** | ⚡ **100,000+** validators simultaneously |
-| **Offline Readiness** | 📴 **Full offline capability** with IndexedDB cache |
+| **Offline Readiness** | 📴 **Full offline capability** with SQLite cache + Auto-Sync |
 
 ---
 
@@ -35,12 +37,14 @@ Horizon is an open‑source, security‑hardened blockchain monitoring platform 
 ### Prerequisites
 
 - 🟢 Go 1.24+
-- 🟢 SQLite3 (embedded, no separate installation needed)
+- 🟢 PostgreSQL (for cloud deployment)
+- 🟢 SQLite (embedded, for offline fallback)
 
 ### Installation
 
 ```bash
-git clone https://github.com/beaconchain-horizon/horizon-core-engine.git
-cd horizon-core-engine
+git clone https://github.com/Beaconcha-in/horizon-core.git
+cd horizon-core
 cp .env.example .env
 go mod tidy
+go run ./cmd/api
