@@ -1,44 +1,59 @@
 package license
 
 import (
-	"encoding/hex"
+	"crypto/ecdsa"
+	"encoding/json"
+	"time"
+
 	"horizon-core/internal/crypto"
 )
 
-type PrepaidPackage struct {
-	Volume int
-	Seed   []byte
-	Root   []byte
+type LicenseInfo struct {
+	ID        string    `json:"id"`
+	ProductID string    `json:"product_id"`
+	UserID    string    `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Active    bool      `json:"active"`
+	Signature string    `json:"signature"`
+	RootHash  string    `json:"root_hash"`
 }
 
-func NewPrepaidPackage(volume int) *PrepaidPackage {
-	seed := make([]byte, 32)
-	rand.Read(seed)
-	return &PrepaidPackage{Volume: volume, Seed: seed}
+type LicenseGenerator struct {
+	privateKey *ecdsa.PrivateKey
 }
 
-func (p *PrepaidPackage) Generate() error {
-	leaves := make([][]byte, p.Volume)
-	for i := 0; i < p.Volume; i++ {
-		leafData := append(p.Seed, byte(i>>24), byte(i>>16), byte(i>>8), byte(i))
-		leaves[i] = []byte(crypto.SHA256Hash(leafData))
+func NewLicenseGenerator(privateKey *ecdsa.PrivateKey) *LicenseGenerator {
+	return &LicenseGenerator{privateKey: privateKey}
+}
+
+func (g *LicenseGenerator) GenerateLicense(productID, userID string, duration time.Duration) (*LicenseInfo, error) {
+	data := map[string]interface{}{
+		"product_id": productID,
+		"user_id":    userID,
+		"created_at": time.Now().UTC(),
+		"expires_at": time.Now().UTC().Add(duration),
 	}
-	level := leaves
-	for len(level) > 1 {
-		var next [][]byte
-		for i := 0; i < len(level); i += 2 {
-			if i+1 < len(level) {
-				combined := append(level[i], level[i+1]...)
-				next = append(next, []byte(crypto.SHA256Hash(combined)))
-			} else {
-				next = append(next, level[i])
-			}
-		}
-		level = next
-	}
-	p.Root = level[0]
-	return nil
-}
 
-func (p *PrepaidPackage) RootHex() string { return hex.EncodeToString(p.Root) }
-func (p *PrepaidPackage) SeedHex() string { return hex.EncodeToString(p.Seed) }
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	license := &LicenseInfo{
+		ID:        "lic_" + time.Now().Format("20060102150405"),
+		ProductID: productID,
+		UserID:    userID,
+		CreatedAt: time.Now().UTC(),
+		ExpiresAt: time.Now().UTC().Add(duration),
+		Active:    true,
+	}
+
+	signature, err := crypto.SignData(jsonData, g.privateKey)
+	if err != nil {
+		return nil, err
+	}
+	license.Signature = signature
+
+	return license, nil
+}

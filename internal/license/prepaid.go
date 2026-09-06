@@ -1,10 +1,10 @@
-hpackage license
+package license
 
 import (
 	"crypto/rand"
 	"encoding/hex"
 
-	"horizon-core-engine/internal/crypto"
+	"horizon-core/internal/crypto"
 )
 
 type PrepaidPackage struct {
