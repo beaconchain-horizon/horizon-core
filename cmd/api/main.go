@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/hex"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
