@@ -24,29 +24,17 @@ type License struct {
 }
 
 func main() {
-	// Connect to DB
 	if err := db.InitDB(); err != nil {
 		log.Fatal("DB init failed:", err)
 	}
 	defer db.Close()
 
-	// Ensure private key exists
 	if db.PrivateKey == nil {
-		log.Println("No private key found, generating new one...")
 		privPEM, err := crypto.GenerateKeyPair()
 		if err != nil {
 			log.Fatal("Key generation failed:", err)
 		}
-		if err := db.SavePrivateKey(privPEM); err != nil {
-			log.Fatal("Failed to save private key:", err)
-		}
-		// Reload private key from DB
-		if err := db.InitDB(); err != nil {
-			log.Fatal("Failed to reload DB after key save:", err)
-		}
-		if db.PrivateKey == nil {
-			log.Fatal("Private key still nil after reload")
-		}
+		db.SavePrivateKey(privPEM)
 	}
 
 	r := gin.Default()
@@ -76,13 +64,13 @@ func main() {
 
 		sig, err := crypto.SignData(pkg.Root, db.PrivateKey)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Signing failed: " + err.Error()})
+			c.JSON(500, gin.H{"error": "Signing failed"})
 			return
 		}
 
 		lic := License{
 			ID:        "lic_" + strconv.FormatInt(time.Now().Unix(), 10),
-			Volume:    req.Volume,
+			Volume:    pkg.Volume, // اینجا باید pkg.Volume باشه، نه req.Volume
 			Root:      pkg.RootHex(),
 			Seed:      pkg.SeedHex(),
 			CreatedAt: time.Now(),
