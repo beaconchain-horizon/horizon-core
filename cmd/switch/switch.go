@@ -8,12 +8,12 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(map[string]string{"status": "online"})
-	})
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"service": "Horizon Switch"})
+	})
+
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode(map[string]string{"status": "online"})
 	})
 
 	port := os.Getenv("SWITCH_PORT")
