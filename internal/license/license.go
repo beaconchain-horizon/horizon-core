@@ -56,6 +56,17 @@ func (p *PrepaidPackage) SeedHex() string {
 	return hex.EncodeToString(p.Seed)
 }
 
+// VerifyMerkleProof (تأیید صحت درخت)
+func VerifyMerkleProof(leafHash string, proof []string, rootHash string) bool {
+	currentHash := leafHash
+	for _, sibling := range proof {
+		combined := currentHash + sibling
+		hash := sha256.Sum256([]byte(combined))
+		currentHash = hex.EncodeToString(hash[:])
+	}
+	return currentHash == rootHash
+}
+
 type LicenseInfo struct {
 	ID        string    `json:"id"`
 	ProductID string    `json:"product_id"`
