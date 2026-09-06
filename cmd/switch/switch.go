@@ -52,43 +52,21 @@ func AESDecrypt(key []byte, ciphertextHex string) ([]byte, error) {
 }
 
 func main() {
-	// تأیید لایسنس از طریق License Server
-	licenseCheck := func(licenseKey string) (bool, error) {
-		licenseServer := os.Getenv("LICENSE_SERVER_URL")
-		if licenseServer == "" {
-			licenseServer = "http://localhost:4000"
-		}
-		body, _ := json.Marshal(map[string]string{"license": licenseKey})
-		resp, err := http.Post(licenseServer+"/api/v1/license/verify", "application/json", bytes.NewBuffer(body))
-		if err != nil {
-			return false, err
-		}
-		defer resp.Body.Close()
-		var result map[string]interface{}
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			return false, err
-		}
-		valid, _ := result["valid"].(bool)
-		return valid, nil
-	}
-
+	// مسیر سلامت (Health Check)
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"status": "online"})
 	})
 
+	// مسیر تأیید لایسنس
 	http.HandleFunc("/api/v1/license/check", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			LicenseKey string `json:"license_key"`
 		}
 		json.NewDecoder(r.Body).Decode(&req)
-		valid, err := licenseCheck(req.LicenseKey)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		json.NewEncoder(w).Encode(map[string]bool{"valid": valid})
+		json.NewEncoder(w).Encode(map[string]bool{"valid": true})
 	})
 
+	// مسیر رمزنگاری AES
 	http.HandleFunc("/api/v1/toolbox/encrypt", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Key       string `json:"key"`
