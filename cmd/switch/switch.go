@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 func AESEncrypt(key, plaintext []byte) (string, error) {
