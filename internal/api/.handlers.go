@@ -8,9 +8,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"horizon-core-engine/internal/crypto"
-	"horizon-core-engine/internal/db"
-	"horizon-core-engine/internal/license"
+	"horizon-core/internal/crypto"
+	"horizon-core/internal/db"
+	"horizon-core/internal/license"
 )
 
 type Validator struct {
