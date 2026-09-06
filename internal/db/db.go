@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/glebarez/sqlite"
+	_ "github.com/glebarez/sqlite" // درایور SQLite (بدون نیاز به CGO)
 )
 
 var DB *sql.DB
@@ -27,7 +27,7 @@ func InitDB() error {
 		return err
 	}
 
-	// create tables
+	// ساخت جدول‌ها
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS validators (
 			idx INTEGER PRIMARY KEY,
@@ -51,7 +51,7 @@ func InitDB() error {
 		return err
 	}
 
-	// load existing private key
+	// بارگذاری کلید خصوصی
 	var privPEM string
 	err = DB.QueryRow("SELECT private_key FROM keys LIMIT 1").Scan(&privPEM)
 	if err == nil && privPEM != "" {
