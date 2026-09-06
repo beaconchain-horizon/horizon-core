@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -52,12 +51,10 @@ func AESDecrypt(key []byte, ciphertextHex string) ([]byte, error) {
 }
 
 func main() {
-	// مسیر سلامت (Health Check)
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"status": "online"})
 	})
 
-	// مسیر تأیید لایسنس
 	http.HandleFunc("/api/v1/license/check", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			LicenseKey string `json:"license_key"`
@@ -66,7 +63,6 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]bool{"valid": true})
 	})
 
-	// مسیر رمزنگاری AES
 	http.HandleFunc("/api/v1/toolbox/encrypt", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Key       string `json:"key"`
