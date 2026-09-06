@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/hex"
+	"encoding/json"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -23,6 +26,19 @@ type License struct {
 	Seed      string    `json:"seed"`
 	CreatedAt time.Time `json:"created_at"`
 	Signature string    `json:"signature"`
+}
+
+type Validator struct {
+	Index            int     `json:"index"`
+	PublicKey        string  `json:"public_key"`
+	CurrentBalance   float64 `json:"current_balance"`
+	EffectiveBalance float64 `json:"effective_balance"`
+	ActivationDate   string  `json:"activation_date"`
+	Income1d         float64 `json:"income_1d"`
+	Income7d         float64 `json:"income_7d"`
+	Income14d        float64 `json:"income_14d"`
+	Income30d        float64 `json:"income_30d"`
+	TotalIncome      float64 `json:"total_income"`
 }
 
 func main() {
@@ -121,6 +137,35 @@ func main() {
 		c.ShouldBindJSON(&req)
 		vendor := network.LookupOUI(req.MAC)
 		c.JSON(200, gin.H{"vendor": vendor})
+	})
+
+	// Prices Endpoint
+	r.GET("/api/v1/prices", func(c *gin.Context) {
+		resp, err := http.Get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
+		if err != nil {
+			c.JSON(200, gin.H{
+				"bitcoin":  gin.H{"usd": 64000},
+				"ethereum": gin.H{"usd": 3480},
+				"note":     "Using mock data",
+			})
+			return
+		}
+		defer resp.Body.Close()
+		var data map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&data)
+		c.JSON(200, data)
+	})
+
+	// Validators Endpoint
+	r.GET("/api/v1/validators", func(c *gin.Context) {
+		file, err := ioutil.ReadFile("internal/data/validators.json")
+		if err != nil {
+			c.JSON(500, gin.H{"error": "No validators file"})
+			return
+		}
+		var validators []Validator
+		json.Unmarshal(file, &validators)
+		c.JSON(200, gin.H{"count": len(validators), "validators": validators})
 	})
 
 	port := os.Getenv("SERVER_PORT")
