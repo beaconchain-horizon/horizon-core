@@ -14,12 +14,21 @@ type PrepaidPackage struct {
 }
 
 func NewPrepaidPackage(volume int) *PrepaidPackage {
+	// جلوگیری از کرش در صورت صفر بودن حجم
+	if volume <= 0 {
+		volume = 1
+	}
 	seed := make([]byte, 32)
 	rand.Read(seed)
 	return &PrepaidPackage{Volume: volume, Seed: seed}
 }
 
 func (p *PrepaidPackage) Generate() error {
+	// اگر هنوز صفر بود (به عنوان احتیاط)، یک برگ بساز
+	if p.Volume <= 0 {
+		p.Volume = 1
+	}
+
 	leaves := make([][]byte, p.Volume)
 	for i := 0; i < p.Volume; i++ {
 		leafData := append(p.Seed, byte(i>>24), byte(i>>16), byte(i>>8), byte(i))
