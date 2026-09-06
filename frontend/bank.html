@@ -1,40 +1,48 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>پنل بانک Horizon</title>
-<style>
-body { background: #060b18; color: #fff; font-family: Tahoma, sans-serif; padding: 20px; }
-.card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-input, button { padding: 10px; margin: 5px 0; width: 100%; border-radius: 8px; border: 1px solid #334155; background: #020617; color: #fff; }
-button { background: #4f9eff; cursor: pointer; font-weight: bold; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { border: 1px solid #1e293b; padding: 8px; text-align: center; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل بانک Horizon</title>
+    <style>
+        body { background: #060b18; color: #fff; font-family: Tahoma, sans-serif; padding: 20px; }
+        .card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        input, button { padding: 10px; margin: 5px 0; width: 100%; border-radius: 8px; border: 1px solid #334155; background: #020617; color: #fff; }
+        button { background: #4f9eff; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #1e293b; padding: 8px; text-align: center; }
+    </style>
 </head>
 <body>
-<h2>پنل بانک Horizon</h2>
-<div class="card">
-<h3>ثبت تراکنش</h3>
-<input id="amount" type="number" placeholder="مبلغ (ریال)">
-<button onclick="submitTx()">ثبت تراکنش</button>
-<div id="output" style="margin-top:10px; background:#020617; padding:10px; border-radius:8px; color:#4ade80;"></div>
-</div>
-<div class="card">
-<h3>لیست تراکنشها</h3>
-<button onclick="loadTx()">بارگذاری</button>
-<table><thead><tr><th>ID</th><th>مبلغ</th><th>وضعیت</th><th>زمان</th></tr></thead><tbody id="tbl"></tbody></table>
-</div>
+    <h2>پنل بانک Horizon</h2>
+
+    <div class="card">
+        <h3>ثبت تراکنش</h3>
+        <input id="amount" type="number" placeholder="مبلغ (ریال)">
+        <button onclick="submitTx()">ثبت تراکنش</button>
+    </div>
+
+    <div class="card">
+        <h3>لیست تراکنش‌ها</h3>
+        <button onclick="loadTx()">بارگذاری</button>
+        <table><thead><tr><th>ID</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody id="txTable"></tbody></table>
+    </div>
+
 <script>
 const API='https://horizon-backend.liara.run';
+
 async function submitTx(){
-const b={amount:parseInt(document.getElementById('amount').value),status:'confirmed'};
-const r=await fetch(API+'/api/v1/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-const d=await r.json();document.getElementById('output').innerText=JSON.stringify(d,null,2);loadTx();}
+    const b={amount:parseInt(document.getElementById('amount').value),status:'confirmed',type:'deposit'};
+    await fetch(API+'/api/v1/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+    loadTx();
+}
+
 async function loadTx(){
-const r=await fetch(API+'/api/v1/transactions');
-const d=await r.json();let h='';d.forEach(t=>{h+='<tr><td>'+t.id+'</td><td>'+t.amount+'</td><td>'+t.status+'</td><td>'+new Date(t.created_at).toLocaleString()+'</td></tr>'});document.getElementById('tbl').innerHTML=h;}
+    const r=await fetch(API+'/api/v1/transactions'); const d=await r.json(); let h='';
+    d.forEach(t=>{h+='<tr><td>'+t.id+'</td><td>'+t.amount+'</td><td>'+t.status+'</td></tr>'});
+    document.getElementById('txTable').innerHTML=h;
+}
+
 loadTx();
 </script>
 </body>

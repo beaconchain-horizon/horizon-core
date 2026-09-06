@@ -17,57 +17,47 @@
     <h2>پنل مدیریت Horizon</h2>
 
     <div class="card">
-        <h3>ثبت مشتری جدید</h3>
-        <input id="custName" placeholder="نام کامل">
-        <input id="custEmail" placeholder="ایمیل">
-        <input id="custWallet" placeholder="آدرس ولت">
-        <button onclick="createCustomer()">ثبت مشتری</button>
+        <h3>تولید لایسنس</h3>
+        <input id="prodId" placeholder="Product ID" value="horizon-core">
+        <input id="userId" placeholder="User ID" value="bank_melli">
+        <input id="duration" type="number" placeholder="مدت (ساعت)" value="8760">
+        <button onclick="generateLicense()">تولید لایسنس</button>
     </div>
 
     <div class="card">
-        <h3>لیست مشتریان</h3>
-        <button onclick="loadCustomers()">بارگذاری مشتریان</button>
-        <table><thead><tr><th>ID</th><th>نام</th><th>ایمیل</th></tr></thead><tbody id="custTable"></tbody></table>
+        <h3>لیست لایسنس‌ها</h3>
+        <button onclick="loadLicenses()">بارگذاری</button>
+        <table><thead><tr><th>ID</th><th>کاربر</th><th>محصول</th><th>وضعیت</th></tr></thead><tbody id="licTable"></tbody></table>
     </div>
 
     <div class="card">
-        <h3>ثبت پرداخت جدید</h3>
-        <input id="payCustId" type="number" placeholder="شناسه مشتری">
-        <input id="payAmount" type="number" placeholder="مبلغ">
-        <input id="payCurrency" placeholder="واحد (ETH/USD)">
-        <button onclick="createPayment()">ثبت پرداخت</button>
-    </div>
-
-    <div class="card">
-        <h3>لیست پرداخت‌ها</h3>
-        <button onclick="loadPayments()">بارگذاری پرداخت‌ها</button>
-        <table><thead><tr><th>ID</th><th>مشتری</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody id="payTable"></tbody></table>
+        <h3>لیست تراکنش‌ها</h3>
+        <button onclick="loadTransactions()">بارگذاری</button>
+        <table><thead><tr><th>ID</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody id="txTable"></tbody></table>
     </div>
 
 <script>
 const API='https://horizon-backend.liara.run';
 
-async function createCustomer(){
-    const b={full_name:document.getElementById('custName').value,email:document.getElementById('custEmail').value,wallet:document.getElementById('custWallet').value};
-    await fetch(API+'/api/v1/customers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-    loadCustomers();
+async function generateLicense(){
+    const b={product_id:document.getElementById('prodId').value,user_id:document.getElementById('userId').value,duration:parseInt(document.getElementById('duration').value),volume:100};
+    await fetch(API+'/api/v1/license/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+    loadLicenses();
 }
-async function loadCustomers(){
-    const r=await fetch(API+'/api/v1/customers'); const d=await r.json(); let h='';
-    d.forEach(c=>{h+='<tr><td>'+c.id+'</td><td>'+c.full_name+'</td><td>'+c.email+'</td></tr>'});
-    document.getElementById('custTable').innerHTML=h;
+
+async function loadLicenses(){
+    const r=await fetch(API+'/api/v1/licenses'); const d=await r.json(); let h='';
+    d.forEach(l=>{h+='<tr><td>'+l.id+'</td><td>'+l.user_id+'</td><td>'+l.product_id+'</td><td>'+l.status+'</td></tr>'});
+    document.getElementById('licTable').innerHTML=h;
 }
-async function createPayment(){
-    const b={customer_id:parseInt(document.getElementById('payCustId').value),amount:parseFloat(document.getElementById('payAmount').value),currency:document.getElementById('payCurrency').value,status:'pending'};
-    await fetch(API+'/api/v1/payments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-    loadPayments();
+
+async function loadTransactions(){
+    const r=await fetch(API+'/api/v1/transactions'); const d=await r.json(); let h='';
+    d.forEach(t=>{h+='<tr><td>'+t.id+'</td><td>'+t.amount+'</td><td>'+t.status+'</td></tr>'});
+    document.getElementById('txTable').innerHTML=h;
 }
-async function loadPayments(){
-    const r=await fetch(API+'/api/v1/payments'); const d=await r.json(); let h='';
-    d.forEach(p=>{h+='<tr><td>'+p.id+'</td><td>'+p.customer_id+'</td><td>'+p.amount+' '+p.currency+'</td><td>'+p.status+'</td></tr>'});
-    document.getElementById('payTable').innerHTML=h;
-}
-loadCustomers(); loadPayments();
+
+loadLicenses(); loadTransactions();
 </script>
 </body>
 </html>
