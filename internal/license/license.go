@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// PrepaidPackage (Merkle Tree)
 type PrepaidPackage struct {
 	Volume int
 	Seed   []byte
@@ -29,7 +28,7 @@ func (p *PrepaidPackage) Generate() error {
 	for i := 0; i < p.Volume; i++ {
 		leafData := append(p.Seed, byte(i>>24), byte(i>>16), byte(i>>8), byte(i))
 		hash := sha256.Sum256(leafData)
-		leaves[i] = hex.EncodeToString(hash[:])
+		leaves[i] = hash[:]
 	}
 	level := leaves
 	for len(level) > 1 {
@@ -38,14 +37,14 @@ func (p *PrepaidPackage) Generate() error {
 			if i+1 < len(level) {
 				combined := append(level[i], level[i+1]...)
 				hash := sha256.Sum256(combined)
-				next = append(next, hex.EncodeToString(hash[:]))
+				next = append(next, hash[:])
 			} else {
 				next = append(next, level[i])
 			}
 		}
 		level = next
 	}
-	p.Root, _ = hex.DecodeString(level[0])
+	p.Root = level[0]
 	return nil
 }
 
@@ -57,7 +56,6 @@ func (p *PrepaidPackage) SeedHex() string {
 	return hex.EncodeToString(p.Seed)
 }
 
-// LicenseInfo
 type LicenseInfo struct {
 	ID        string    `json:"id"`
 	ProductID string    `json:"product_id"`
