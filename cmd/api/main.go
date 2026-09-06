@@ -24,17 +24,29 @@ type License struct {
 }
 
 func main() {
+	// Connect to DB
 	if err := db.InitDB(); err != nil {
 		log.Fatal("DB init failed:", err)
 	}
 	defer db.Close()
 
+	// Ensure private key exists
 	if db.PrivateKey == nil {
+		log.Println("No private key found, generating new one...")
 		privPEM, err := crypto.GenerateKeyPair()
 		if err != nil {
 			log.Fatal("Key generation failed:", err)
 		}
-		db.SavePrivateKey(privPEM)
+		if err := db.SavePrivateKey(privPEM); err != nil {
+			log.Fatal("Failed to save private key:", err)
+		}
+		// Reload private key from DB
+		if err := db.InitDB(); err != nil {
+			log.Fatal("Failed to reload DB after key save:", err)
+		}
+		if db.PrivateKey == nil {
+			log.Fatal("Private key still nil after reload")
+		}
 	}
 
 	r := gin.Default()
@@ -64,7 +76,7 @@ func main() {
 
 		sig, err := crypto.SignData(pkg.Root, db.PrivateKey)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Signing failed"})
+			c.JSON(500, gin.H{"error": "Signing failed: " + err.Error()})
 			return
 		}
 
