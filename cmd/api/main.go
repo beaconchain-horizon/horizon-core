@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
 	"horizon-core/internal/license"
+	"horizon-core/internal/network"
 )
 
 type License struct {
@@ -28,14 +30,6 @@ func main() {
 		log.Fatal("DB init failed:", err)
 	}
 	defer db.Close()
-
-	if db.PrivateKey == nil {
-		privPEM, err := crypto.GenerateKeyPair()
-		if err != nil {
-			log.Fatal("Key generation failed:", err)
-		}
-		db.SavePrivateKey(privPEM)
-	}
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
@@ -55,28 +49,78 @@ func main() {
 			Volume int `json:"volume"`
 		}
 		c.ShouldBindJSON(&req)
-
 		pkg := license.NewPrepaidPackage(req.Volume)
 		if err := pkg.Generate(); err != nil {
 			c.JSON(500, gin.H{"error": "Merkle generation failed"})
 			return
 		}
-
 		sig, err := crypto.SignData(pkg.Root, db.PrivateKey)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Signing failed"})
 			return
 		}
-
 		lic := License{
 			ID:        "lic_" + strconv.FormatInt(time.Now().Unix(), 10),
-			Volume:    pkg.Volume, // اینجا باید pkg.Volume باشه، نه req.Volume
+			Volume:    pkg.Volume,
 			Root:      pkg.RootHex(),
 			Seed:      pkg.SeedHex(),
 			CreatedAt: time.Now(),
 			Signature: sig,
 		}
 		c.JSON(201, lic)
+	})
+
+	// Toolbox Endpoints
+	r.POST("/api/v1/toolbox/encrypt", func(c *gin.Context) {
+		var req struct {
+			Key       string `json:"key"`
+			Plaintext string `json:"plaintext"`
+		}
+		c.ShouldBindJSON(&req)
+		key, _ := hex.DecodeString(req.Key)
+		res, err := crypto.EncryptAES(key, req.Plaintext)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, gin.H{"ciphertext": res})
+	})
+
+	r.POST("/api/v1/toolbox/decrypt", func(c *gin.Context) {
+		var req struct {
+			Key        string `json:"key"`
+			Ciphertext string `json:"ciphertext"`
+		}
+		c.ShouldBindJSON(&req)
+		key, _ := hex.DecodeString(req.Key)
+		res, err := crypto.DecryptAES(key, req.Ciphertext)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, gin.H{"plaintext": res})
+	})
+
+	r.POST("/api/v1/toolbox/subnet", func(c *gin.Context) {
+		var req struct {
+			CIDR string `json:"cidr"`
+		}
+		c.ShouldBindJSON(&req)
+		info, err := network.CalculateSubnet(req.CIDR)
+		if err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, info)
+	})
+
+	r.POST("/api/v1/toolbox/mac", func(c *gin.Context) {
+		var req struct {
+			MAC string `json:"mac"`
+		}
+		c.ShouldBindJSON(&req)
+		vendor := network.LookupOUI(req.MAC)
+		c.JSON(200, gin.H{"vendor": vendor})
 	})
 
 	port := os.Getenv("SERVER_PORT")
