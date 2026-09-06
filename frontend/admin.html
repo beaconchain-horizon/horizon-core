@@ -25,15 +25,9 @@
     </div>
 
     <div class="card">
-        <h3>لیست لایسنس‌ها</h3>
-        <button onclick="loadLicenses()">بارگذاری</button>
-        <table><thead><tr><th>ID</th><th>کاربر</th><th>محصول</th><th>وضعیت</th></tr></thead><tbody id="licTable"></tbody></table>
-    </div>
-
-    <div class="card">
-        <h3>لیست تراکنش‌ها</h3>
-        <button onclick="loadTransactions()">بارگذاری</button>
-        <table><thead><tr><th>ID</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody id="txTable"></tbody></table>
+        <h3>لیست ولیدیتورها (Validators)</h3>
+        <button onclick="loadValidators()">بارگذاری ولیدیتورها</button>
+        <table><thead><tr><th>Index</th><th>وضعیت</th><th>موجودی</th><th>درآمد کل</th></tr></thead><tbody id="valTable"></tbody></table>
     </div>
 
 <script>
@@ -42,22 +36,18 @@ const API='https://horizon-backend.liara.run';
 async function generateLicense(){
     const b={product_id:document.getElementById('prodId').value,user_id:document.getElementById('userId').value,duration:parseInt(document.getElementById('duration').value),volume:100};
     await fetch(API+'/api/v1/license/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-    loadLicenses();
 }
 
-async function loadLicenses(){
-    const r=await fetch(API+'/api/v1/licenses'); const d=await r.json(); let h='';
-    d.forEach(l=>{h+='<tr><td>'+l.id+'</td><td>'+l.user_id+'</td><td>'+l.product_id+'</td><td>'+l.status+'</td></tr>'});
-    document.getElementById('licTable').innerHTML=h;
+async function loadValidators(){
+    const r=await fetch(API+'/api/v1/validators');
+    const d=await r.json();
+    let h='';
+    d.forEach(v=>{
+        h+='<tr><td>'+v.index+'</td><td>'+v.status+'</td><td>'+v.balance+'</td><td>'+v.total_income+'</td></tr>';
+    });
+    document.getElementById('valTable').innerHTML=h;
 }
-
-async function loadTransactions(){
-    const r=await fetch(API+'/api/v1/transactions'); const d=await r.json(); let h='';
-    d.forEach(t=>{h+='<tr><td>'+t.id+'</td><td>'+t.amount+'</td><td>'+t.status+'</td></tr>'});
-    document.getElementById('txTable').innerHTML=h;
-}
-
-loadLicenses(); loadTransactions();
+loadValidators();
 </script>
 </body>
 </html>
