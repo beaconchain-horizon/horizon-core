@@ -37,21 +37,14 @@ type Payment struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-type Validator struct {
-	Index   int     `json:"index" gorm:"primaryKey"`
-	Status  string  `json:"status"`
-	Balance float64 `json:"balance"`
-}
-
-type License struct {
+type LicenseRecord struct {
 	ID        string    `json:"id" gorm:"primaryKey"`
 	Volume    int       `json:"volume"`
-	Root      string    `json:"root"`
-	Seed      string    `json:"seed"`
+	Used      int       `json:"used"`
+	ProductID string    `json:"product_id"`
+	UserID    string    `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
-	Signature string    `json:"signature"`
-	Status    string    `json:"status"`
-	Expiry    time.Time `json:"expiry"`
+	Status    string    `json:"status"` // active, suspended, empty
 }
 
 type Transaction struct {
@@ -75,7 +68,7 @@ func connectPostgres() {
 		log.Printf("PostgreSQL connection failed, using SQLite only: %v", err)
 		return
 	}
-	pgDB.AutoMigrate(&Customer{}, &Payment{}, &Validator{}, &License{}, &Transaction{})
+	pgDB.AutoMigrate(&Customer{}, &Payment{}, &LicenseRecord{}, &Transaction{})
 	log.Println("PostgreSQL connected")
 }
 
@@ -91,7 +84,7 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
@@ -100,7 +93,8 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "online"})
 	})
 
-	// License Generation
+	// ================== License & Switch Logic ==================
+	// تولید لایسنس جدید (فقط ادمین)
 	r.POST("/api/v1/license/generate", func(c *gin.Context) {
 		var req struct {
 			ProductID string `json:"product_id"`
@@ -122,65 +116,93 @@ func main() {
 			return
 		}
 
-		lic := License{
+		lic := LicenseRecord{
 			ID:        "lic_" + strconv.FormatInt(time.Now().Unix(), 10),
-			Volume:    pkg.Volume,
-			Root:      pkg.RootHex(),
-			Seed:      pkg.SeedHex(),
+			Volume:    req.Volume,
+			Used:      0,
+			ProductID: req.ProductID,
+			UserID:    req.UserID,
 			CreatedAt: time.Now(),
-			Signature: sig,
 			Status:    "active",
-			Expiry:    time.Now().Add(time.Duration(req.Duration) * time.Hour),
 		}
+
 		if pgDB != nil {
 			pgDB.Create(&lic)
 		}
-		c.JSON(http.StatusCreated, lic)
+
+		c.JSON(http.StatusCreated, gin.H{
+			"id":        lic.ID,
+			"volume":    lic.Volume,
+			"root":      pkg.RootHex(),
+			"seed":      pkg.SeedHex(),
+			"signature": sig,
+		})
 	})
 
-	// List Licenses
-	r.GET("/api/v1/licenses", func(c *gin.Context) {
-		var licenses []License
+	// بررسی وضعیت لایسنس
+	r.GET("/api/v1/licenses/status/:id", func(c *gin.Context) {
+		licenseID := c.Param("id")
+		var lic LicenseRecord
 		if pgDB != nil {
-			pgDB.Find(&licenses)
-		}
-		c.JSON(http.StatusOK, licenses)
-	})
-
-	// Verify License
-	r.POST("/api/v1/license/verify", func(c *gin.Context) {
-		var req struct {
-			License string `json:"license"`
-		}
-		c.ShouldBindJSON(&req)
-		var lic License
-		if pgDB != nil {
-			if err := pgDB.Where("id = ?", req.License).First(&lic).Error; err != nil {
+			if err := pgDB.Where("id = ?", licenseID).First(&lic).Error; err != nil {
 				c.JSON(http.StatusNotFound, gin.H{"valid": false, "error": "License not found"})
 				return
 			}
 		}
-		valid := lic.Status == "active" && time.Now().Before(lic.Expiry)
-		c.JSON(http.StatusOK, gin.H{"valid": valid, "expiry": lic.Expiry})
+		remaining := lic.Volume - lic.Used
+		valid := lic.Status == "active" && remaining > 0
+		c.JSON(http.StatusOK, gin.H{
+			"valid":     valid,
+			"remaining": remaining,
+			"status":    lic.Status,
+		})
 	})
 
-	// Suspend All
-	r.POST("/api/v1/license/suspend-all", func(c *gin.Context) {
-		if pgDB != nil {
-			pgDB.Model(&License{}).Where("status = ?", "active").Update("status", "suspended")
+	// اجرای عملیات (نیاز به لایسنس) - اینجا سوئیچ عمل می‌کند
+	r.POST("/api/v1/operation/execute", func(c *gin.Context) {
+		licenseID := c.GetHeader("X-License-Key")
+		if licenseID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing License Key"})
+			return
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "All licenses suspended"})
-	})
 
-	// Renew All
-	r.POST("/api/v1/license/renew-all", func(c *gin.Context) {
+		var lic LicenseRecord
 		if pgDB != nil {
-			pgDB.Model(&License{}).Update("status", "active")
+			if err := pgDB.Where("id = ?", licenseID).First(&lic).Error; err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid License"})
+				return
+			}
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "All licenses renewed"})
+
+		if lic.Status != "active" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "License is suspended"})
+			return
+		}
+
+		if lic.Used >= lic.Volume {
+			c.JSON(http.StatusForbidden, gin.H{"error": "License quota exhausted"})
+			return
+		}
+
+		// کاهش حجم (شمارش مصرف)
+		lic.Used++
+		if pgDB != nil {
+			pgDB.Save(&lic)
+		}
+
+		var tx Transaction
+		if err := c.ShouldBindJSON(&tx); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if pgDB != nil {
+			pgDB.Create(&tx)
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Operation executed successfully", "remaining": lic.Volume - lic.Used})
 	})
 
-	// Toolbox Endpoints
+	// ================== Toolbox Endpoints ==================
 	r.POST("/api/v1/toolbox/encrypt", func(c *gin.Context) {
 		var req struct {
 			Key       string `json:"key"`
@@ -233,7 +255,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"vendor": vendor})
 	})
 
-	// Customer Endpoints
+	// ================== Customers & Payments ==================
 	r.POST("/api/v1/customers", func(c *gin.Context) {
 		var cust Customer
 		if err := c.ShouldBindJSON(&cust); err != nil {
@@ -254,7 +276,6 @@ func main() {
 		c.JSON(http.StatusOK, customers)
 	})
 
-	// Payment Endpoints
 	r.POST("/api/v1/payments", func(c *gin.Context) {
 		var pay Payment
 		if err := c.ShouldBindJSON(&pay); err != nil {
@@ -273,48 +294,6 @@ func main() {
 			pgDB.Find(&payments)
 		}
 		c.JSON(http.StatusOK, payments)
-	})
-
-	// Transaction Endpoints
-	r.POST("/api/v1/transactions", func(c *gin.Context) {
-		var tx Transaction
-		if err := c.ShouldBindJSON(&tx); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		if pgDB != nil {
-			pgDB.Create(&tx)
-		}
-		c.JSON(http.StatusCreated, tx)
-	})
-
-	r.GET("/api/v1/transactions", func(c *gin.Context) {
-		var transactions []Transaction
-		if pgDB != nil {
-			pgDB.Find(&transactions)
-		}
-		c.JSON(http.StatusOK, transactions)
-	})
-
-	// Validator Endpoints
-	r.GET("/api/v1/validators", func(c *gin.Context) {
-		var validators []Validator
-		if pgDB != nil {
-			pgDB.Find(&validators)
-		}
-		c.JSON(http.StatusOK, validators)
-	})
-
-	r.POST("/api/v1/validators", func(c *gin.Context) {
-		var v Validator
-		if err := c.ShouldBindJSON(&v); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		if pgDB != nil {
-			pgDB.Create(&v)
-		}
-		c.JSON(http.StatusCreated, v)
 	})
 
 	port := os.Getenv("SERVER_PORT")
