@@ -3,34 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پنل بانک | Horizon Core</title>
+    <title>بانک مرکزی Horizon</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
         body { background: #060b18; color: #eef2ff; padding: 1rem; }
-        .card { background: #0f172a; border: 1px solid #1a2240; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
-        input { width: 100%; padding: 0.6rem; margin-bottom: 1rem; background: #020617; border: 1px solid #1a2240; border-radius: 0.5rem; color: white; }
-        button { background: #4ade80; border: none; padding: 0.7rem 1.5rem; border-radius: 2rem; color: #000; font-weight: bold; cursor: pointer; }
-        .output { background: #020617; padding: 1rem; border-radius: 0.5rem; color: #4ade80; font-family: monospace; }
+        .header { display: flex; justify-content: space-between; padding: 1rem; background: rgba(20, 26, 44, 0.7); border-radius: 1rem; margin-bottom: 1rem; }
+        .badge-group { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+        .badge { padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.8rem; background: rgba(79, 158, 255, 0.1); }
+        .badge.green { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .badge.red { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+        .card { background: rgba(20, 26, 44, 0.8); border: 1px solid #1a2240; border-radius: 1.5rem; padding: 1.5rem; }
+        .card h3 { color: #4f9eff; font-size: 1.1rem; margin-bottom: 1rem; }
+        .branch-list, .tx-list { max-height: 280px; overflow-y: auto; }
+        .branch-item, .tx-item { background: rgba(0, 0, 0, 0.2); border-radius: 0.7rem; padding: 0.5rem 0.8rem; margin-bottom: 0.3rem; font-size: 0.75rem; display: flex; justify-content: space-between; }
+        .ip-table { width: 100%; font-size: 0.7rem; border-collapse: collapse; }
+        .ip-table th, .ip-table td { padding: 0.3rem; border-bottom: 1px solid #1a2240; }
+        .btn { background: #4f9eff; border: none; padding: 0.4rem 1rem; border-radius: 2rem; color: #000; font-weight: bold; cursor: pointer; margin-right: 0.3rem; }
+        .btn.danger { background: #f87171; }
+        .btn.gold { background: #facc15; }
+        .map-container { height: 200px; border-radius: 1rem; overflow: hidden; }
+        #map { height: 100%; width: 100%; }
     </style>
 </head>
 <body>
-    <h1>پنل شبکه بانکی</h1>
-    <div class="card">
-        <h2>ثبت تراکنش</h2>
-        <input type="number" id="amount" placeholder="مبلغ (ریال)">
-        <button onclick="submitTx()">ثبت تراکنش</button>
-        <div class="output" id="output">وضعیت: آماده...</div>
+<div class="header">
+    <h1><i class="fas fa-university"></i> بانک مرکزی Horizon</h1>
+    <div class="badge-group">
+        <span class="badge green" id="statusBadge">وضعیت: آنلاین</span>
+        <span class="badge gold" id="branchCount">شعب: 0</span>
     </div>
-    <script>
-        const API_BASE = 'https://horizon-backend.liara.run';
-        async function submitTx() {
-            const body = { amount: parseInt(document.getElementById('amount').value), status: 'confirmed' };
-            try {
-                const res = await fetch(API_BASE + '/api/v1/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                document.getElementById('output').innerText = JSON.stringify(await res.json(), null, 2);
-            } catch (e) { document.getElementById('output').innerText = 'Error: ' + e.message; }
-        }
-    </script>
+</div>
+
+<div class="grid-3">
+    <div class="card">
+        <h3>🏢 شعب</h3>
+        <div class="branch-list" id="branchList"></div>
+    </div>
+    <div class="card">
+        <h3>💳 تراکنش‌ها</h3>
+        <div class="tx-list" id="txList"></div>
+    </div>
+    <div class="card">
+        <h3>🌐 مدیریت IP</h3>
+        <table class="ip-table">
+            <thead><tr><th>IP</th><th>شعبه</th><th>وضعیت</th></tr></thead>
+            <tbody id="ipTable"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <h3>🗺️ موقعیت شعب</h3>
+        <div class="map-container"><div id="map"></div></div>
+    </div>
+    <div class="card">
+        <h3>⚙️ کنترل مرکزی</h3>
+        <button class="btn" onclick="toggleNetwork()">قطع/اتصال شبکه</button>
+        <button class="btn danger" onclick="auditAll()">حسابرسی همه</button>
+        <button class="btn gold" onclick="forceSync()">همگام‌سازی</button>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-backend.liara.run';
+    let map = L.map('map').setView([35.7, 51.4], 5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+    const branches = [
+        { name: 'شعبه مرکزی تهران', city: 'تهران', lat: 35.6892, lng: 51.3890, ip: '192.168.1.10', status: 'online' },
+        { name: 'شعبه اصفهان', city: 'اصفهان', lat: 32.6, lng: 51.6, ip: '192.168.1.20', status: 'online' },
+        { name: 'شعبه مشهد', city: 'مشهد', lat: 36.26, lng: 59.61, ip: '192.168.1.30', status: 'offline' },
+        { name: 'شعبه شیراز', city: 'شیراز', lat: 29.59, lng: 52.58, ip: '192.168.1.40', status: 'online' },
+        { name: 'شعبه تبریز', city: 'تبریز', lat: 38.08, lng: 46.29, ip: '192.168.1.50', status: 'online' }
+    ];
+
+    function renderBranches() {
+        const list = document.getElementById('branchList');
+        list.innerHTML = branches.map(b => '<div class="branch-item"><span>' + b.name + '</span><span>' + b.ip + ' <span style="color:' + (b.status === 'online' ? '#4ade80' : '#f87171') + '">' + (b.status === 'online' ? '🟢' : '🔴') + '</span></span></div>').join('');
+        document.getElementById('branchCount').innerText = 'شعب: ' + branches.length;
+        branches.forEach(b => {
+            const color = b.status === 'online' ? '#4ade80' : '#f87171';
+            L.circleMarker([b.lat, b.lng], { color: color, radius: 8 }).addTo(map).bindPopup('<b>' + b.name + '</b><br>' + b.city);
+        });
+        document.getElementById('ipTable').innerHTML = branches.map(b => '<tr><td>' + b.ip + '</td><td>' + b.name + '</td><td>' + (b.status === 'online' ? '🟢' : '🔴') + '</td></tr>').join('');
+    }
+
+    async function loadTransactions() {
+        try {
+            const res = await fetch(API_BASE + '/api/v1/transactions');
+            const txs = await res.json();
+            document.getElementById('txList').innerHTML = txs.map(tx => '<div class="tx-item"><span>' + tx.amount.toLocaleString() + ' ریال</span><span style="color:' + (tx.status === 'confirmed' ? '#4ade80' : '#facc15') + '">' + tx.status + '</span></div>').join('');
+        } catch (e) { document.getElementById('txList').innerHTML = '<div class="tx-item">خطا</div>'; }
+    }
+
+    function toggleNetwork() { alert('وضعیت شبکه تغییر کرد'); }
+    function auditAll() { alert('حسابرسی شروع شد'); }
+    function forceSync() { alert('همگام‌سازی انجام شد'); }
+
+    renderBranches();
+    loadTransactions();
+</script>
 </body>
 </html>

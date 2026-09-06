@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon License Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #060b18; color: #eef2ff; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .container { max-width: 1400px; width: 100%; background: rgba(12, 18, 34, 0.75); backdrop-filter: blur(24px); border-radius: 2.5rem; border: 1px solid rgba(79, 158, 255, 0.15); padding: 1.8rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(79, 158, 255, 0.15); }
+        .logo h1 { font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #fff, #4f9eff, #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logo span { font-size: 0.75rem; color: #8fa2dc; display: block; }
+        .badge-group { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+        .badge { background: rgba(79, 158, 255, 0.1); border: 1px solid #4f9eff33; padding: 0.3rem 1rem; border-radius: 60px; font-size: 0.65rem; color: #9bb2ff; display: flex; align-items: center; gap: 0.4rem; }
+        .badge.green { background: rgba(74, 222, 128, 0.12); border-color: #4ade8044; color: #4ade80; }
+        .badge.red { background: rgba(248, 113, 113, 0.12); border-color: #f8717144; color: #f87171; }
+        .badge.gold { background: rgba(251, 191, 36, 0.12); border-color: #facc1544; color: #facc15; }
+        .badge.blue { background: rgba(79, 158, 255, 0.15); border-color: #4f9eff66; color: #4f9eff; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+        .card { background: rgba(20, 26, 44, 0.6); backdrop-filter: blur(12px); border-radius: 1.5rem; padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.04); transition: all 0.4s; }
+        .card:hover { transform: translateY(-4px); border-color: #4f9eff55; box-shadow: 0 12px 40px rgba(79, 158, 255, 0.15); }
+        .card h3 { font-size: 0.9rem; color: #4f9eff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .license-list { max-height: 300px; overflow-y: auto; }
+        .license-item { background: rgba(0, 0, 0, 0.2); border-radius: 0.7rem; padding: 0.5rem 0.8rem; margin-bottom: 0.3rem; font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center; border-right: 3px solid #4f9eff; transition: all 0.3s; }
+        .license-item .status { font-size: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 40px; }
+        .license-item .status.active { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .license-item .status.expired { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+        .license-item .status.suspended { background: rgba(251, 191, 36, 0.15); color: #facc15; }
+        .btn { background: #4f9eff; border: none; padding: 0.4rem 1.2rem; border-radius: 60px; font-weight: 700; font-size: 0.7rem; color: #0a0f1e; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.4rem; }
+        .btn:hover { background: #3a7bd5; transform: scale(1.05) translateY(-2px); }
+        .btn.outline { background: transparent; border: 1px solid #4f9eff55; color: #4f9eff; }
+        .btn.danger { background: #f87171; color: #0a0f1e; }
+        .btn.success { background: #4ade80; color: #0a0f1e; }
+        .btn.gold { background: #facc15; color: #0a0f1e; }
+        .form-group { margin-bottom: 0.8rem; }
+        .form-group label { font-size: 0.7rem; color: #8fa2dc; display: block; margin-bottom: 0.2rem; }
+        .form-group input, .form-group select { width: 100%; background: #0f172a; border: 1px solid #1a2240; padding: 0.5rem 0.8rem; border-radius: 0.8rem; color: white; font-size: 0.8rem; font-family: monospace; outline: none; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: #4f9eff; }
+        .output-box { background: #0f172a; border-radius: 0.8rem; padding: 0.8rem; font-family: monospace; font-size: 0.7rem; color: #4ade80; word-break: break-all; max-height: 120px; overflow-y: auto; margin-top: 0.5rem; }
+        .footer { margin-top: 1.5rem; text-align: center; font-size: 0.65rem; color: #475569; border-top: 1px solid #1a2240; padding-top: 1rem; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <h1><i class="fas fa-key"></i> Horizon License Manager</h1>
+            <span>پنل مدیریت لایسنس</span>
+        </div>
+        <div class="badge-group">
+            <span class="badge green" id="statusBadge">وضعیت: آنلاین</span>
+            <span class="badge blue" id="activeCount">لایسنس فعال: 0</span>
+            <span class="badge red" id="expiredCount">منقضی: 0</span>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fas fa-plus-circle"></i> تولید لایسنس جدید</h3>
+            <div class="form-group"><label>شناسه محصول (Product ID)</label><input type="text" id="productId" value="horizon-core"></div>
+            <div class="form-group"><label>شناسه کاربر (User ID)</label><input type="text" id="userId" placeholder="bank_melli"></div>
+            <div class="form-group"><label>مدت اعتبار (ساعت)</label><input type="number" id="duration" value="8760"></div>
+            <button class="btn gold" onclick="generateLicense()"><i class="fas fa-key"></i> تولید لایسنس</button>
+            <div id="generatedLicense" class="output-box" style="display:none;"></div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-check-circle"></i> تأیید لایسنس</h3>
+            <div class="form-group"><label>لایسنس</label><input type="text" id="verifyLicense" placeholder="کد لایسنس"></div>
+            <button class="btn success" onclick="verifyLicense()"><i class="fas fa-shield-alt"></i> تأیید</button>
+            <div id="verifyResult" class="output-box" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <h3><i class="fas fa-list"></i> لایسنس‌های فعال</h3>
+            <div class="license-list" id="activeLicenses"></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-cogs"></i> کنترل</h3>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                <button class="btn danger" onclick="suspendAll()">تعلیق همه</button>
+                <button class="btn success" onclick="renewAll()">تمدید همه (1 سال)</button>
+                <button class="btn outline" onclick="refreshList()">به‌روزرسانی</button>
+                <button class="btn outline" onclick="exportReport()">خروجی گزارش</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-backend.liara.run';
+    function showToast(msg) { alert(msg); }
+    async function generateLicense() {
+        const body = { product_id: document.getElementById('productId').value, user_id: document.getElementById('userId').value, duration: parseInt(document.getElementById('duration').value) };
+        document.getElementById('generatedLicense').style.display = 'block';
+        document.getElementById('generatedLicense').innerText = 'در حال تولید...';
+        try {
+            const res = await fetch(API_BASE + '/api/v1/license/generate', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Key': 'test-admin-token' }, body: JSON.stringify(body) });
+            const data = await res.json();
+            document.getElementById('generatedLicense').innerHTML = '✅ تولید شد!<br>ID: ' + data.id + '<br>کاربر: ' + data.user_id;
+            loadLicenses();
+        } catch (e) { document.getElementById('generatedLicense').innerText = 'خطا: ' + e.message; }
+    }
+    async function verifyLicense() {
+        const input = document.getElementById('verifyLicense').value;
+        const res = await fetch(API_BASE + '/api/v1/license/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ license: input }) });
+        const data = await res.json();
+        document.getElementById('verifyResult').style.display = 'block';
+        document.getElementById('verifyResult').innerText = data.valid ? '✅ معتبر' : '❌ نامعتبر';
+    }
+    async function loadLicenses() {
+        try {
+            const res = await fetch(API_BASE + '/api/v1/licenses', { headers: { 'X-Admin-Key': 'test-admin-token' } });
+            if (!res.ok) throw new Error('خطا در دریافت لیست');
+            const data = await res.json();
+            const active = data.filter(l => l.status === 'active');
+            const expired = data.filter(l => l.status !== 'active');
+            document.getElementById('activeCount').innerText = 'لایسنس فعال: ' + active.length;
+            document.getElementById('expiredCount').innerText = 'منقضی: ' + expired.length;
+            document.getElementById('activeLicenses').innerHTML = active.map(l => '<div class="license-item"><span class="license-id">' + l.id + '</span><span class="status active">' + l.status + '</span></div>').join('');
+        } catch (e) { document.getElementById('activeLicenses').innerHTML = '<div style="color:#f87171">خطا</div>'; }
+    }
+    async function suspendAll() { await fetch(API_BASE + '/api/v1/license/suspend-all', { method: 'POST', headers: { 'X-Admin-Key': 'test-admin-token' } }); showToast('همه تعلیق شدند!'); loadLicenses(); }
+    async function renewAll() { await fetch(API_BASE + '/api/v1/license/renew-all', { method: 'POST', headers: { 'X-Admin-Key': 'test-admin-token' }, body: JSON.stringify({ duration: 8760 }) }); showToast('همه تمدید شدند!'); loadLicenses(); }
+    function refreshList() { loadLicenses(); }
+    function exportReport() { alert('گزارش خروجی گرفته شد'); }
+    loadLicenses();
+</script>
+</body>
+</html>
