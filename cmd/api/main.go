@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"encoding/hex"
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +19,6 @@ import (
 	"horizon-core/internal/network"
 )
 
-// ------------------- Models -------------------
 type Customer struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	FullName  string    `json:"full_name"`
@@ -48,12 +44,22 @@ type Validator struct {
 }
 
 type License struct {
-	ID        string    `json:"id"`
+	ID        string    `json:"id" gorm:"primaryKey"`
 	Volume    int       `json:"volume"`
 	Root      string    `json:"root"`
 	Seed      string    `json:"seed"`
 	CreatedAt time.Time `json:"created_at"`
 	Signature string    `json:"signature"`
+	Status    string    `json:"status"`
+	Expiry    time.Time `json:"expiry"`
+}
+
+type Transaction struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	Amount    int64     `json:"amount"`
+	Status    string    `json:"status"`
+	Type      string    `json:"type"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 var pgDB *gorm.DB
@@ -69,51 +75,9 @@ func connectPostgres() {
 		log.Printf("PostgreSQL connection failed, using SQLite only: %v", err)
 		return
 	}
-	pgDB.AutoMigrate(&Customer{}, &Payment{}, &Validator{})
+	pgDB.AutoMigrate(&Customer{}, &Payment{}, &Validator{}, &License{}, &Transaction{})
 	log.Println("PostgreSQL connected")
 }
-
-// ------------------- AI Integration -------------------
-func callLiaraAI(prompt string) (string, error) {
-	baseURL := os.Getenv("AI_BASE_URL")
-	apiKey := os.Getenv("AI_API_KEY")
-	model := os.Getenv("AI_MODEL_ID")
-
-	if baseURL == "" || apiKey == "" || model == "" {
-		return "", nil // اگر تنظیم نشده بود، چیزی برنگردان
-	}
-
-	requestBody, _ := json.Marshal(map[string]interface{}{
-		"model": model,
-		"messages": []map[string]string{
-			{"role": "system", "content": "You are Horizon AI assistant."},
-			{"role": "user", "content": prompt},
-		},
-	})
-
-	req, _ := http.NewRequest("POST", baseURL+"/chat/completions", bytes.NewBuffer(requestBody))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
-
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	var result map[string]interface{}
-	json.Unmarshal(body, &result)
-
-	if choices, ok := result["choices"].([]interface{}); ok && len(choices) > 0 {
-		first := choices[0].(map[string]interface{})
-		message := first["message"].(map[string]interface{})
-		return message["content"].(string), nil
-	}
-	return "", nil
-}
-// -------------------------------------------------------
 
 func main() {
 	if err := db.InitDB(); err != nil {
@@ -133,40 +97,31 @@ func main() {
 	}))
 
 	r.GET("/api/v1/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "online"})
-	})
-
-	// AI Chat Endpoint
-	r.POST("/api/v1/ai/chat", func(c *gin.Context) {
-		var req struct {
-			Prompt string `json:"prompt"`
-		}
-		c.ShouldBindJSON(&req)
-
-		response, err := callLiaraAI(req.Prompt)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "AI service unavailable"})
-			return
-		}
-		c.JSON(200, gin.H{"response": response})
+		c.JSON(http.StatusOK, gin.H{"status": "online"})
 	})
 
 	// License Generation
 	r.POST("/api/v1/license/generate", func(c *gin.Context) {
 		var req struct {
-			Volume int `json:"volume"`
+			ProductID string `json:"product_id"`
+			UserID    string `json:"user_id"`
+			Volume    int    `json:"volume"`
+			Duration  int    `json:"duration"`
 		}
 		c.ShouldBindJSON(&req)
+
 		pkg := license.NewPrepaidPackage(req.Volume)
 		if err := pkg.Generate(); err != nil {
-			c.JSON(500, gin.H{"error": "Merkle generation failed"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Merkle generation failed"})
 			return
 		}
+
 		sig, err := crypto.SignData(pkg.Root, db.PrivateKey)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Signing failed"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Signing failed"})
 			return
 		}
+
 		lic := License{
 			ID:        "lic_" + strconv.FormatInt(time.Now().Unix(), 10),
 			Volume:    pkg.Volume,
@@ -174,8 +129,55 @@ func main() {
 			Seed:      pkg.SeedHex(),
 			CreatedAt: time.Now(),
 			Signature: sig,
+			Status:    "active",
+			Expiry:    time.Now().Add(time.Duration(req.Duration) * time.Hour),
 		}
-		c.JSON(201, lic)
+		if pgDB != nil {
+			pgDB.Create(&lic)
+		}
+		c.JSON(http.StatusCreated, lic)
+	})
+
+	// List Licenses
+	r.GET("/api/v1/licenses", func(c *gin.Context) {
+		var licenses []License
+		if pgDB != nil {
+			pgDB.Find(&licenses)
+		}
+		c.JSON(http.StatusOK, licenses)
+	})
+
+	// Verify License
+	r.POST("/api/v1/license/verify", func(c *gin.Context) {
+		var req struct {
+			License string `json:"license"`
+		}
+		c.ShouldBindJSON(&req)
+		var lic License
+		if pgDB != nil {
+			if err := pgDB.Where("id = ?", req.License).First(&lic).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"valid": false, "error": "License not found"})
+				return
+			}
+		}
+		valid := lic.Status == "active" && time.Now().Before(lic.Expiry)
+		c.JSON(http.StatusOK, gin.H{"valid": valid, "expiry": lic.Expiry})
+	})
+
+	// Suspend All
+	r.POST("/api/v1/license/suspend-all", func(c *gin.Context) {
+		if pgDB != nil {
+			pgDB.Model(&License{}).Where("status = ?", "active").Update("status", "suspended")
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "All licenses suspended"})
+	})
+
+	// Renew All
+	r.POST("/api/v1/license/renew-all", func(c *gin.Context) {
+		if pgDB != nil {
+			pgDB.Model(&License{}).Update("status", "active")
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "All licenses renewed"})
 	})
 
 	// Toolbox Endpoints
@@ -188,10 +190,10 @@ func main() {
 		key, _ := hex.DecodeString(req.Key)
 		res, err := crypto.EncryptAES(key, req.Plaintext)
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"ciphertext": res})
+		c.JSON(http.StatusOK, gin.H{"ciphertext": res})
 	})
 
 	r.POST("/api/v1/toolbox/decrypt", func(c *gin.Context) {
@@ -203,10 +205,10 @@ func main() {
 		key, _ := hex.DecodeString(req.Key)
 		res, err := crypto.DecryptAES(key, req.Ciphertext)
 		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, gin.H{"plaintext": res})
+		c.JSON(http.StatusOK, gin.H{"plaintext": res})
 	})
 
 	r.POST("/api/v1/toolbox/subnet", func(c *gin.Context) {
@@ -216,10 +218,10 @@ func main() {
 		c.ShouldBindJSON(&req)
 		info, err := network.CalculateSubnet(req.CIDR)
 		if err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(200, info)
+		c.JSON(http.StatusOK, info)
 	})
 
 	r.POST("/api/v1/toolbox/mac", func(c *gin.Context) {
@@ -228,58 +230,91 @@ func main() {
 		}
 		c.ShouldBindJSON(&req)
 		vendor := network.LookupOUI(req.MAC)
-		c.JSON(200, gin.H{"vendor": vendor})
+		c.JSON(http.StatusOK, gin.H{"vendor": vendor})
 	})
 
 	// Customer Endpoints
 	r.POST("/api/v1/customers", func(c *gin.Context) {
 		var cust Customer
 		if err := c.ShouldBindJSON(&cust); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		pgDB.Create(&cust)
-		c.JSON(201, cust)
+		if pgDB != nil {
+			pgDB.Create(&cust)
+		}
+		c.JSON(http.StatusCreated, cust)
 	})
 
 	r.GET("/api/v1/customers", func(c *gin.Context) {
 		var customers []Customer
-		pgDB.Find(&customers)
-		c.JSON(200, customers)
+		if pgDB != nil {
+			pgDB.Find(&customers)
+		}
+		c.JSON(http.StatusOK, customers)
 	})
 
 	// Payment Endpoints
 	r.POST("/api/v1/payments", func(c *gin.Context) {
 		var pay Payment
 		if err := c.ShouldBindJSON(&pay); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		pgDB.Create(&pay)
-		c.JSON(201, pay)
+		if pgDB != nil {
+			pgDB.Create(&pay)
+		}
+		c.JSON(http.StatusCreated, pay)
 	})
 
 	r.GET("/api/v1/payments", func(c *gin.Context) {
 		var payments []Payment
-		pgDB.Find(&payments)
-		c.JSON(200, payments)
+		if pgDB != nil {
+			pgDB.Find(&payments)
+		}
+		c.JSON(http.StatusOK, payments)
+	})
+
+	// Transaction Endpoints
+	r.POST("/api/v1/transactions", func(c *gin.Context) {
+		var tx Transaction
+		if err := c.ShouldBindJSON(&tx); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if pgDB != nil {
+			pgDB.Create(&tx)
+		}
+		c.JSON(http.StatusCreated, tx)
+	})
+
+	r.GET("/api/v1/transactions", func(c *gin.Context) {
+		var transactions []Transaction
+		if pgDB != nil {
+			pgDB.Find(&transactions)
+		}
+		c.JSON(http.StatusOK, transactions)
 	})
 
 	// Validator Endpoints
 	r.GET("/api/v1/validators", func(c *gin.Context) {
 		var validators []Validator
-		pgDB.Find(&validators)
-		c.JSON(200, validators)
+		if pgDB != nil {
+			pgDB.Find(&validators)
+		}
+		c.JSON(http.StatusOK, validators)
 	})
 
 	r.POST("/api/v1/validators", func(c *gin.Context) {
 		var v Validator
 		if err := c.ShouldBindJSON(&v); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		pgDB.Create(&v)
-		c.JSON(201, v)
+		if pgDB != nil {
+			pgDB.Create(&v)
+		}
+		c.JSON(http.StatusCreated, v)
 	})
 
 	port := os.Getenv("SERVER_PORT")
