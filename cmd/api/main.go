@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
+	"encoding/json"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -38,9 +42,9 @@ type Payment struct {
 }
 
 type Validator struct {
-	Index      int     `json:"index" gorm:"primaryKey"`
-	Status     string  `json:"status"`
-	Balance    float64 `json:"balance"`
+	Index   int     `json:"index" gorm:"primaryKey"`
+	Status  string  `json:"status"`
+	Balance float64 `json:"balance"`
 }
 
 type License struct {
@@ -69,14 +73,54 @@ func connectPostgres() {
 	log.Println("PostgreSQL connected")
 }
 
+// ------------------- AI Integration -------------------
+func callLiaraAI(prompt string) (string, error) {
+	baseURL := os.Getenv("AI_BASE_URL")
+	apiKey := os.Getenv("AI_API_KEY")
+	model := os.Getenv("AI_MODEL_ID")
+
+	if baseURL == "" || apiKey == "" || model == "" {
+		return "", nil // اگر تنظیم نشده بود، چیزی برنگردان
+	}
+
+	requestBody, _ := json.Marshal(map[string]interface{}{
+		"model": model,
+		"messages": []map[string]string{
+			{"role": "system", "content": "You are Horizon AI assistant."},
+			{"role": "user", "content": prompt},
+		},
+	})
+
+	req, _ := http.NewRequest("POST", baseURL+"/chat/completions", bytes.NewBuffer(requestBody))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	var result map[string]interface{}
+	json.Unmarshal(body, &result)
+
+	if choices, ok := result["choices"].([]interface{}); ok && len(choices) > 0 {
+		first := choices[0].(map[string]interface{})
+		message := first["message"].(map[string]interface{})
+		return message["content"].(string), nil
+	}
+	return "", nil
+}
+// -------------------------------------------------------
+
 func main() {
-	// Connect to SQLite (offline/simple storage)
 	if err := db.InitDB(); err != nil {
 		log.Fatal("DB init failed:", err)
 	}
 	defer db.Close()
 
-	// Connect to PostgreSQL (for customers, payments, validators)
 	connectPostgres()
 
 	r := gin.Default()
@@ -90,6 +134,21 @@ func main() {
 
 	r.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "online"})
+	})
+
+	// AI Chat Endpoint
+	r.POST("/api/v1/ai/chat", func(c *gin.Context) {
+		var req struct {
+			Prompt string `json:"prompt"`
+		}
+		c.ShouldBindJSON(&req)
+
+		response, err := callLiaraAI(req.Prompt)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "AI service unavailable"})
+			return
+		}
+		c.JSON(200, gin.H{"response": response})
 	})
 
 	// License Generation
@@ -115,13 +174,6 @@ func main() {
 			Seed:      pkg.SeedHex(),
 			CreatedAt: time.Now(),
 			Signature: sig,
-		}
-		// Store in SQLite if Postgres fails, else in Postgres
-		if pgDB != nil {
-			pgDB.Create(&lic)
-		} else {
-			// Fallback to SQLite (not fully implemented in db.go yet)
-			log.Println("License saved in memory/SQLite only")
 		}
 		c.JSON(201, lic)
 	})
@@ -179,59 +231,56 @@ func main() {
 		c.JSON(200, gin.H{"vendor": vendor})
 	})
 
-	// ------------------- New Endpoints -------------------
-	if pgDB != nil {
-		// Customers
-		r.POST("/api/v1/customers", func(c *gin.Context) {
-			var cust Customer
-			if err := c.ShouldBindJSON(&cust); err != nil {
-				c.JSON(400, gin.H{"error": err.Error()})
-				return
-			}
-			pgDB.Create(&cust)
-			c.JSON(201, cust)
-		})
+	// Customer Endpoints
+	r.POST("/api/v1/customers", func(c *gin.Context) {
+		var cust Customer
+		if err := c.ShouldBindJSON(&cust); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		pgDB.Create(&cust)
+		c.JSON(201, cust)
+	})
 
-		r.GET("/api/v1/customers", func(c *gin.Context) {
-			var customers []Customer
-			pgDB.Find(&customers)
-			c.JSON(200, customers)
-		})
+	r.GET("/api/v1/customers", func(c *gin.Context) {
+		var customers []Customer
+		pgDB.Find(&customers)
+		c.JSON(200, customers)
+	})
 
-		// Payments
-		r.POST("/api/v1/payments", func(c *gin.Context) {
-			var pay Payment
-			if err := c.ShouldBindJSON(&pay); err != nil {
-				c.JSON(400, gin.H{"error": err.Error()})
-				return
-			}
-			pgDB.Create(&pay)
-			c.JSON(201, pay)
-		})
+	// Payment Endpoints
+	r.POST("/api/v1/payments", func(c *gin.Context) {
+		var pay Payment
+		if err := c.ShouldBindJSON(&pay); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		pgDB.Create(&pay)
+		c.JSON(201, pay)
+	})
 
-		r.GET("/api/v1/payments", func(c *gin.Context) {
-			var payments []Payment
-			pgDB.Find(&payments)
-			c.JSON(200, payments)
-		})
+	r.GET("/api/v1/payments", func(c *gin.Context) {
+		var payments []Payment
+		pgDB.Find(&payments)
+		c.JSON(200, payments)
+	})
 
-		// Validators
-		r.GET("/api/v1/validators", func(c *gin.Context) {
-			var validators []Validator
-			pgDB.Find(&validators)
-			c.JSON(200, validators)
-		})
+	// Validator Endpoints
+	r.GET("/api/v1/validators", func(c *gin.Context) {
+		var validators []Validator
+		pgDB.Find(&validators)
+		c.JSON(200, validators)
+	})
 
-		r.POST("/api/v1/validators", func(c *gin.Context) {
-			var v Validator
-			if err := c.ShouldBindJSON(&v); err != nil {
-				c.JSON(400, gin.H{"error": err.Error()})
-				return
-			}
-			pgDB.Create(&v)
-			c.JSON(201, v)
-		})
-	}
+	r.POST("/api/v1/validators", func(c *gin.Context) {
+		var v Validator
+		if err := c.ShouldBindJSON(&v); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		pgDB.Create(&v)
+		c.JSON(201, v)
+	})
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
