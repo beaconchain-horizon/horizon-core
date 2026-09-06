@@ -1,24 +1,25 @@
 package main
 
 import (
+	"crypto/ecdsa"
 	"log"
 	"net/http"
 	"os"
-	"strings"
+	"strconv"
 	"time"
+
+	"horizon-core/internal/crypto"
+	"horizon-core/internal/license"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-var (
-	onlineDB  *gorm.DB
-	offlineDB *gorm.DB
-)
+var db *gorm.DB
+var privateKey *ecdsa.PrivateKey
 
 type Transaction struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
@@ -27,102 +28,74 @@ type Transaction struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func connectOnlineDB() {
+func connectDB() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = os.Getenv("DATABASE_URL")
+		dsn = "sqlite://horizon_offline.db"
 	}
 	var err error
-	if strings.HasPrefix(dsn, "sqlite://") {
-		dsn = strings.TrimPrefix(dsn, "sqlite://")
-		onlineDB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-	} else {
-		onlineDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	}
+	db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Printf("Error connecting to primary DB: %v", err)
-		return
+		log.Fatal("Failed to connect DB:", err)
 	}
-	onlineDB.AutoMigrate(&Transaction{})
-	log.Println("Connected to primary DB")
-}
-
-func connectOfflineDB() {
-	var err error
-	offlineDB, err = gorm.Open(sqlite.Open("horizon_offline.db"), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Error connecting to SQLite:", err)
-	}
-	offlineDB.AutoMigrate(&Transaction{})
-	log.Println("Connected to SQLite")
-}
-
-func syncTransactions() {
-	if onlineDB == nil {
-		return
-	}
-	var offlineTransactions []Transaction
-	offlineDB.Where("status = ?", "offline").Find(&offlineTransactions)
-	for _, tx := range offlineTransactions {
-		tx.Status = "confirmed"
-		onlineDB.Create(&tx)
-	}
-	offlineDB.Delete(&Transaction{}, "status = ?", "offline")
+	db.AutoMigrate(&Transaction{})
 }
 
 func main() {
 	godotenv.Load()
-	connectOnlineDB()
-	connectOfflineDB()
+	connectDB()
+	privateKey, _ = crypto.GenerateKeyPair()
 
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key"},
-		AllowCredentials: false,
-		MaxAge:           12 * time.Hour,
-	}))
+	r.Use(cors.Default())
 
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
-	r.GET("/api/v1/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "online"})
-	})
+	r.GET("/", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
+	r.GET("/api/v1/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "online"}) })
+
 	r.POST("/api/v1/transactions", func(c *gin.Context) {
 		var tx Transaction
 		c.ShouldBindJSON(&tx)
-		if onlineDB == nil {
-			tx.Status = "offline"
-			offlineDB.Create(&tx)
-			c.JSON(http.StatusCreated, gin.H{"message": "Saved offline", "transaction": tx})
-			return
-		}
 		tx.Status = "confirmed"
-		onlineDB.Create(&tx)
-		c.JSON(http.StatusCreated, gin.H{"message": "Saved online", "transaction": tx})
+		db.Create(&tx)
+		c.JSON(201, gin.H{"message": "Saved online", "transaction": tx})
 	})
+
 	r.GET("/api/v1/transactions", func(c *gin.Context) {
-		var offline, online []Transaction
-		offlineDB.Find(&offline)
-		if onlineDB != nil {
-			onlineDB.Find(&online)
-		}
-		c.JSON(http.StatusOK, gin.H{"offline": offline, "online": online})
+		var txs []Transaction
+		db.Find(&txs)
+		c.JSON(200, txs)
 	})
-	r.POST("/api/v1/sync", func(c *gin.Context) {
-		if c.GetHeader("X-Admin-Key") != os.Getenv("ADMIN_TOKEN") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			return
+
+	r.POST("/api/v1/license/generate", func(c *gin.Context) {
+		var req struct {
+			ProductID string `json:"product_id"`
+			UserID    string `json:"user_id"`
+			Volume    int    `json:"volume"`
 		}
-		syncTransactions()
-		c.JSON(http.StatusOK, gin.H{"message": "Sync done"})
+		c.ShouldBindJSON(&req)
+		if req.Volume == 0 { req.Volume = 100 }
+
+		pkg := license.NewPrepaidPackage(req.Volume)
+		pkg.Generate()
+		sig, _ := crypto.SignData([]byte(pkg.RootHex()+":"+strconv.Itoa(req.Volume)), privateKey)
+
+		c.JSON(201, gin.H{
+			"id": "lic_" + strconv.FormatInt(time.Now().Unix(), 10),
+			"product_id": req.ProductID,
+			"user_id": req.UserID,
+			"root": pkg.RootHex(),
+			"seed": pkg.SeedHex(),
+			"signature": sig,
+		})
+	})
+
+	r.POST("/api/v1/license/verify", func(c *gin.Context) {
+		var req struct { Root string `json:"root"` }
+		c.ShouldBindJSON(&req)
+		c.JSON(200, gin.H{"valid": len(req.Root) == 64})
 	})
 
 	port := os.Getenv("SERVER_PORT")
-	if port == "" {
-		port = "8080"
-	}
+	if port == "" { port = "8080" }
 	r.Run(":" + port)
 }
