@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -13,6 +11,7 @@ import (
 
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
+	"horizon-core/internal/license"
 )
 
 type License struct {
@@ -25,13 +24,11 @@ type License struct {
 }
 
 func main() {
-	// Connect to DB (SQLite)
 	if err := db.InitDB(); err != nil {
 		log.Fatal("DB init failed:", err)
 	}
 	defer db.Close()
 
-	// Generate private key if not exists
 	if db.PrivateKey == nil {
 		privPEM, err := crypto.GenerateKeyPair()
 		if err != nil {
@@ -59,13 +56,13 @@ func main() {
 		}
 		c.ShouldBindJSON(&req)
 
-		// Generate Merkle root using internal/crypto
-		seed := make([]byte, 32)
-		// (Simplified for this example: use rand.Read)
-		// You can implement your PrepaidPackage logic here
+		pkg := license.NewPrepaidPackage(req.Volume)
+		if err := pkg.Generate(); err != nil {
+			c.JSON(500, gin.H{"error": "Merkle generation failed"})
+			return
+		}
 
-		// Sign the seed with ECDSA
-		sig, err := crypto.SignData(seed, db.PrivateKey)
+		sig, err := crypto.SignData(pkg.Root, db.PrivateKey)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Signing failed"})
 			return
@@ -74,8 +71,8 @@ func main() {
 		lic := License{
 			ID:        "lic_" + strconv.FormatInt(time.Now().Unix(), 10),
 			Volume:    req.Volume,
-			Root:      "ROOT_PLACEHOLDER", // Replace with actual Merkle Root
-			Seed:      "SEED_PLACEHOLDER",
+			Root:      pkg.RootHex(),
+			Seed:      pkg.SeedHex(),
 			CreatedAt: time.Now(),
 			Signature: sig,
 		}
