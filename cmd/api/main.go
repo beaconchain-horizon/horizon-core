@@ -2,24 +2,29 @@ package main
 
 import (
 	"crypto/ecdsa"
+	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
+	"strings"
 	"time"
-
-	"horizon-core/internal/crypto"
-	"horizon-core/internal/license"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
-	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"horizon-core/internal/crypto"
+	"horizon-core/internal/license"
 )
 
-var db *gorm.DB
-var privateKey *ecdsa.PrivateKey
+var (
+	onlineDB     *gorm.DB
+	offlineDB    *gorm.DB
+	privateKey   *ecdsa.PrivateKey
+)
 
 type Transaction struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
@@ -28,74 +33,142 @@ type Transaction struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func connectDB() {
+type License struct {
+	ID        string    `json:"id" gorm:"primaryKey"`
+	ProductID string    `json:"product_id"`
+	UserID    string    `json:"user_id"`
+	Signature string    `json:"signature"`
+	RootHash  string    `json:"root_hash"`
+	Active    bool      `json:"active"`
+	Expiry    time.Time `json:"expiry"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func connectOnlineDB() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "sqlite://horizon_offline.db"
+		dsn = "postgresql://root:CHANGE_ME@horizon:5432/postgres?sslmode=disable"
 	}
 	var err error
-	db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Failed to connect DB:", err)
+	if strings.HasPrefix(dsn, "sqlite://") {
+		dsn = strings.TrimPrefix(dsn, "sqlite://")
+		onlineDB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	} else {
+		onlineDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	}
-	db.AutoMigrate(&Transaction{})
+	if err != nil {
+		log.Printf("Error connecting to primary DB: %v", err)
+		return
+	}
+	onlineDB.AutoMigrate(&Transaction{}, &License{})
+	log.Println("Connected to primary DB")
+}
+
+func connectOfflineDB() {
+	var err error
+	offlineDB, err = gorm.Open(sqlite.Open("horizon_offline.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Error connecting to SQLite:", err)
+	}
+	offlineDB.AutoMigrate(&Transaction{})
+	log.Println("Connected to SQLite")
 }
 
 func main() {
-	godotenv.Load()
-	connectDB()
-	privateKey, _ = crypto.GenerateKeyPair()
+	// Load .env if exists
+	// (We'll just rely on environment variables)
+
+	connectOnlineDB()
+	connectOfflineDB()
+
+	// Generate or load private key
+	privPEM, _ := crypto.GenerateKeyPair()
+	privateKey, _ = crypto.PEMToPrivateKey(privPEM)
 
 	r := gin.Default()
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}))
 
-	r.GET("/", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
-	r.GET("/api/v1/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "online"}) })
+	// Health
+	r.GET("/api/v1/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "online"})
+	})
 
+	// Transactions (hybrid)
 	r.POST("/api/v1/transactions", func(c *gin.Context) {
 		var tx Transaction
 		c.ShouldBindJSON(&tx)
+		if onlineDB == nil {
+			tx.Status = "offline"
+			offlineDB.Create(&tx)
+			c.JSON(201, gin.H{"message": "Saved offline", "transaction": tx})
+			return
+		}
 		tx.Status = "confirmed"
-		db.Create(&tx)
+		onlineDB.Create(&tx)
 		c.JSON(201, gin.H{"message": "Saved online", "transaction": tx})
 	})
 
 	r.GET("/api/v1/transactions", func(c *gin.Context) {
-		var txs []Transaction
-		db.Find(&txs)
-		c.JSON(200, txs)
+		var offline, online []Transaction
+		offlineDB.Find(&offline)
+		if onlineDB != nil {
+			onlineDB.Find(&online)
+		}
+		c.JSON(200, gin.H{"offline": offline, "online": online})
 	})
 
+	// License Generation with Merkle + ECDSA
 	r.POST("/api/v1/license/generate", func(c *gin.Context) {
 		var req struct {
 			ProductID string `json:"product_id"`
 			UserID    string `json:"user_id"`
-			Volume    int    `json:"volume"`
+			Duration  int    `json:"duration"` // in hours
 		}
 		c.ShouldBindJSON(&req)
-		if req.Volume == 0 { req.Volume = 100 }
 
-		pkg := license.NewPrepaidPackage(req.Volume)
-		pkg.Generate()
-		sig, _ := crypto.SignData([]byte(pkg.RootHex()+":"+strconv.Itoa(req.Volume)), privateKey)
+		// Create a PrepaidPackage (Merkle tree)
+		pkg := license.NewPrepaidPackage(100) // Example volume
+		if err := pkg.Generate(); err != nil {
+			c.JSON(500, gin.H{"error": "Failed to generate Merkle root"})
+			return
+		}
 
-		c.JSON(201, gin.H{
-			"id": "lic_" + strconv.FormatInt(time.Now().Unix(), 10),
-			"product_id": req.ProductID,
-			"user_id": req.UserID,
-			"root": pkg.RootHex(),
-			"seed": pkg.SeedHex(),
-			"signature": sig,
-		})
+		// Sign the root with ECDSA
+		sig, err := crypto.SignData(pkg.Root, privateKey)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Failed to sign license"})
+			return
+		}
+
+		lic := License{
+			ID:        "lic_" + time.Now().Format("20060102150405"),
+			ProductID: req.ProductID,
+			UserID:    req.UserID,
+			Signature: sig,
+			RootHash:  pkg.RootHex(),
+			Active:    true,
+			Expiry:    time.Now().Add(time.Duration(req.Duration) * time.Hour),
+			CreatedAt: time.Now(),
+		}
+		onlineDB.Create(&lic)
+		c.JSON(201, lic)
 	})
 
-	r.POST("/api/v1/license/verify", func(c *gin.Context) {
-		var req struct { Root string `json:"root"` }
-		c.ShouldBindJSON(&req)
-		c.JSON(200, gin.H{"valid": len(req.Root) == 64})
+	r.GET("/api/v1/licenses", func(c *gin.Context) {
+		var licenses []License
+		onlineDB.Find(&licenses)
+		c.JSON(200, licenses)
 	})
 
 	port := os.Getenv("SERVER_PORT")
-	if port == "" { port = "8080" }
+	if port == "" {
+		port = "8080"
+	}
 	r.Run(":" + port)
 }
