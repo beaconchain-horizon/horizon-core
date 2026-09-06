@@ -8,7 +8,6 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/gorilla/mux v1.8.1
-	github.com/mattn/go-sqlite3 v1.14.22
 	golang.org/x/oauth2 v0.36.0
 )
 
