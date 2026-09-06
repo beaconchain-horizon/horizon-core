@@ -1,10 +1,18 @@
-# 🔷 Horizon Core Engine
+cat > README.md << 'EOF'
+# 🔷 Horizon Core
 
 > **Offline‑first, API‑based blockchain validator and license manager.**  
 > Built with **Go**, **PostgreSQL (Core) + SQLite (Offline Cache)**, **Merkle trees**, and **ECDSA signatures**.
 
 Horizon is a sovereign, security‑hardened platform that powers a volume‑based prepaid API model using provable Merkle trees.  
 It operates fully **offline‑first**, meaning all transactions are cached locally and automatically synced to the core engine when connectivity is restored.
+
+---
+
+## 👤 Ownership
+
+This project is **solely created, developed, and owned by Mahdi Amoli Moghaddam (مهدی آملی مقدم)**.  
+All rights, intellectual property, and future development decisions belong exclusively to him.
 
 ---
 
@@ -18,17 +26,6 @@ It operates fully **offline‑first**, meaning all transactions are cached local
 - 🔹 **Multi-Client Support:** Mobile, Video Recorder, and Bank Branch interfaces
 - 🔹 **Environment configuration** via `.env` file (supports Liara Cloud)
 - 🔹 **Security‑hardened** with CSP nonce, SHA‑256 signatures, and offline Merkle proofs
-
----
-
-## 📊 Global Recognition
-
-| 🏆 Metric | 📈 Status |
-| :--- | :--- |
-| **World Rank** | 🥉 **#3** among blockchain explorers (May 2026) |
-| **Security Score** | 🔒 **10/10** – CSP, XSS, GDPR compliant |
-| **Validator Support** | ⚡ **100,000+** validators simultaneously |
-| **Offline Readiness** | 📴 **Full offline capability** with SQLite cache + Auto-Sync |
 
 ---
 
