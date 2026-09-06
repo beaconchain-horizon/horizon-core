@@ -6,8 +6,8 @@ import (
 	"database/sql"
 	"encoding/pem"
 	"fmt"
-	"log"
-	"os"
+
+	_ "github.com/glebarez/sqlite"
 
 	"horizon-core/internal/crypto"
 )
