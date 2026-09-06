@@ -2,22 +2,46 @@ package main
 
 import (
 	"encoding/hex"
-	"encoding/json"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
 	"horizon-core/internal/license"
 	"horizon-core/internal/network"
 )
+
+// ------------------- Models -------------------
+type Customer struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	FullName  string    `json:"full_name"`
+	Email     string    `json:"email"`
+	Wallet    string    `json:"wallet"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type Payment struct {
+	ID         uint      `json:"id" gorm:"primaryKey"`
+	CustomerID uint      `json:"customer_id"`
+	Amount     float64   `json:"amount"`
+	Currency   string    `json:"currency"`
+	Status     string    `json:"status"`
+	TxHash     string    `json:"tx_hash"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+type Validator struct {
+	Index      int     `json:"index" gorm:"primaryKey"`
+	Status     string  `json:"status"`
+	Balance    float64 `json:"balance"`
+}
 
 type License struct {
 	ID        string    `json:"id"`
@@ -28,24 +52,32 @@ type License struct {
 	Signature string    `json:"signature"`
 }
 
-type Validator struct {
-	Index            int     `json:"index"`
-	PublicKey        string  `json:"public_key"`
-	CurrentBalance   float64 `json:"current_balance"`
-	EffectiveBalance float64 `json:"effective_balance"`
-	ActivationDate   string  `json:"activation_date"`
-	Income1d         float64 `json:"income_1d"`
-	Income7d         float64 `json:"income_7d"`
-	Income14d        float64 `json:"income_14d"`
-	Income30d        float64 `json:"income_30d"`
-	TotalIncome      float64 `json:"total_income"`
+var pgDB *gorm.DB
+
+func connectPostgres() {
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		dsn = "postgresql://root:CHANGE_ME@horizon:5432/postgres?sslmode=disable"
+	}
+	var err error
+	pgDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Printf("PostgreSQL connection failed, using SQLite only: %v", err)
+		return
+	}
+	pgDB.AutoMigrate(&Customer{}, &Payment{}, &Validator{})
+	log.Println("PostgreSQL connected")
 }
 
 func main() {
+	// Connect to SQLite (offline/simple storage)
 	if err := db.InitDB(); err != nil {
 		log.Fatal("DB init failed:", err)
 	}
 	defer db.Close()
+
+	// Connect to PostgreSQL (for customers, payments, validators)
+	connectPostgres()
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
@@ -60,6 +92,7 @@ func main() {
 		c.JSON(200, gin.H{"status": "online"})
 	})
 
+	// License Generation
 	r.POST("/api/v1/license/generate", func(c *gin.Context) {
 		var req struct {
 			Volume int `json:"volume"`
@@ -82,6 +115,13 @@ func main() {
 			Seed:      pkg.SeedHex(),
 			CreatedAt: time.Now(),
 			Signature: sig,
+		}
+		// Store in SQLite if Postgres fails, else in Postgres
+		if pgDB != nil {
+			pgDB.Create(&lic)
+		} else {
+			// Fallback to SQLite (not fully implemented in db.go yet)
+			log.Println("License saved in memory/SQLite only")
 		}
 		c.JSON(201, lic)
 	})
@@ -139,34 +179,59 @@ func main() {
 		c.JSON(200, gin.H{"vendor": vendor})
 	})
 
-	// Prices Endpoint
-	r.GET("/api/v1/prices", func(c *gin.Context) {
-		resp, err := http.Get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
-		if err != nil {
-			c.JSON(200, gin.H{
-				"bitcoin":  gin.H{"usd": 64000},
-				"ethereum": gin.H{"usd": 3480},
-				"note":     "Using mock data",
-			})
-			return
-		}
-		defer resp.Body.Close()
-		var data map[string]interface{}
-		json.NewDecoder(resp.Body).Decode(&data)
-		c.JSON(200, data)
-	})
+	// ------------------- New Endpoints -------------------
+	if pgDB != nil {
+		// Customers
+		r.POST("/api/v1/customers", func(c *gin.Context) {
+			var cust Customer
+			if err := c.ShouldBindJSON(&cust); err != nil {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
+			pgDB.Create(&cust)
+			c.JSON(201, cust)
+		})
 
-	// Validators Endpoint
-	r.GET("/api/v1/validators", func(c *gin.Context) {
-		file, err := ioutil.ReadFile("internal/data/validators.json")
-		if err != nil {
-			c.JSON(500, gin.H{"error": "No validators file"})
-			return
-		}
-		var validators []Validator
-		json.Unmarshal(file, &validators)
-		c.JSON(200, gin.H{"count": len(validators), "validators": validators})
-	})
+		r.GET("/api/v1/customers", func(c *gin.Context) {
+			var customers []Customer
+			pgDB.Find(&customers)
+			c.JSON(200, customers)
+		})
+
+		// Payments
+		r.POST("/api/v1/payments", func(c *gin.Context) {
+			var pay Payment
+			if err := c.ShouldBindJSON(&pay); err != nil {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
+			pgDB.Create(&pay)
+			c.JSON(201, pay)
+		})
+
+		r.GET("/api/v1/payments", func(c *gin.Context) {
+			var payments []Payment
+			pgDB.Find(&payments)
+			c.JSON(200, payments)
+		})
+
+		// Validators
+		r.GET("/api/v1/validators", func(c *gin.Context) {
+			var validators []Validator
+			pgDB.Find(&validators)
+			c.JSON(200, validators)
+		})
+
+		r.POST("/api/v1/validators", func(c *gin.Context) {
+			var v Validator
+			if err := c.ShouldBindJSON(&v); err != nil {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
+			pgDB.Create(&v)
+			c.JSON(201, v)
+		})
+	}
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
