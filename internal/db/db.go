@@ -5,35 +5,24 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"encoding/pem"
+	"fmt"
 	"log"
 	"os"
 
-	_ "github.com/glebarez/sqlite" // درایور SQLite (بدون نیاز به CGO)
+	"horizon-core/internal/crypto"
 )
 
 var DB *sql.DB
 var PrivateKey *ecdsa.PrivateKey
 
-const defaultDBPath = "./horizon-core.db"
-
 func InitDB() error {
-	dbPath := os.Getenv("DB_PATH")
-	if dbPath == "" {
-		dbPath = defaultDBPath
-	}
 	var err error
-	DB, err = sql.Open("sqlite", dbPath)
+	DB, err = sql.Open("sqlite", "./horizon.db")
 	if err != nil {
 		return err
 	}
 
-	// ساخت جدول‌ها
 	_, err = DB.Exec(`
-		CREATE TABLE IF NOT EXISTS validators (
-			idx INTEGER PRIMARY KEY,
-			status TEXT,
-			balance REAL
-		);
 		CREATE TABLE IF NOT EXISTS licenses (
 			id TEXT PRIMARY KEY,
 			volume INTEGER,
@@ -43,7 +32,7 @@ func InitDB() error {
 			signature TEXT
 		);
 		CREATE TABLE IF NOT EXISTS keys (
-			id INTEGER PRIMARY KEY,
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			private_key TEXT
 		);
 	`)
@@ -51,26 +40,46 @@ func InitDB() error {
 		return err
 	}
 
-	// بارگذاری کلید خصوصی
 	var privPEM string
 	err = DB.QueryRow("SELECT private_key FROM keys LIMIT 1").Scan(&privPEM)
-	if err == nil && privPEM != "" {
-		block, _ := pem.Decode([]byte(privPEM))
-		if block != nil {
-			priv, err := x509.ParseECPrivateKey(block.Bytes)
-			if err == nil {
-				PrivateKey = priv
-				log.Println("Private key loaded from DB")
-			}
+	if err != nil {
+		privPEM, err = generateAndSaveKey()
+		if err != nil {
+			return err
 		}
 	}
-	return nil
+	PrivateKey, err = loadPrivateKey(privPEM)
+	return err
 }
 
 func Close() {
 	if DB != nil {
 		DB.Close()
 	}
+}
+
+func generateAndSaveKey() (string, error) {
+	privPEM, err := crypto.GenerateKeyPair()
+	if err != nil {
+		return "", err
+	}
+	err = SavePrivateKey(privPEM)
+	if err != nil {
+		return "", err
+	}
+	return privPEM, nil
+}
+
+func loadPrivateKey(pemStr string) (*ecdsa.PrivateKey, error) {
+	block, _ := pem.Decode([]byte(pemStr))
+	if block == nil {
+		return nil, fmt.Errorf("failed to decode PEM block")
+	}
+	priv, err := x509.ParseECPrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	return priv, nil
 }
 
 func SavePrivateKey(pemData string) error {
