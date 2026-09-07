@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بانک مرکزی · Horizon Angel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #060b18;
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1300px; margin: auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 15px 25px;
+            border-radius: 18px;
+            border: 1px solid #1e293b;
+            margin-bottom: 25px;
+        }
+        .header h2 { margin: 0; color: #4f9eff; }
+        .header h2 i { margin-left: 10px; }
+        .badge {
+            background: #1e293b;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+        .badge i { color: #4ade80; margin-left: 6px; }
+
+        .card {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            padding: 20px 25px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+        }
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-title i { color: #4f9eff; }
+
+        .license-input-area {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .license-input-area input {
+            flex: 2;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: #020617;
+            color: #fff;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        .license-input-area button {
+            padding: 10px 24px;
+            border-radius: 12px;
+            border: none;
+            background: #4f9eff;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .license-input-area button:hover { background: #3b82f6; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: right;
+            padding: 12px 10px;
+            border-bottom: 2px solid #1e293b;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-online { background: #4ade80; color: #000; }
+        .status-offline { background: #f87171; color: #000; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        .control-item {
+            background: #020617;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1px solid #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .control-item .label { color: #94a3b8; }
+        .control-item .value { color: #4f9eff; font-weight: 600; }
+
+        .branch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+        }
+        .branch-node {
+            background: #020617;
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            text-align: center;
+            font-size: 12px;
+        }
+        .branch-node i { color: #facc15; }
+        .branch-node .type { font-size: 10px; color: #94a3b8; }
+
+        .footer {
+            text-align: center;
+            padding: 18px;
+            color: #64748b;
+            font-size: 12px;
+            border-top: 1px solid #1e293b;
+            margin-top: 20px;
+        }
+        .footer i { color: #facc15; }
+
+        @media (max-width: 700px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            table { font-size: 12px; }
+            .header { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- هدر -->
+    <div class="header">
+        <h2><i class="fas fa-landmark"></i> بانک مرکزی · مدیریت IP‌های مالی</h2>
+        <span class="badge"><i class="fas fa-circle"></i> آنلاین · Core Active</span>
+    </div>
+
+    <!-- بخش ورود لایسنس -->
+    <div class="card" style="border-color: #facc15;">
+        <div class="card-title"><i class="fas fa-key" style="color:#facc15;"></i> لطفاً کد لایسنس را وارد کنید</div>
+        <div class="license-input-area">
+            <input type="text" id="licenseInput" placeholder="متن لایسنس دریافتی را وارد کنید..." value="">
+            <button onclick="activateLicense()"><i class="fas fa-check-circle"></i> فعال‌سازی</button>
+        </div>
+        <div id="licenseStatus" style="margin-top:8px; font-size:13px; color:#94a3b8;">منتظر ورود لایسنس...</div>
+    </div>
+
+    <!-- کارت جدول IPها -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-network-wired"></i> لیست IPهای عمومی تأییدشده</div>
+        <table>
+            <thead>
+                <tr><th>وضعیت</th><th>آدرس IP</th><th>سمت (مبلغ ریال)</th></tr>
+            </thead>
+            <tbody id="ipTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- ردیف دو ستونه: کنترل مرکزی + موقعیت شعب -->
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-server"></i> کنترل مرکزی</div>
+            <div class="control-item"><span class="label">وضعیت شبکه</span><span class="value"><i class="fas fa-check-circle" style="color:#4ade80;"></i> متصل</span></div>
+            <div class="control-item"><span class="label">Core Engine</span><span class="value">فعال · v2.1</span></div>
+            <div class="control-item"><span class="label">بررسی آینده</span><span class="value"><i class="fas fa-sync-alt fa-spin"></i> در حال پایش</span></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-map-pin"></i> موقعیت شعب</div>
+            <div class="branch-grid" id="branchGrid"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-shield-alt"></i> Horizon Angel · مدیریت IPهای مالی · Core Engine
+    </div>
+</div>
+
+<script>
+// ========== داده‌های IP (همان عکس) ==========
+const ipData = [
+    { status: 'آنلاین', ip: '192.168.133.154', amount: '۱۵,۵۴۳,۲۲۴' },
+    { status: 'آنلاین', ip: '192.168.187.237', amount: '۷,۱۷۱,۹۴۸' },
+    { status: 'آنلاین', ip: '192.168.254.128', amount: '۱۶,۷۱۹,۱۶۹' },
+    { status: 'آفلاین', ip: '192.168.127.156', amount: '۱۷,۶۰۰,۸۹۳' },
+    { status: 'آنلاین', ip: '192.168.124.217', amount: '۴,۲۸۰,۳۷۹' },
+    { status: 'آنلاین', ip: '192.168.123.235', amount: '۱۰,۹۳۶,۴۱۸' },
+];
+
+const branchTypes = [
+    { name: 'شعبه ۱', type: 'سوخت' }, { name: 'شعبه ۲', type: 'سرویس' },
+    { name: 'شعبه ۳', type: 'سوخت' }, { name: 'شعبه ۴', type: 'سرویس' },
+    { name: 'شعبه ۵', type: 'سوخت' }, { name: 'شعبه ۶', type: 'سرویس' },
+    { name: 'شعبه ۷', type: 'سرویس' }, { name: 'شعبه ۸', type: 'سرویس' },
+    { name: 'شعبه ۹', type: 'سرویس' }, { name: 'شعبه ۱۰', type: 'سرویس' },
+    { name: 'شعبه ۱۱', type: 'سرویس' }, { name: 'شعبه ۱۲', type: 'سرویس' },
+    { name: 'شعبه ۱۳', type: 'سرویس' }, { name: 'شعبه ۱۴', type: 's' },
+    { name: 'شعبه ۱۵', type: 's' }, { name: 'شعبه ۱۶', type: 's' },
+    { name: 'شعبه ۱۷', type: 's' }, { name: 'شعبه ۱۸', type: 's' },
+    { name: 'شعبه ۱۹', type: 's' }, { name: 'شعبه ۲۰', type: 's' },
+];
+
+// ========== پر کردن جدول IP ==========
+const tbody = document.getElementById('ipTableBody');
+ipData.forEach(item => {
+    const tr = document.createElement('tr');
+    const statusClass = item.status === 'آنلاین' ? 'status-online' : 'status-offline';
+    tr.innerHTML = `
+        <td><span class="status-badge ${statusClass}">${item.status}</span></td>
+        <td>${item.ip}</td>
+        <td>${item.amount}</td>
+    `;
+    tbody.appendChild(tr);
+});
+
+// ========== پر کردن موقعیت شعب ==========
+const branchGrid = document.getElementById('branchGrid');
+branchTypes.forEach(b => {
+    const div = document.createElement('div');
+    div.className = 'branch-node';
+    div.innerHTML = `<i class="fas fa-${b.type === 'سوخت' ? 'gas-pump' : 'concierge-bell'}"></i><br>${b.name}<div class="type">${b.type}</div>`;
+    branchGrid.appendChild(div);
+});
+
+// ========== تابع فعال‌سازی لایسنس ==========
+function activateLicense() {
+    const license = document.getElementById('licenseInput').value.trim();
+    const statusDiv = document.getElementById('licenseStatus');
+    if (!license) {
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#f87171;"></i> لطفاً کد لایسنس را وارد کنید.';
+        return;
+    }
+    // در اینجا می‌توانید درخواست به بک‌اند برای تأیید لایسنس ارسال کنید
+    // فعلاً یک پیام ساختگی
+    statusDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#4ade80;"></i> ✅ لایسنس "${license}" با موفقیت فعال شد. تمام خدمات در دسترس است.`;
+}
+</script>
+</body>
+</html>
