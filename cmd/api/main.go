@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -44,7 +46,7 @@ type LicenseRecord struct {
 	ProductID string    `json:"product_id"`
 	UserID    string    `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
-	Status    string    `json:"status"` // active, suspended, empty
+	Status    string    `json:"status"`
 }
 
 type Transaction struct {
@@ -72,6 +74,31 @@ func connectPostgres() {
 	log.Println("PostgreSQL connected")
 }
 
+// ==========================================
+// اتصال به سوئیچ (Switch Verification)
+// ==========================================
+func checkLicenseWithSwitch(licenseID string) bool {
+	switchURL := os.Getenv("SWITCH_URL")
+	if switchURL == "" {
+		switchURL = "https://horizon-switch.liara.run"
+	}
+
+	body, _ := json.Marshal(map[string]string{"license_key": licenseID})
+	resp, err := http.Post(switchURL+"/api/v1/license/check", "application/json", bytes.NewBuffer(body))
+	if err != nil {
+		log.Printf("Error connecting to switch: %v", err)
+		return false
+	}
+	defer resp.Body.Close()
+
+	var result map[string]bool
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		log.Printf("Error parsing switch response: %v", err)
+		return false
+	}
+	return result["valid"]
+}
+
 func main() {
 	if err := db.InitDB(); err != nil {
 		log.Fatal("DB init failed:", err)
@@ -93,14 +120,12 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "online"})
 	})
 
-	// ================== License & Switch Logic ==================
-	// تولید لایسنس جدید (فقط ادمین)
+	// تولید لایسنس
 	r.POST("/api/v1/license/generate", func(c *gin.Context) {
 		var req struct {
 			ProductID string `json:"product_id"`
 			UserID    string `json:"user_id"`
 			Volume    int    `json:"volume"`
-			Duration  int    `json:"duration"`
 		}
 		c.ShouldBindJSON(&req)
 
@@ -139,26 +164,7 @@ func main() {
 		})
 	})
 
-	// بررسی وضعیت لایسنس
-	r.GET("/api/v1/licenses/status/:id", func(c *gin.Context) {
-		licenseID := c.Param("id")
-		var lic LicenseRecord
-		if pgDB != nil {
-			if err := pgDB.Where("id = ?", licenseID).First(&lic).Error; err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"valid": false, "error": "License not found"})
-				return
-			}
-		}
-		remaining := lic.Volume - lic.Used
-		valid := lic.Status == "active" && remaining > 0
-		c.JSON(http.StatusOK, gin.H{
-			"valid":     valid,
-			"remaining": remaining,
-			"status":    lic.Status,
-		})
-	})
-
-	// اجرای عملیات (نیاز به لایسنس) - اینجا سوئیچ عمل می‌کند
+	// اجرای عملیات (با بررسی لایسنس در سوئیچ)
 	r.POST("/api/v1/operation/execute", func(c *gin.Context) {
 		licenseID := c.GetHeader("X-License-Key")
 		if licenseID == "" {
@@ -166,25 +172,30 @@ func main() {
 			return
 		}
 
+		// ۱. بررسی با سوئیچ
+		if !checkLicenseWithSwitch(licenseID) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "License invalid or switch rejected"})
+			return
+		}
+
+		// ۲. بررسی حجم باقیمانده در بک‌اند
 		var lic LicenseRecord
 		if pgDB != nil {
 			if err := pgDB.Where("id = ?", licenseID).First(&lic).Error; err != nil {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid License"})
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "License not found in database"})
 				return
 			}
 		}
-
 		if lic.Status != "active" {
 			c.JSON(http.StatusForbidden, gin.H{"error": "License is suspended"})
 			return
 		}
-
 		if lic.Used >= lic.Volume {
 			c.JSON(http.StatusForbidden, gin.H{"error": "License quota exhausted"})
 			return
 		}
 
-		// کاهش حجم (شمارش مصرف)
+		// ۳. کاهش حجم و ثبت تراکنش
 		lic.Used++
 		if pgDB != nil {
 			pgDB.Save(&lic)
@@ -199,10 +210,10 @@ func main() {
 			pgDB.Create(&tx)
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "Operation executed successfully", "remaining": lic.Volume - lic.Used})
+		c.JSON(http.StatusOK, gin.H{"message": "Operation executed", "remaining": lic.Volume - lic.Used})
 	})
 
-	// ================== Toolbox Endpoints ==================
+	// Toolbox Endpoints (مستقیم در بک‌اند)
 	r.POST("/api/v1/toolbox/encrypt", func(c *gin.Context) {
 		var req struct {
 			Key       string `json:"key"`
@@ -233,6 +244,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"plaintext": res})
 	})
 
+	// Toolbox Subnet & MAC
 	r.POST("/api/v1/toolbox/subnet", func(c *gin.Context) {
 		var req struct {
 			CIDR string `json:"cidr"`
@@ -255,7 +267,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"vendor": vendor})
 	})
 
-	// ================== Customers & Payments ==================
+	// Customer & Payment Endpoints
 	r.POST("/api/v1/customers", func(c *gin.Context) {
 		var cust Customer
 		if err := c.ShouldBindJSON(&cust); err != nil {
@@ -294,6 +306,14 @@ func main() {
 			pgDB.Find(&payments)
 		}
 		c.JSON(http.StatusOK, payments)
+	})
+
+	r.GET("/api/v1/validators", func(c *gin.Context) {
+		var validators []map[string]interface{}
+		if pgDB != nil {
+			pgDB.Find(&validators)
+		}
+		c.JSON(http.StatusOK, validators)
 	})
 
 	port := os.Getenv("SERVER_PORT")
