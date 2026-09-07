@@ -9,13 +9,10 @@
         .card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         input, button { padding: 10px; margin: 5px 0; width: 100%; border-radius: 8px; border: 1px solid #334155; background: #020617; color: #fff; }
         button { background: #4f9eff; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #1e293b; padding: 8px; text-align: center; }
     </style>
 </head>
 <body>
     <h2>پنل مدیریت Horizon</h2>
-
     <div class="card">
         <h3>تولید لایسنس</h3>
         <input id="prodId" placeholder="Product ID" value="horizon-core">
@@ -23,31 +20,12 @@
         <input id="duration" type="number" placeholder="مدت (ساعت)" value="8760">
         <button onclick="generateLicense()">تولید لایسنس</button>
     </div>
-
-    <div class="card">
-        <h3>لیست ولیدیتورها (Validators)</h3>
-        <button onclick="loadValidators()">بارگذاری ولیدیتورها</button>
-        <table><thead><tr><th>Index</th><th>وضعیت</th><th>موجودی</th><th>درآمد کل</th></tr></thead><tbody id="valTable"></tbody></table>
-    </div>
-
 <script>
 const API='https://horizon-backend.liara.run';
-
 async function generateLicense(){
     const b={product_id:document.getElementById('prodId').value,user_id:document.getElementById('userId').value,duration:parseInt(document.getElementById('duration').value),volume:100};
     await fetch(API+'/api/v1/license/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
 }
-
-async function loadValidators(){
-    const r=await fetch(API+'/api/v1/validators');
-    const d=await r.json();
-    let h='';
-    d.forEach(v=>{
-        h+='<tr><td>'+v.index+'</td><td>'+v.status+'</td><td>'+v.balance+'</td><td>'+v.total_income+'</td></tr>';
-    });
-    document.getElementById('valTable').innerHTML=h;
-}
-loadValidators();
 </script>
 </body>
 </html>

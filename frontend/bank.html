@@ -9,41 +9,21 @@
         .card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         input, button { padding: 10px; margin: 5px 0; width: 100%; border-radius: 8px; border: 1px solid #334155; background: #020617; color: #fff; }
         button { background: #4f9eff; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #1e293b; padding: 8px; text-align: center; }
     </style>
 </head>
 <body>
     <h2>پنل بانک Horizon</h2>
-
     <div class="card">
         <h3>ثبت تراکنش</h3>
         <input id="amount" type="number" placeholder="مبلغ (ریال)">
         <button onclick="submitTx()">ثبت تراکنش</button>
     </div>
-
-    <div class="card">
-        <h3>لیست تراکنش‌ها</h3>
-        <button onclick="loadTx()">بارگذاری</button>
-        <table><thead><tr><th>ID</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody id="txTable"></tbody></table>
-    </div>
-
 <script>
 const API='https://horizon-backend.liara.run';
-
 async function submitTx(){
     const b={amount:parseInt(document.getElementById('amount').value),status:'confirmed',type:'deposit'};
     await fetch(API+'/api/v1/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-    loadTx();
 }
-
-async function loadTx(){
-    const r=await fetch(API+'/api/v1/transactions'); const d=await r.json(); let h='';
-    d.forEach(t=>{h+='<tr><td>'+t.id+'</td><td>'+t.amount+'</td><td>'+t.status+'</td></tr>'});
-    document.getElementById('txTable').innerHTML=h;
-}
-
-loadTx();
 </script>
 </body>
 </html>
