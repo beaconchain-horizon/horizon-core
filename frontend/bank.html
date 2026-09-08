@@ -3,27 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پنل بانک Horizon</title>
-    <style>
-        body { background: #060b18; color: #fff; font-family: Tahoma, sans-serif; padding: 20px; }
-        .card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        input, button { padding: 10px; margin: 5px 0; width: 100%; border-radius: 8px; border: 1px solid #334155; background: #020617; color: #fff; }
-        button { background: #4f9eff; cursor: pointer; font-weight: bold; }
-    </style>
+    <title>پنل بانک | Horizon</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <h2>پنل بانک Horizon</h2>
-    <div class="card">
-        <h3>ثبت تراکنش</h3>
-        <input id="amount" type="number" placeholder="مبلغ (ریال)">
-        <button onclick="submitTx()">ثبت تراکنش</button>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-4">پنل بانک</h1>
+        <p class="text-gray-400">ثبت تراکنش و مدیریت شعب</p>
+        <div class="mt-6 bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <button onclick="alert('تراکنش نمونه ثبت شد')" class="bg-blue-600 px-4 py-2 rounded-lg">ثبت تراکنش جدید</button>
+        </div>
     </div>
-<script>
-const API='https://horizon-backend.liara.run';
-async function submitTx(){
-    const b={amount:parseInt(document.getElementById('amount').value),status:'confirmed',type:'deposit'};
-    await fetch(API+'/api/v1/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-}
-</script>
 </body>
 </html>

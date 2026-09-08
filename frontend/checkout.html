@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرداخت | Horizon Angel</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <header class="bg-gray-800 shadow-lg border-b border-gray-700">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-angel text-yellow-400 text-3xl"></i>
+                <span class="text-2xl font-bold text-blue-400">Horizon<span class="text-yellow-400">Angel</span></span>
+            </div>
+            <nav class="hidden md:flex gap-6 text-sm">
+                <a href="index.html" class="hover:text-yellow-400">خانه</a>
+                <a href="products.html" class="hover:text-yellow-400">محصولات</a>
+                <a href="dashboard.html" class="hover:text-yellow-400">پنل کاربری</a>
+                <a href="admin.html" class="hover:text-yellow-400">مدیریت</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <a href="cart.html" class="relative">
+                    <i class="fas fa-shopping-cart text-xl hover:text-yellow-400"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-bold rounded-full px-2 py-0.5">0</span>
+                </a>
+                <a href="login.html" class="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">ورود</a>
+            </div>
+        </div>
+    </header>
+    <section class="container mx-auto px-4 py-16">
+        <h1 class="text-3xl font-bold mb-8">تکمیل خرید</h1>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 max-w-lg mx-auto">
+            <form id="checkout-form" onsubmit="processPayment(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-400 text-sm mb-2">نام کامل</label>
+                    <input type="text" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-400 text-sm mb-2">ایمیل</label>
+                    <input type="email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-400 text-sm mb-2">درگاه پرداخت</label>
+                    <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                        <option>زرین‌پال</option>
+                        <option>پی‌پی</option>
+                        <option>ارز دیجیتال (USDT)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-yellow-400 text-black py-3 rounded-lg font-bold hover:bg-yellow-300">پرداخت نهایی</button>
+            </form>
+        </div>
+    </section>
+    <footer class="bg-gray-800 py-6 text-center text-gray-400 border-t border-gray-700">
+        <p>© 2025 Horizon Angel. تمامی حقوق محفوظ است.</p>
+    </footer>
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function processPayment(e) {
+            e.preventDefault();
+            alert('درخواست پرداخت شما ثبت شد. به زودی به درگاه هدایت می‌شوید.');
+        }
+    </script>
+</body>
+</html>
