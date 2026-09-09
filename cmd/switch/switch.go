@@ -1,3 +1,4 @@
+cat > cmd/switch/switch.go << 'EOF'
 package main
 
 import (
@@ -31,11 +32,14 @@ type Transaction struct {
 type Blockchain struct {
 	Chain  []Block `json:"chain"`
 	mu     sync.Mutex
-	txs    []Transaction
+	txs    chan Transaction
 	txMu   sync.Mutex
 }
 
-var bc = &Blockchain{Chain: []Block{}}
+var bc = &Blockchain{
+	Chain: []Block{},
+	txs:   make(chan Transaction, 10000),
+}
 
 func (b *Block) CalculateHash() string {
 	record := fmt.Sprintf("%d%d%s%s", b.Index, b.Timestamp, b.PrevHash, b.Transactions)
@@ -69,17 +73,19 @@ func (bc *Blockchain) AddBlock(txs []Transaction) Block {
 }
 
 func (bc *Blockchain) AddTransaction(tx Transaction) {
-	bc.txMu.Lock()
-	defer bc.txMu.Unlock()
-	bc.txs = append(bc.txs, tx)
+	bc.txs <- tx
 }
 
 func (bc *Blockchain) GetPendingTxs() []Transaction {
-	bc.txMu.Lock()
-	defer bc.txMu.Unlock()
-	txs := bc.txs
-	bc.txs = []Transaction{}
-	return txs
+	var txs []Transaction
+	for {
+		select {
+		case tx := <-bc.txs:
+			txs = append(txs, tx)
+		default:
+			return txs
+		}
+	}
 }
 
 func generateTestTx(id int) Transaction {
@@ -137,8 +143,8 @@ func benchmarkTPS(iterations int, concurrency int) float64 {
 }
 
 func benchmarkHandler(w http.ResponseWriter, r *http.Request) {
-	iterations := 10000
-	concurrency := 200
+	iterations := 50000
+	concurrency := 1000
 	results := struct {
 		Iterations  int     `json:"iterations"`
 		Concurrency int     `json:"concurrency"`
@@ -183,3 +189,4 @@ func main() {
 	log.Printf("Horizon Switch running on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
+EOF
