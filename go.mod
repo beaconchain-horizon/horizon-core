@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/go-github/v62 v62.0.0
+	github.com/gorilla/mux v1.8.1
 	golang.org/x/oauth2 v0.37.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.7
