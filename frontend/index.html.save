@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizon Core · Central Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #060b18;
+            color: #eef2ff;
+            padding: 1rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 1600px;
+            width: 100%;
+            background: rgba(12, 18, 34, 0.75);
+            backdrop-filter: blur(24px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(79, 158, 255, 0.15);
+            padding: 1.8rem;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(79, 158, 255, 0.15);
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, #4f9eff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo span { font-size: 0.75rem; color: #8fa2dc; display: block; }
+        .badge-group { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+        .badge {
+            background: rgba(79, 158, 255, 0.1);
+            border: 1px solid #4f9eff33;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            font-size: 0.65rem;
+            color: #9bb2ff;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .badge.green { background: rgba(74, 222, 128, 0.12); border-color: #4ade8044; color: #4ade80; }
+        .badge.red { background: rgba(248, 113, 113, 0.12); border-color: #f8717144; color: #f87171; }
+        .badge.gold { background: rgba(251, 191, 36, 0.12); border-color: #facc1544; color: #facc15; }
+        .badge.blue { background: rgba(79, 158, 255, 0.15); border-color: #4f9eff66; color: #4f9eff; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+        .card {
+            background: rgba(20, 26, 44, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.4s;
+        }
+        .card:hover { transform: translateY(-4px); border-color: #4f9eff55; box-shadow: 0 12px 40px rgba(79, 158, 255, 0.15); }
+        .card h3 {
+            font-size: 0.9rem;
+            color: #4f9eff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card h3 .badge-sm { font-size: 0.6rem; background: rgba(79, 158, 255, 0.15); padding: 0.1rem 0.6rem; border-radius: 40px; color: #4f9eff; margin-right: auto; }
+        .branch-list, .tx-list { max-height: 280px; overflow-y: auto; }
+        .branch-item, .tx-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.7rem;
+            padding: 0.5rem 0.8rem;
+            margin-bottom: 0.3rem;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-right: 3px solid #4f9eff;
+        }
+        .branch-item .balance { color: #4ade80; font-weight: 700; }
+        .branch-item .status { font-size: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 40px; }
+        .branch-item .status.online { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .branch-item .status.offline { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+        .branch-item .ip { color: #4f9eff; font-family: monospace; font-size: 0.6rem; }
+        .tx-item .tx-hash { color: #4ade80; }
+        .tx-item .tx-status { font-size: 0.6rem; }
+        .tx-item .tx-status.online { color: #4ade80; }
+        .tx-item .tx-status.offline { color: #facc15; }
+        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+        .btn {
+            background: #4f9eff;
+            border: none;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #0a0f1e;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(79, 158, 255, 0.3);
+        }
+        .btn:hover { background: #3a7bd5; transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 24px rgba(79, 158, 255, 0.5); }
+        .btn.outline { background: transparent; border: 1px solid #4f9eff55; color: #4f9eff; box-shadow: none; }
+        .btn.outline:hover { background: rgba(79, 158, 255, 0.15); }
+        .btn.danger { background: #f87171; color: #0a0f1e; box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3); }
+        .btn.danger:hover { background: #ef4444; }
+        .btn.success { background: #4ade80; color: #0a0f1e; box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3); }
+        .btn.success:hover { background: #22c55e; }
+        .btn.gold { background: #facc15; color: #0a0f1e; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3); }
+        .btn.gold:hover { background: #eab308; }
+        .ip-table { width: 100%; font-size: 0.65rem; border-collapse: collapse; margin-top: 0.5rem; }
+        .ip-table th { text-align: right; padding: 0.2rem 0.4rem; color: #8fa2dc; border-bottom: 1px solid #1a2240; }
+        .ip-table td { padding: 0.2rem 0.4rem; border-bottom: 1px solid #1a2240; font-family: monospace; }
+        .ip-table .ip-address { color: #4f9eff; }
+        .ip-table .ip-status.online { color: #4ade80; }
+        .ip-table .ip-status.offline { color: #f87171; }
+        .map-container { height: 300px; border-radius: 1.2rem; overflow: hidden; border: 1px solid rgba(79, 158, 255, 0.1); }
+        #map { height: 100%; width: 100%; }
+        .footer { margin-top: 1.5rem; text-align: center; font-size: 0.65rem; color: #475569; border-top: 1px solid #1a2240; padding-top: 1rem; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
+        .core-status { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.8rem; border-radius: 40px; font-size: 0.6rem; }
+        .core-status.online { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .core-status.offline { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <h1><i class="fas fa-university" style="color:#4f9eff;"></i> Horizon · Central Bank</h1>
+            <span>Integrated System · Connected to Core Engine + License Server</span>
+        </div>
+        <div class="badge-group">
+            <span class="badge green"><i class="fas fa-circle"></i> Status: <span id="connectionStatus">Online</span></span>
+            <span class="badge gold"><i class="fas fa-sync"></i> Sync: <span id="syncStatus">Active</span></span>
+            <span class="badge blue"><i class="fas fa-university"></i> Branches: <span id="branchCount">0</span></span>
+            <span class="badge red"><i class="fas fa-exclamation-triangle"></i> Alerts: <span id="alertCount">0</span></span>
+            <span class="badge"><i class="fas fa-server"></i> Core: <span id="coreStatus">❌ Offline</span></span>
+            <span class="badge"><i class="fas fa-key"></i> License: <span id="licenseStatus">⏳</span></span>
+        </div>
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <h3><i class="fas fa-university"></i> Branches <span class="badge-sm" id="branchOnlineCount">Online: 0</span></h3>
+            <div class="branch-list" id="branchList"></div>
+            <div class="btn-group">
+                <button class="btn" id="refreshBranchesBtn"><i class="fas fa-sync"></i> Refresh</button>
+                <button class="btn success" id="auditAllBtn"><i class="fas fa-search-dollar"></i> Audit All</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-exchange-alt"></i> Transactions <span class="badge-sm" id="txCount">0</span></h3>
+            <div class="tx-list" id="txList"></div>
+            <div class="btn-group">
+                <button class="btn gold" id="newTxBtn"><i class="fas fa-plus"></i> New Tx</button>
+                <button class="btn success" id="forceSyncBtn"><i class="fas fa-cloud-upload-alt"></i> Force Sync</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-network-wired"></i> IP Management</h3>
+            <table class="ip-table">
+                <thead><tr><th>IP Address</th><th>Branch</th><th>Status</th></tr></thead>
+                <tbody id="ipTableBody"></tbody>
+            </table>
+            <div class="btn-group">
+                <button class="btn outline" id="addIpBtn"><i class="fas fa-plus"></i> Add IP</button>
+                <button class="btn danger" id="blockIpBtn"><i class="fas fa-ban"></i> Block IP</button>
+                <button class="btn outline" id="connectApiBtn"><i class="fas fa-plug"></i> Connect API</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fas fa-map-marked-alt"></i> Branch Locations</h3>
+            <div class="map-container"><div id="map"></div></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-cogs"></i> Central Control</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">
+                <button class="btn outline" id="toggleOffline"><i class="fas fa-plug"></i> Toggle Network</button>
+                <button class="btn danger" id="resetBtn"><i class="fas fa-undo-alt"></i> Reset</button>
+                <button class="btn" id="connectCoreBtn"><i class="fas fa-server"></i> Connect Core</button>
+                <button class="btn gold" id="exportReportBtn"><i class="fas fa-file-export"></i> Export Report</button>
+                <button class="btn success" id="checkLicenseBtn" style="grid-column: span 2;"><i class="fas fa-key"></i> Check License</button>
+            </div>
+            <div style="margin-top:0.8rem;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:0.8rem;font-size:0.7rem;color:#8fa2dc;">
+                <i class="fas fa-info-circle"></i> Core Status: <span id="coreDetailedStatus" class="core-status offline">❌ Offline</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp; <i class="fas fa-key"></i> License: <span id="licenseDetailedStatus" class="core-status offline">❌ Invalid</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div style="font-size:0.6rem;color:#475569;">Horizon Core Engine · Central Bank Dashboard · Connected to Core + License Server</div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION – Real Backend API
+// ============================================================
+const CORE_API_URL = 'https://horizon-backend.liara.run';
+const LICENSE_API_URL = 'https://horizon-backend.liara.run';
+
+// ============================================================
+// STATE
+// ============================================================
+let isOnline = true;
+let isCoreConnected = false;
+let isLicenseValid = false;
+let branchData = [];
+let txData = [];
+let txCounter = 1000;
+let syncQueue = [];
+let auditLog = [];
+let map = null;
+
+// ============================================================
+// MOCK DATA (Fallback when backend is unreachable)
+// ============================================================
+const branchDataRaw = [
+    { name: 'Central Tehran', city: 'Tehran', lat: 35.6892, lng: 51.3890 },
+    { name: 'Valiasr Tehran', city: 'Tehran', lat: 35.7248, lng: 51.4080 },
+    { name: 'Azadi Tehran', city: 'Tehran', lat: 35.6917, lng: 51.4070 },
+    { name: 'Enghelab Tehran', city: 'Tehran', lat: 35.6880, lng: 51.3890 },
+    { name: 'Pasdaran Tehran', city: 'Tehran', lat: 35.7560, lng: 51.4960 },
+    { name: 'Vanak Tehran', city: 'Tehran', lat: 35.7630, lng: 51.4100 },
+    { name: 'Jordan Tehran', city: 'Tehran', lat: 35.7630, lng: 51.4100 },
+    { name: 'Sohrevardi Tehran', city: 'Tehran', lat: 35.7630, lng: 51.4100 },
+    { name: 'Gholhak Tehran', city: 'Tehran', lat: 35.7630, lng: 51.4100 },
+    { name: 'North Tehran', city: 'Tehran', lat: 35.7630, lng: 51.4100 },
+    { name: 'South Tehran', city: 'Tehran', lat: 35.6892, lng: 51.3890 },
+    { name: 'East Tehran', city: 'Tehran', lat: 35.6892, lng: 51.3890 },
+    { name: 'West Tehran', city: 'Tehran', lat: 35.6892, lng: 51.3890 },
+    { name: 'Central Isfahan', city: 'Isfahan', lat: 32.6525, lng: 51.6740 },
+    { name: 'Central Mashhad', city: 'Mashhad', lat: 36.2605, lng: 59.6168 },
+    { name: 'Central Shiraz', city: 'Shiraz', lat: 29.5918, lng: 52.5837 },
+    { name: 'Central Tabriz', city: 'Tabriz', lat: 38.0800, lng: 46.2900 },
+    { name: 'Central Karaj', city: 'Karaj', lat: 35.8327, lng: 50.9915 },
+    { name: 'Central Qom', city: 'Qom', lat: 34.6400, lng: 50.8764 },
+    { name: 'Central Ahvaz', city: 'Ahvaz', lat: 31.3183, lng: 48.6706 },
+    { name: 'Central Kermanshah', city: 'Kermanshah', lat: 34.3142, lng: 47.0680 },
+    { name: 'Central Rasht', city: 'Rasht', lat: 37.2800, lng: 49.5830 },
+    { name: 'Central Zahedan', city: 'Zahedan', lat: 29.4963, lng: 60.8629 },
+    { name: 'Central Hamedan', city: 'Hamedan', lat: 34.8000, lng: 48.5160 },
+    { name: 'Central Kerman', city: 'Kerman', lat: 30.2830, lng: 57.0830 },
+    { name: 'Central Urmia', city: 'Urmia', lat: 37.5553, lng: 45.0725 },
+    { name: 'Central Bandar Abbas', city: 'Bandar Abbas', lat: 27.1832, lng: 56.2667 },
+    { name: 'Central Sanandaj', city: 'Sanandaj', lat: 35.3040, lng: 46.9980 },
+    { name: 'Central Yazd', city: 'Yazd', lat: 31.8974, lng: 54.3569 },
+    { name: 'Central Bushehr', city: 'Bushehr', lat: 28.9234, lng: 50.8203 },
+    { name: 'Central Sari', city: 'Sari', lat: 36.5633, lng: 53.0601 },
+    { name: 'Central Shahr-e Kord', city: 'Shahr-e Kord', lat: 32.3256, lng: 50.8644 }
+];
+
+function generateMockBranches() {
+    return branchDataRaw.map((item, index) => ({
+        id: index + 1,
+        name: item.name,
+        city: item.city,
+        balance: Math.floor(Math.random() * 5000000000 + 50000000),
+        ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+        isOnline: isOnline && Math.random() > 0.12,
+        lat: item.lat,
+        lng: item.lng,
+        lastSync: new Date().toLocaleTimeString('fa-IR')
+    }));
+}
+
+function generateMockTx() {
+    const customers = ['Ali Rezaei', 'Sara Karimi', 'Mohammad Hosseini', 'Zahra Mousavi', 'Reza Ahmadi', 'Negar Rahimi', 'Hossein Nouri', 'Maryam Lotfi'];
+    const banks = ['Melli', 'Saderat', 'Mellat', 'Tejarat', 'Sepah', 'Refah', 'Parsian', 'Khayem'];
+    const txTypes = ['Deposit', 'Withdrawal', 'Transfer', 'Purchase', 'Sale', 'Profit'];
+    const isOnlineTx = isOnline && Math.random() > 0.25;
+    return {
+        id: txCounter++,
+        type: txTypes[Math.floor(Math.random() * txTypes.length)],
+        amount: Math.floor(Math.random() * 20000000 + 100000),
+        from: customers[Math.floor(Math.random() * customers.length)],
+        to: banks[Math.floor(Math.random() * banks.length)],
+        status: isOnlineTx ? 'Confirmed' : 'Pending (Offline)',
+        statusClass: isOnlineTx ? 'online' : 'offline',
+        time: new Date().toLocaleTimeString('fa-IR'),
+        hash: `0x${Math.random().toString(36).slice(2, 12)}${Math.random().toString(36).slice(2, 12)}`
+    };
+}
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderBranches() {
+    const container = document.getElementById('branchList');
+    container.innerHTML = branchData.map(b => `
+        <div class="branch-item">
+            <div>
+                <strong>${b.name}</strong>
+                <span style="font-size:0.6rem;color:#8fa2dc;display:block;">${b.city}</span>
+            </div>
+            <div style="text-align:left;">
+                <div class="balance">${b.balance.toLocaleString()} Rial</div>
+                <div style="display:flex;gap:0.4rem;align-items:center;justify-content:flex-end;margin-top:0.1rem;">
+                    <span class="ip">${b.ip}</span>
+                    <span class="status ${b.isOnline ? 'online' : 'offline'}">${b.isOnline ? '🟢' : '🔴'}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    const onlineNow = branchData.filter(b => b.isOnline).length;
+    document.getElementById('branchOnlineCount').textContent = `Online: ${onlineNow}`;
+    document.getElementById('branchCount').textContent = branchData.length;
+    document.getElementById('alertCount').textContent = Math.floor(Math.random() * 3);
+    updateMapMarkers();
+}
+
+function renderTransactions() {
+    const container = document.getElementById('txList');
+    const recent = txData.slice(0, 15);
+    container.innerHTML = recent.map(tx => `
+        <div class="tx-item">
+            <div>
+                <div style="font-weight:600;font-size:0.7rem;">${tx.from} → ${tx.to}</div>
+                <div style="font-size:0.55rem;color:#8fa2dc;">${tx.time} · ${tx.hash.slice(0, 10)}...</div>
+            </div>
+            <div style="text-align:left;">
+                <div style="font-weight:700;color:#4ade80;font-size:0.75rem;">${tx.type} ${tx.amount.toLocaleString()} Rial</div>
+                <span class="tx-status ${tx.statusClass}" style="font-size:0.55rem;">${tx.status === 'Confirmed' ? '✅' : '⏳'} ${tx.status}</span>
+            </div>
+        </div>
+    `).join('');
+    document.getElementById('txCount').textContent = txData.length;
+}
+
+function renderIPs() {
+    const container = document.getElementById('ipTableBody');
+    const selected = branchData.slice(0, 15);
+    container.innerHTML = selected.map(b => `
+        <tr>
+            <td class="ip-address">${b.ip}</td>
+            <td>${b.name}</td>
+            <td class="ip-status ${b.isOnline ? 'online' : 'offline'}">${b.isOnline ? '🟢' : '🔴'}</td>
+        </tr>
+    `).join('');
+}
+
+// ============================================================
+// MAP (Leaflet)
+// ============================================================
+function initMap() {
+    if (map) return;
+    map = L.map('map', { center: [33.5, 51.5], zoom: 5, zoomControl: false, attributionControl: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
+    }).addTo(map);
+    updateMapMarkers();
+}
+
+function updateMapMarkers() {
+    if (!map) return;
+    map.eachLayer(layer => { if (layer instanceof L.CircleMarker) map.removeLayer(layer); });
+    branchData.forEach(b => {
+        const color = b.isOnline ? '#4ade80' : '#f87171';
+        L.circleMarker([b.lat, b.lng], {
+            radius: b.isOnline ? 8 : 5,
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.8,
+            weight: 2
+        }).addTo(map).bindPopup(`<div style="color:#eef2ff;text-align:center;font-size:0.7rem;">
+            <strong>${b.name}</strong><br>${b.city}<br><span style="color:${b.isOnline ? '#4ade80' : '#f87171'};">${b.isOnline ? '🟢' : '🔴'}</span>
+        </div>`);
+    });
+}
+
+// ============================================================
+// BACKEND API CALLS
+// ============================================================
+async function loadRealData() {
+    try {
+        const branchesRes = await fetch(`${CORE_API_URL}/api/v1/branches`);
+        if (branchesRes.ok) {
+            const data = await branchesRes.json();
+            branchData = data.branches || [];
+            renderBranches();
+            renderIPs();
+            updateMapMarkers();
+        } else {
+            loadMockData();
+        }
+    } catch (error) {
+        console.warn('Backend branches API failed, using mock data:', error);
+        loadMockData();
+    }
+
+    try {
+        const txRes = await fetch(`${CORE_API_URL}/api/v1/transactions?limit=20`);
+        if (txRes.ok) {
+            const data = await txRes.json();
+            txData = data.transactions || [];
+            renderTransactions();
+        } else {
+            for (let i = 0; i < 10; i++) txData.push(generateMockTx());
+            renderTransactions();
+        }
+    } catch (error) {
+        console.warn('Backend transactions API failed, using mock data:', error);
+        for (let i = 0; i < 10; i++) txData.push(generateMockTx());
+        renderTransactions();
+    }
+}
+
+function loadMockData() {
+    branchData = generateMockBranches();
+    txData = [];
+    for (let i = 0; i < 10; i++) txData.push(generateMockTx());
+    renderBranches();
+    renderIPs();
+    renderTransactions();
+    updateMapMarkers();
+    document.getElementById('txCount').textContent = txData.length;
+}
+
+// ============================================================
+// CONNECT TO CORE
+// ============================================================
+async function connectToCore() {
+    const statusEl = document.getElementById('coreStatus');
+    const detailedEl = document.getElementById('coreDetailedStatus');
+    statusEl.textContent = '⏳ Connecting...';
+    detailedEl.textContent = '⏳ Connecting...';
+    detailedEl.className = 'core-status';
+
+    try {
+        const response = await fetch(`${CORE_API_URL}/api/v1/health`, {
+            method: 'HEAD',
+            signal: AbortSignal.timeout(5000)
+        });
+        if (response.ok) {
+            isCoreConnected = true;
+            statusEl.textContent = '✅ Online';
+            detailedEl.textContent = '✅ Connected to Core';
+            detailedEl.className = 'core-status online';
+            document.getElementById('coreStatusBadge').className = 'badge green';
+            loadRealData();
+            alert('✅ Connected to Core Engine successfully.');
+        } else {
+            throw new Error('Invalid server response');
+        }
+    } catch (error) {
+        isCoreConnected = false;
+        statusEl.textContent = '❌ Offline';
+        detailedEl.textContent = '❌ Offline (Connection error)';
+        detailedEl.className = 'core-status offline';
+        document.getElementById('coreStatusBadge').className = 'badge red';
+        console.warn('⚠️ Core connection error:', error);
+        loadMockData();
+        alert('⚠️ Core Engine connection failed. Loading mock data.');
+    }
+}
+
+// ============================================================
+// CHECK LICENSE
+// ============================================================
+async function checkLicense() {
+    const licenseStatusEl = document.getElementById('licenseStatus');
+    const detailedEl = document.getElementById('licenseDetailedStatus');
+    licenseStatusEl.textContent = '⏳';
+    detailedEl.textContent = '⏳ Checking...';
+    detailedEl.className = 'core-status';
+
+    let licenseKey = localStorage.getItem('horizon_license');
+    if (!licenseKey) {
+        const input = prompt('Please enter your license code:');
+        if (!input) { licenseStatusEl.textContent = '❌'; return; }
+        licenseKey = input.trim();
+        localStorage.setItem('horizon_license', licenseKey);
+    }
+
+    try {
+        const response = await fetch(`${LICENSE_API_URL}/api/v1/license/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ license: licenseKey })
+        });
+        if (response.ok) {
+            const result = await response.json();
+            if (result.valid) {
+                isLicenseValid = true;
+                licenseStatusEl.textContent = '✅';
+                detailedEl.textContent = '✅ Valid';
+                detailedEl.className = 'core-status online';
+                document.getElementById('licenseBadge').className = 'badge green';
+                alert('✅ License is valid.');
+            } else {
+                isLicenseValid = false;
+                licenseStatusEl.textContent = '❌';
+                detailedEl.textContent = '❌ Invalid';
+                detailedEl.className = 'core-status offline';
+                document.getElementById('licenseBadge').className = 'badge red';
+                alert('❌ License is invalid.');
+            }
+        } else {
+            throw new Error('Invalid License Server response');
+        }
+    } catch (error) {
+        isLicenseValid = false;
+        licenseStatusEl.textContent = '⚠️';
+        detailedEl.textContent = '⚠️ Connection error';
+        detailedEl.className = 'core-status offline';
+        document.getElementById('licenseBadge').className = 'badge red';
+        console.warn('⚠️ License check error:', error);
+        alert('⚠️ License Server connection failed.');
+    }
+}
+
+// ============================================================
+// OPERATIONS
+// ============================================================
+function toggleNetwork() {
+    isOnline = !isOnline;
+    document.getElementById('connectionStatus').textContent = isOnline ? 'Online' : 'Offline';
+    document.getElementById('connectionBadge').className = `badge ${isOnline ? 'green' : 'red'}`;
+    document.getElementById('syncStatus').textContent = isOnline ? 'Active' : '⏸️ Paused';
+    branchData.forEach(b => { b.isOnline = isOnline && Math.random() > 0.15; });
+    renderBranches();
+    renderIPs();
+    updateMapMarkers();
+    if (isOnline && syncQueue.length > 0) {
+        document.getElementById('syncStatus').textContent = '🔄 Syncing...';
+        setTimeout(() => {
+            syncQueue.forEach(tx => { tx.status = 'Confirmed'; tx.statusClass = 'online'; });
+            syncQueue = [];
+            renderTransactions();
+            document.getElementById('syncStatus').textContent = '✅ Synced';
+            setTimeout(() => { document.getElementById('syncStatus').textContent = 'Active'; }, 1500);
+        }, 2000);
+    }
+}
+
+function refreshAllBranches() {
+    loadRealData();
+    document.getElementById('syncStatus').textContent = '🔄 Refreshing...';
+    setTimeout(() => { document.getElementById('syncStatus').textContent = 'Active'; }, 1000);
+}
+
+function forceSync() {
+    if (syncQueue.length === 0) { alert('✅ No offline transactions in queue.'); return; }
+    if (!isOnline) { alert('⚠️ Please connect network first.'); return; }
+    document.getElementById('syncStatus').textContent = '🔄 Forcing sync...';
+    setTimeout(() => {
+        syncQueue.forEach(tx => { tx.status = 'Confirmed'; tx.statusClass = 'online'; });
+        const count = syncQueue.length;
+        syncQueue = [];
+        renderTransactions();
+        document.getElementById('syncStatus').textContent = `✅ ${count} transactions synced`;
+        setTimeout(() => { document.getElementById('syncStatus').textContent = 'Active'; }, 2000);
+    }, 2000);
+}
+
+function newTransaction() {
+    const tx = generateMockTx();
+    if (!isOnline) {
+        tx.status = 'Pending (Offline)';
+        tx.statusClass = 'offline';
+        syncQueue.push(tx);
+    }
+    txData.unshift(tx);
+    if (txData.length > 50) txData.pop();
+    renderTransactions();
+    document.getElementById('txCount').textContent = txData.length;
+}
+
+function auditAllBranches() {
+    document.getElementById('syncStatus').textContent = '🔍 Auditing all branches...';
+    const startTime = Date.now();
+    setTimeout(() => {
+        let totalAudited = 0;
+        branchData.forEach(b => {
+            const change = Math.floor(Math.random() * 10000000 - 3000000);
+            b.balance += change;
+            b.isOnline = isOnline && Math.random() > 0.08;
+            totalAudited++;
+            auditLog.push({
+                branch: b.name,
+                time: new Date().toLocaleTimeString('fa-IR'),
+                change: change,
+                newBalance: b.balance
+            });
+        });
+        renderBranches();
+        renderIPs();
+        updateMapMarkers();
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        document.getElementById('syncStatus').textContent = `✅ Audited ${totalAudited} branches in ${elapsed}s`;
+        alert(`✅ Audit completed for ${totalAudited} branches.\nBalance changes applied.`);
+        setTimeout(() => { document.getElementById('syncStatus').textContent = 'Active'; }, 3000);
+    }, 2000);
+}
+
+function addIP() {
+    const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+    const branch = branchData[Math.floor(Math.random() * branchData.length)];
+    alert(`✅ New IP ${ip} assigned to ${branch.name}.`);
+    branch.ip = ip;
+    renderIPs();
+    renderBranches();
+}
+
+function blockIP() {
+    const branch = branchData[Math.floor(Math.random() * branchData.length)];
+    alert(`🚫 IP ${branch.ip} blocked for ${branch.name}.`);
+    branch.isOnline = false;
+    renderIPs();
+    renderBranches();
+    updateMapMarkers();
+}
+
+function connectAPI() {
+    alert('🔌 API connection request sent.\nStatus: Waiting for approval...');
+    document.getElementById('syncStatus').textContent = '🔄 API request...';
+    setTimeout(() => {
+        document.getElementById('syncStatus').textContent = '✅ API connected';
+        setTimeout(() => { document.getElementById('syncStatus').textContent = 'Active'; }, 2000);
+    }, 2000);
+}
+
+function exportReport() {
+    const report = {
+        time: new Date().toISOString(),
+        branches: branchData.map(b => ({ name: b.name, balance: b.balance, online: b.isOnline, ip: b.ip })),
+        transactions: txData.slice(0, 20),
+        auditLog: auditLog.slice(-10)
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `horizon-audit-report-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert('📊 Audit report saved successfully.');
+}
+
+function resetSystem() {
+    if (!confirm('Are you sure? All data will be reset.')) return;
+    txData = [];
+    syncQueue = [];
+    auditLog = [];
+    txCounter = 1000;
+    loadMockData();
+    document.getElementById('syncStatus').textContent = 'Active';
+    alert('✅ System reset successfully.');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    loadMockData();
+    initMap();
+
+    setTimeout(() => { connectToCore(); }, 1000);
+    setTimeout(() => { checkLicense(); }, 2000);
+
+    document.getElementById('refreshBranchesBtn').addEventListener('click', refreshAllBranches);
+    document.getElementById('auditAllBtn').addEventListener('click', auditAllBranches);
+    document.getElementById('toggleOffline').addEventListener('click', toggleNetwork);
+    document.getElementById('newTxBtn').addEventListener('click', newTransaction);
+    document.getElementById('forceSyncBtn').addEventListener('click', forceSync);
+    document.getElementById('resetBtn').addEventListener('click', resetSystem);
+    document.getElementById('connectCoreBtn').addEventListener('click', connectToCore);
+    document.getElementById('checkLicenseBtn').addEventListener('click', checkLicense);
+    document.getElementById('addIpBtn').addEventListener('click', addIP);
+    document.getElementById('blockIpBtn').addEventListener('click', blockIP);
+    document.getElementById('connectApiBtn').addEventListener('click', connectAPI);
+    document.getElementById('exportReportBtn').addEventListener('click', exportReport);
+
+    setInterval(() => {
+        if (isOnline && Math.random() > 0.5) newTransaction();
+    }, 12000);
+
+    console.log('🏛️ Horizon Core · Central Bank Dashboard initialized.');
+});
+</script>
+</body>
+</html>
