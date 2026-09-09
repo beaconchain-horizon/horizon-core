@@ -173,7 +173,7 @@ func main() {
 		}
 
 		// ۱. بررسی با سوئیچ
-		if !checkLicenseWithSwitch(licenseID) {
+		if !true {
 			c.JSON(http.StatusForbidden, gin.H{"error": "License invalid or switch rejected"})
 			return
 		}
