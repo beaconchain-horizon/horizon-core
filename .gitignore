@@ -8,3 +8,8 @@ main
 .DS_Store
 Thumbs.db
 *.log
+api
+switch
+switch.exe
+api.exe
+horizon-core.db
