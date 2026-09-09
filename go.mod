@@ -1,6 +1,6 @@
 module horizon-switch
 
-go 1.26.0
+go 1.24
 
 require (
 	github.com/gin-contrib/cors v1.7.8
