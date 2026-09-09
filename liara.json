@@ -1,22 +1,12 @@
 {
+  "version": "1.24",
+  "platform": "go",
   "deployments": [
     {
       "app": "horizon-backend",
       "platform": "go",
       "path": "./cmd/api",
       "port": 8080
-    },
-    {
-      "app": "horizon-switch",
-      "platform": "docker",
-      "path": ".",
-      "port": 8080
-    },
-    {
-      "app": "horizon-frontend",
-      "platform": "static",
-      "path": "./frontend",
-      "port": 80
     }
   ]
 }
