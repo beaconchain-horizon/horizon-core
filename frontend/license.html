@@ -4,320 +4,372 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horizon License Manager</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #060b18; color: #eef2ff; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .container { max-width: 1400px; width: 100%; background: rgba(12, 18, 34, 0.75); backdrop-filter: blur(24px); border-radius: 2.5rem; border: 1px solid rgba(79, 158, 255, 0.15); padding: 1.8rem; box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8); }
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(79, 158, 255, 0.15); }
-        .logo h1 { font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #fff, #4f9eff, #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .logo span { font-size: 0.75rem; color: #8fa2dc; display: block; }
-        .badge-group { display: flex; gap: 0.8rem; flex-wrap: wrap; }
-        .badge { background: rgba(79, 158, 255, 0.1); border: 1px solid #4f9eff33; padding: 0.3rem 1rem; border-radius: 60px; font-size: 0.65rem; color: #9bb2ff; display: flex; align-items: center; gap: 0.4rem; }
-        .badge.green { background: rgba(74, 222, 128, 0.12); border-color: #4ade8044; color: #4ade80; }
-        .badge.red { background: rgba(248, 113, 113, 0.12); border-color: #f8717144; color: #f87171; }
-        .badge.gold { background: rgba(251, 191, 36, 0.12); border-color: #facc1544; color: #facc15; }
-        .badge.blue { background: rgba(79, 158, 255, 0.15); border-color: #4f9eff66; color: #4f9eff; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-        @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
-        .card { background: rgba(20, 26, 44, 0.6); backdrop-filter: blur(12px); border-radius: 1.5rem; padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.04); }
-        .card h3 { font-size: 0.9rem; color: #4f9eff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .card h3 .badge-sm { font-size: 0.6rem; background: rgba(79, 158, 255, 0.15); padding: 0.1rem 0.6rem; border-radius: 40px; color: #4f9eff; margin-right: auto; }
-        .license-list { max-height: 300px; overflow-y: auto; }
-        .license-item { background: rgba(0, 0, 0, 0.2); border-radius: 0.7rem; padding: 0.5rem 0.8rem; margin-bottom: 0.3rem; font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center; border-right: 3px solid #4f9eff; }
-        .license-item .status { font-size: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 40px; }
-        .license-item .status.active { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
-        .license-item .status.expired { background: rgba(248, 113, 113, 0.15); color: #f87171; }
-        .license-item .status.suspended { background: rgba(251, 191, 36, 0.15); color: #facc15; }
-        .license-item .license-id { color: #4f9eff; font-family: monospace; font-size: 0.6rem; }
-        .btn { background: #4f9eff; border: none; padding: 0.4rem 1.2rem; border-radius: 60px; font-weight: 700; font-size: 0.7rem; color: #0a0f1e; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.4rem; }
-        .btn:hover { background: #3a7bd5; transform: scale(1.05); }
-        .btn.outline { background: transparent; border: 1px solid #4f9eff55; color: #4f9eff; }
-        .btn.outline:hover { background: rgba(79, 158, 255, 0.15); }
-        .btn.danger { background: #f87171; color: #0a0f1e; }
-        .btn.success { background: #4ade80; color: #0a0f1e; }
-        .btn.gold { background: #facc15; color: #0a0f1e; }
-        .form-group { margin-bottom: 0.8rem; }
-        .form-group label { font-size: 0.7rem; color: #8fa2dc; display: block; margin-bottom: 0.2rem; }
-        .form-group input, .form-group select { width: 100%; background: #0f172a; border: 1px solid #1a2240; padding: 0.5rem 0.8rem; border-radius: 0.8rem; color: white; font-size: 0.8rem; font-family: monospace; outline: none; }
-        .form-group input:focus { border-color: #4f9eff; }
-        .output-box { background: #0f172a; border-radius: 0.8rem; padding: 0.8rem; font-family: monospace; font-size: 0.7rem; color: #4ade80; word-break: break-all; max-height: 150px; overflow-y: auto; margin-top: 0.5rem; }
-        .footer { margin-top: 1.5rem; text-align: center; font-size: 0.65rem; color: #475569; border-top: 1px solid #1a2240; padding-top: 1rem; }
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
+        * { font-family: Tahoma, sans-serif; }
+        body { background: #060b18; color: #eef2ff; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .card {
+            background: rgba(20, 26, 44, 0.6);
+            border: 1px solid rgba(79, 158, 255, 0.2);
+            border-radius: 1.5rem; padding: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h3 { color: #4f9eff; font-size: 1.1rem; margin: 0 0 1rem 0; }
+        .form-field { margin-bottom: 1rem; }
+        .form-field label { font-size: 0.75rem; color: #8fa2dc; display: block; margin-bottom: 0.4rem; }
+        .form-field input, .form-field select {
+            width: 100%; background: #020617; border: 1px solid #334155;
+            border-radius: 0.8rem; padding: 0.8rem; color: #fff;
+            font-size: 0.85rem; font-family: monospace; outline: none;
+        }
+        .form-field input:focus { border-color: #4f9eff; }
+        .btn {
+            background: linear-gradient(135deg, #4f9eff, #c084fc);
+            color: #fff; border: none; padding: 0.9rem 2rem;
+            border-radius: 1rem; font-weight: 700; cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-success { background: linear-gradient(135deg, #4ade80, #22c55e); }
+        .header {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-bottom: 1px solid rgba(79, 158, 255, 0.2);
+            padding: 1rem 2rem;
+            display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 1rem;
+        }
+        .stat-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .stat { background: rgba(20, 26, 44, 0.6); border: 1px solid rgba(79, 158, 255, 0.2); border-radius: 1rem; padding: 1rem; text-align: center; }
+        .stat .val { font-size: 1.6rem; font-weight: 900; color: #4ade80; }
+        .stat .lbl { font-size: 0.7rem; color: #8fa2dc; margin-top: 0.3rem; }
+        .output {
+            background: #020617; border: 1px solid rgba(79, 158, 255, 0.3);
+            border-radius: 1rem; padding: 1rem; margin-top: 1rem;
+            font-family: monospace; font-size: 0.75rem; color: #4ade80;
+            word-break: break-all; max-height: 200px; overflow-y: auto; display: none;
+        }
+        .data-table { width: 100%; border-collapse: collapse; background: rgba(20, 26, 44, 0.6); border-radius: 1rem; overflow: hidden; }
+        .data-table th { background: linear-gradient(135deg, #1e293b, #0f172a); color: #4f9eff; font-size: 0.75rem; padding: 0.9rem; text-align: right; }
+        .data-table td { padding: 0.8rem; font-size: 0.78rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .block-card { background: rgba(20, 26, 44, 0.6); border: 1px solid rgba(79, 158, 255, 0.2); border-radius: 1rem; padding: 1rem; margin-bottom: 0.6rem; }
+        .block-hash { color: #4ade80; font-family: monospace; font-size: 0.7rem; word-break: break-all; }
+        .key-warning {
+            background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.4);
+            border-radius: 0.8rem; padding: 0.8rem; font-size: 0.72rem;
+            color: #facc15; margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
+
+<div class="header">
+    <div style="display:flex; align-items:center; gap:0.8rem;">
+        <div style="width:45px; height:45px; border-radius:50%; background:linear-gradient(135deg, #4f9eff, #c084fc, #facc15); display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-angel" style="color:#fff; font-size:1.3rem;"></i>
+        </div>
+        <div>
+            <div style="font-size:1.2rem; font-weight:900; color:#4f9eff;">Horizon License Manager</div>
+            <div style="font-size:0.7rem; color:#8fa2dc;">پنل ادمین · تولید و مدیریت لایسنس</div>
+        </div>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+        <a href="index.html" style="color:#4f9eff; text-decoration:none; font-size:0.8rem; padding:0.4rem 0.8rem; border-radius:20px;">
+            <i class="fas fa-home"></i> فروشگاه
+        </a>
+        <span id="conn-status" style="background:rgba(250, 204, 21, 0.15); color:#facc15; padding:0.3rem 0.8rem; border-radius:20px; font-size:0.7rem;">
+            ⏳ بررسی...
+        </span>
+    </div>
+</div>
+
 <div class="container">
-    <div class="header">
-        <div class="logo">
-            <h1><i class="fas fa-key" style="color:#4f9eff;"></i> Horizon License Manager</h1>
-            <span>پنل مدیریت لایسنس · تولید، تأیید و نظارت</span>
-        </div>
-        <div class="badge-group">
-            <span class="badge green" id="statusBadge"><i class="fas fa-circle"></i> وضعیت: <span id="statusText">بررسی...</span></span>
-            <span class="badge blue"><i class="fas fa-tags"></i> لایسنس فعال: <span id="activeCount">0</span></span>
-            <span class="badge red"><i class="fas fa-hourglass-end"></i> منقضی: <span id="expiredCount">0</span></span>
-        </div>
-    </div>
 
-    <div class="grid-2">
-        <div class="card">
-            <h3><i class="fas fa-plus-circle"></i> تولید لایسنس جدید</h3>
-            <div class="form-group">
-                <label>شناسه محصول</label>
-                <input type="text" id="productId" value="horizon-core">
-            </div>
-            <div class="form-group">
-                <label>شناسه کاربر</label>
-                <input type="text" id="userId" value="bank_melli">
-            </div>
-            <div class="form-group">
-                <label>مدت اعتبار (ساعت)</label>
-                <input type="number" id="duration" value="8760">
-            </div>
-            <button class="btn gold" id="generateBtn"><i class="fas fa-key"></i> تولید لایسنس</button>
-            <div id="generatedLicense" class="output-box" style="display:none;"></div>
+    <div class="stat-grid">
+        <div class="stat">
+            <div class="val" id="stat-licenses">0</div>
+            <div class="lbl">لایسنس‌های تولیدشده</div>
         </div>
-
-        <div class="card">
-            <h3><i class="fas fa-check-circle"></i> تأیید لایسنس</h3>
-            <div class="form-group">
-                <label>شناسه لایسنس</label>
-                <input type="text" id="verifyLicense" placeholder="lic_1234567890">
-            </div>
-            <button class="btn success" id="verifyBtn"><i class="fas fa-shield-alt"></i> تأیید</button>
-            <div id="verifyResult" class="output-box" style="display:none;"></div>
+        <div class="stat">
+            <div class="val" id="stat-blocks">0</div>
+            <div class="lbl">بلوک‌ها</div>
+        </div>
+        <div class="stat">
+            <div class="val" id="stat-tps">—</div>
+            <div class="lbl">TPS</div>
         </div>
     </div>
 
-    <div class="grid-3">
-        <div class="card">
-            <h3><i class="fas fa-list"></i> لایسنس‌های فعال <span class="badge-sm" id="listCount">0</span></h3>
-            <div class="license-list" id="activeLicenses">
-                <div style="color:#8fa2dc;font-size:0.7rem;">در حال بارگذاری...</div>
+    <div class="card">
+        <h3>🔑 تولید لایسنس جدید</h3>
+
+        <div class="key-warning">
+            ⚠️ کلید خصوصی اتریوم شما، تنها یک‌بار برای امضای اولین بلوک استفاده می‌شود. این کلید در سرور ذخیره نمی‌شود.
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+            <div class="form-field">
+                <label>🔑 کلید خصوصی اتریوم</label>
+                <input type="password" id="private-key" placeholder="0x..." />
+            </div>
+            <div class="form-field">
+                <label>📦 شناسه محصول</label>
+                <input type="text" id="product-id" value="horizon-core" />
+            </div>
+            <div class="form-field">
+                <label>🏦 شناسه کاربر (مشتری)</label>
+                <select id="user-id">
+                    <option value="bank_markazi">بانک مرکزی ایران</option>
+                    <option value="bank_melli">بانک ملی ایران</option>
+                    <option value="bank_saderat">بانک صادرات ایران</option>
+                    <option value="bank_mellat">بانک ملت</option>
+                    <option value="niordc">شرکت ملی پالایش و پخش</option>
+                    <option value="igmc">مدیریت شبکه برق</option>
+                    <option value="nigc">شرکت ملی گاز</option>
+                    <option value="nicico">صنایع مس ایران</option>
+                    <option value="msc">فولاد مبارکه</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>📊 حجم (تعداد تراکنش)</label>
+                <input type="number" id="volume" value="1000000" />
+            </div>
+            <div class="form-field">
+                <label>⏱️ مدت اعتبار (ساعت)</label>
+                <input type="number" id="duration" value="8760" />
             </div>
         </div>
 
-        <div class="card">
-            <h3><i class="fas fa-history"></i> لاگ فعالیت‌ها</h3>
-            <div class="license-list" id="logList">
-                <div style="color:#8fa2dc;font-size:0.7rem;">در حال بارگذاری...</div>
-            </div>
+        <button class="btn" onclick="generateLicense()" style="margin-top:0.5rem;">
+            🚀 تولید لایسنس با امضای ECDSA
+        </button>
+
+        <div class="output" id="gen-output"></div>
+    </div>
+
+    <div class="card">
+        <h3>✅ تأیید لایسنس</h3>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <input type="text" id="verify-input" placeholder="شناسه لایسنس (مثلاً lic_...)" style="flex:1; background:#020617; border:1px solid #334155; border-radius:0.8rem; padding:0.8rem; color:#fff; font-family:monospace; min-width:200px;" />
+            <button class="btn btn-success" onclick="verifyLicense()">✅ تأیید</button>
         </div>
+        <div class="output" id="verify-output"></div>
+    </div>
 
-        <div class="card">
-            <h3><i class="fas fa-cogs"></i> کنترل</h3>
-            <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                <button class="btn danger" id="suspendAllBtn"><i class="fas fa-ban"></i> تعلیق همه</button>
-                <button class="btn success" id="renewAllBtn"><i class="fas fa-sync"></i> تمدید همه</button>
-                <button class="btn outline" id="refreshBtn"><i class="fas fa-sync"></i> به‌روزرسانی</button>
-                <button class="btn outline" id="blocksBtn"><i class="fas fa-cubes"></i> نمایش بلوک‌ها</button>
-            </div>
+    <div class="card">
+        <h3>📋 لیست لایسنس‌ها</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>شناسه</th>
+                        <th>مشتری</th>
+                        <th>حجم</th>
+                        <th>امضا</th>
+                        <th>تاریخ</th>
+                    </tr>
+                </thead>
+                <tbody id="licenses-body">
+                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:1.5rem;">هنوز لایسنسی تولید نشده</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <div class="card" id="blocksCard" style="display:none;">
-        <h3><i class="fas fa-cubes"></i> بلوک‌های شبکه بلاکچین</h3>
-        <div class="license-list" id="blocksList"></div>
+    <div class="card">
+        <h3>⛓️ بلاکچین اختصاصی Horizon</h3>
+        <div id="blocks-list">
+            <div style="text-align:center; color:#94a3b8; padding:1rem;">⏳ در حال بارگذاری...</div>
+        </div>
     </div>
 
-    <div class="footer">
-        <span style="color:#4f9eff;">Horizon Angel</span> · شبکه بلاکچین اختصاصی · مقاوم در برابر قطعی اینترنت
-    </div>
 </div>
 
 <script>
 const API_BASE = 'https://horizon-backend.liara.run';
 const SWITCH_BASE = 'https://horizon-switch.liara.run';
-let activityLog = [];
 
-function log(message, type) {
-    const time = new Date().toLocaleString('fa-IR');
-    activityLog.unshift({ time, message, type: type || 'info' });
-    if (activityLog.length > 20) activityLog.pop();
-    renderLogs();
-}
-
-function renderLogs() {
-    const container = document.getElementById('logList');
-    if (activityLog.length === 0) {
-        container.innerHTML = '<div style="color:#8fa2dc;font-size:0.7rem;">هیچ فعالیتی ثبت نشده</div>';
-        return;
-    }
-    container.innerHTML = activityLog.map(l => `
-        <div class="license-item" style="border-right-color:#c084fc;">
-            <div>
-                <div style="font-size:0.55rem;color:#8fa2dc;">${l.time}</div>
-                <div style="font-size:0.6rem;">${l.message}</div>
-            </div>
-            <div style="font-size:0.6rem;color:${l.type === 'success' ? '#4ade80' : l.type === 'error' ? '#f87171' : '#4f9eff'};">
-                ${l.type === 'success' ? '✅' : l.type === 'error' ? '❌' : 'ℹ️'}
-            </div>
-        </div>
-    `).join('');
-}
-
-async function fetchJSON(url, options) {
-    const r = await fetch(url, options);
-    const text = await r.text();
-    try { return { ok: r.ok, data: JSON.parse(text) }; }
-    catch { return { ok: r.ok, data: text }; }
-}
-
-async function checkServerStatus() {
-    const badge = document.getElementById('statusBadge');
-    const text = document.getElementById('statusText');
-    const res = await fetchJSON(`${API_BASE}/api/v1/health`);
-    if (res.ok && res.data && res.data.status === 'online') {
-        badge.className = 'badge green';
-        text.textContent = 'آنلاین';
-        log('اتصال به بک‌اند برقرار شد', 'success');
-        return true;
-    } else {
-        badge.className = 'badge red';
-        text.textContent = 'آفلاین';
-        log('بک‌اند در دسترس نیست', 'error');
-        return false;
-    }
-}
-
-async function loadLicenses() {
-    const container = document.getElementById('activeLicenses');
-    const res = await fetchJSON(`${API_BASE}/api/v1/licenses`);
-    if (!res.ok) {
-        container.innerHTML = '<div style="color:#f87171;font-size:0.7rem;">خطا در دریافت لایسنس‌ها</div>';
-        return;
-    }
-    const licenses = Array.isArray(res.data) ? res.data : (res.data.licenses || []);
-    const active = licenses.filter(l => l.status === 'active' || l.status === 'valid');
-    const expired = licenses.filter(l => l.status !== 'active' && l.status !== 'valid');
-    document.getElementById('activeCount').textContent = active.length;
-    document.getElementById('expiredCount').textContent = expired.length;
-    document.getElementById('listCount').textContent = licenses.length;
-    if (licenses.length === 0) {
-        container.innerHTML = '<div style="color:#8fa2dc;font-size:0.7rem;">هیچ لایسنس ثبت نشده</div>';
-        return;
-    }
-    container.innerHTML = licenses.map(l => `
-        <div class="license-item">
-            <div>
-                <div class="license-id">${l.id || 'N/A'}</div>
-                <div style="font-size:0.55rem;color:#8fa2dc;">${l.user_id || 'نامشخص'}</div>
-            </div>
-            <div style="text-align:left;">
-                <span class="status ${l.status === 'active' ? 'active' : l.status === 'suspended' ? 'suspended' : 'expired'}">
-                    ${l.status === 'active' ? '🟢 فعال' : l.status === 'suspended' ? '🟡 تعلیق' : '🔴 منقضی'}
-                </span>
-            </div>
-        </div>
-    `).join('');
+async function checkConnection() {
+    const status = document.getElementById('conn-status');
+    try {
+        const r = await fetch(`${API_BASE}/api/v1/health`);
+        if (r.ok) {
+            status.innerHTML = '✅ متصل';
+            status.style.background = 'rgba(74, 222, 128, 0.15)';
+            status.style.color = '#4ade80';
+            return true;
+        }
+    } catch (e) {}
+    status.innerHTML = '❌ قطع';
+    status.style.background = 'rgba(248, 113, 113, 0.15)';
+    status.style.color = '#f87171';
+    return false;
 }
 
 async function generateLicense() {
-    const productId = document.getElementById('productId').value.trim();
-    const userId = document.getElementById('userId').value.trim();
-    const duration = parseInt(document.getElementById('duration').value) || 8760;
-    const output = document.getElementById('generatedLicense');
-    if (!productId || !userId) { alert('اطلاعات را کامل کنید'); return; }
+    const privateKey = document.getElementById('private-key').value.trim();
+    const productId = document.getElementById('product-id').value.trim();
+    const userId = document.getElementById('user-id').value;
+    const volume = parseInt(document.getElementById('volume').value);
+    const duration = parseInt(document.getElementById('duration').value);
+    const output = document.getElementById('gen-output');
+
+    if (!privateKey) {
+        output.style.display = 'block';
+        output.innerHTML = '❌ لطفاً کلید خصوصی را وارد کنید';
+        return;
+    }
+
     output.style.display = 'block';
-    output.textContent = 'در حال تولید...';
-    const res = await fetchJSON(`${API_BASE}/api/v1/license/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: productId, user_id: userId, volume: 100, duration: duration })
-    });
-    if (res.ok && res.data) {
-        output.innerHTML = `✅ لایسنس تولید شد<br>ID: ${res.data.id || 'N/A'}<br>Root: ${(res.data.root || '').slice(0, 30)}...`;
-        log(`لایسنس ${res.data.id} تولید شد`, 'success');
-        await loadLicenses();
-    } else {
-        output.textContent = 'خطا: ' + JSON.stringify(res.data);
-        log('خطا در تولید لایسنس', 'error');
+    output.innerHTML = '⏳ در حال تولید لایسنس با امضای ECDSA...';
+
+    try {
+        const r = await fetch(`${API_BASE}/api/v1/license/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                product_id: productId,
+                user_id: userId,
+                volume: volume,
+                duration: duration,
+                private_key: privateKey
+            })
+        });
+
+        const data = await r.json();
+
+        if (r.ok && data.id) {
+            const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
+            licenses.push({
+                id: data.id,
+                user_id: userId,
+                product_id: productId,
+                volume: volume,
+                duration: duration,
+                root: data.root,
+                signature: data.signature,
+                public_key: data.public_key,
+                created_at: new Date().toISOString(),
+                status: 'active'
+            });
+            localStorage.setItem('horizon_licenses', JSON.stringify(licenses));
+
+            output.innerHTML = '✅ لایسنس با موفقیت تولید شد<br><br>' +
+                '<strong>شناسه:</strong> ' + data.id + '<br>' +
+                '<strong>مشتری:</strong> ' + userId + '<br>' +
+                '<strong>حجم:</strong> ' + volume.toLocaleString() + ' تراکنش<br>' +
+                '<strong>Root:</strong> ' + (data.root || '').slice(0, 50) + '...<br>' +
+                '<strong>امضا:</strong> ' + (data.signature || '').slice(0, 50) + '...';
+
+            loadLicenses();
+            loadStats();
+        } else {
+            output.innerHTML = '❌ خطا: ' + JSON.stringify(data);
+        }
+    } catch (e) {
+        output.innerHTML = '❌ خطا در ارتباط: ' + e.message;
     }
 }
 
 async function verifyLicense() {
-    const licenseId = document.getElementById('verifyLicense').value.trim();
-    const output = document.getElementById('verifyResult');
-    if (!licenseId) { alert('شناسه لایسنس را وارد کنید'); return; }
-    output.style.display = 'block';
-    output.textContent = 'در حال بررسی...';
-    const res = await fetchJSON(`${API_BASE}/api/v1/license/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ license: licenseId })
-    });
-    if (res.ok && res.data) {
-        output.textContent = '✅ لایسنس معتبر است';
-        log(`تأیید ${licenseId} موفق`, 'success');
-    } else {
-        output.textContent = '❌ لایسنس نامعتبر';
-        log(`تأیید ${licenseId} ناموفق`, 'error');
+    const id = document.getElementById('verify-input').value.trim();
+    const output = document.getElementById('verify-output');
+    if (!id) {
+        output.style.display = 'block';
+        output.innerHTML = '⚠️ شناسه لایسنس را وارد کنید';
+        return;
     }
+    output.style.display = 'block';
+    output.innerHTML = '⏳ در حال بررسی...';
+
+    const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
+    const found = licenses.find(l => l.id === id);
+
+    if (found) {
+        output.innerHTML = '✅ لایسنس "' + id + '" در سیستم ثبت شده است<br>' +
+            '<strong>مشتری:</strong> ' + found.user_id + '<br>' +
+            '<strong>حجم:</strong> ' + found.volume.toLocaleString() + '<br>' +
+            '<strong>تاریخ:</strong> ' + new Date(found.created_at).toLocaleString('fa-IR');
+        return;
+    }
+
+    output.innerHTML = '❌ لایسنس یافت نشد';
 }
 
-async function suspendAll() {
-    if (!confirm('همه لایسنس‌ها تعلیق شوند؟')) return;
-    const res = await fetchJSON(`${API_BASE}/api/v1/license/suspend-all`, { method: 'POST' });
-    if (res.ok) { log('همه لایسنس‌ها تعلیق شدند', 'success'); await loadLicenses(); }
-    else log('خطا در تعلیق', 'error');
+function loadLicenses() {
+    const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
+    const tbody = document.getElementById('licenses-body');
+
+    if (licenses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:1.5rem;">هنوز لایسنسی تولید نشده</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = licenses.slice().reverse().map(l => 
+        '<tr>' +
+            '<td style="color:#4f9eff; font-family:monospace; font-size:0.7rem;">' + l.id + '</td>' +
+            '<td>' + l.user_id + '</td>' +
+            '<td>' + l.volume.toLocaleString() + '</td>' +
+            '<td style="color:#c084fc; font-family:monospace; font-size:0.7rem;">' + (l.signature || '').slice(0, 15) + '...</td>' +
+            '<td style="color:#94a3b8; font-size:0.75rem;">' + new Date(l.created_at).toLocaleString('fa-IR') + '</td>' +
+        '</tr>'
+    ).join('');
 }
 
-async function renewAll() {
-    if (!confirm('همه لایسنس‌ها تمدید شوند؟')) return;
-    const res = await fetchJSON(`${API_BASE}/api/v1/license/renew-all`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ duration: 8760 })
-    });
-    if (res.ok) { log('همه لایسنس‌ها تمدید شدند', 'success'); await loadLicenses(); }
-    else log('خطا در تمدید', 'error');
+async function loadStats() {
+    const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
+    document.getElementById('stat-licenses').textContent = licenses.length;
+
+    try {
+        const r = await fetch(`${SWITCH_BASE}/benchmark`);
+        if (r.ok) {
+            const d = await r.json();
+            document.getElementById('stat-tps').textContent = Math.round(d.tps).toLocaleString();
+        }
+    } catch (e) {}
 }
 
 async function loadBlocks() {
-    const container = document.getElementById('blocksList');
-    const res = await fetchJSON(`${SWITCH_BASE}/stats`);
-    if (!res.ok || !res.data.blocks) {
-        container.innerHTML = '<div style="color:#f87171;font-size:0.7rem;">خطا در دریافت بلوک‌ها</div>';
-        return;
+    const container = document.getElementById('blocks-list');
+    try {
+        const r = await fetch(`${SWITCH_BASE}/stats`);
+        if (!r.ok) throw new Error('Failed');
+        const d = await r.json();
+        const blocks = (d.blocks || []).slice(-5).reverse();
+
+        if (blocks.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#94a3b8;">هنوز بلوکی تولید نشده</div>';
+            return;
+        }
+
+        container.innerHTML = blocks.map(b => 
+            '<div class="block-card">' +
+                '<div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">' +
+                    '<span style="color:#4f9eff; font-weight:700;">بلوک #' + b.index + '</span>' +
+                    '<span style="color:#8fa2dc; font-size:0.72rem;">' + (b.transactions || []).length + ' تراکنش</span>' +
+                '</div>' +
+                '<div class="block-hash">هش: ' + (b.hash || '').slice(0, 60) + '...</div>' +
+                '<div style="color:#94a3b8; font-size:0.7rem; margin-top:0.3rem;">زمان: ' + new Date(b.timestamp * 1000).toLocaleString('fa-IR') + '</div>' +
+            '</div>'
+        ).join('');
+
+        document.getElementById('stat-blocks').textContent = d.chainLength || 0;
+    } catch (e) {
+        container.innerHTML = '<div style="text-align:center; color:#f87171;">خطا در بارگذاری</div>';
     }
-    const blocks = res.data.blocks.slice(-5).reverse();
-    container.innerHTML = blocks.map(b => `
-        <div class="license-item" style="border-right-color:#c084fc;flex-direction:column;align-items:flex-start;">
-            <div style="width:100%;display:flex;justify-content:space-between;">
-                <span style="color:#4f9eff;font-weight:bold;">بلوک #${b.index}</span>
-                <span style="color:#8fa2dc;font-size:0.6rem;">${(b.transactions || []).length} تراکنش</span>
-            </div>
-            <div style="font-size:0.55rem;color:#4ade80;font-family:monospace;margin-top:0.2rem;word-break:break-all;">
-                Hash: ${(b.hash || '').slice(0, 50)}...
-            </div>
-        </div>
-    `).join('');
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await checkServerStatus();
-    await loadLicenses();
-    document.getElementById('generateBtn').addEventListener('click', generateLicense);
-    document.getElementById('verifyBtn').addEventListener('click', verifyLicense);
-    document.getElementById('suspendAllBtn').addEventListener('click', suspendAll);
-    document.getElementById('renewAllBtn').addEventListener('click', renewAll);
-    document.getElementById('refreshBtn').addEventListener('click', async () => {
-        await loadLicenses();
-        log('لیست به‌روزرسانی شد', 'info');
-    });
-    document.getElementById('blocksBtn').addEventListener('click', () => {
-        const card = document.getElementById('blocksCard');
-        card.style.display = card.style.display === 'none' ? 'block' : 'none';
-        if (card.style.display === 'block') loadBlocks();
-    });
-    setInterval(loadLicenses, 30000);
-});
+checkConnection();
+loadLicenses();
+loadStats();
+loadBlocks();
+setInterval(checkConnection, 15000);
+setInterval(loadStats, 15000);
+setInterval(loadBlocks, 20000);
 </script>
+
 </body>
 </html>
