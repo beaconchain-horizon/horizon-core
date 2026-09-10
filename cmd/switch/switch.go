@@ -5,9 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"strings"
 
-	"horizon-core/internal/crypto"
 	"log"
 	"net/http"
 	"os"
