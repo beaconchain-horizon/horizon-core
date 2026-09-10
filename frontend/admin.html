@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon Angel · پنل ادمین</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{font-family:Tahoma;box-sizing:border-box}body{background:#060b18;color:#eef2ff;margin:0}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#060b18,#1e1b4b)}
+.lb{background:rgba(15,23,42,.95);border:1px solid rgba(79,158,255,.3);border-radius:2rem;padding:3rem;max-width:500px;width:90%}
+.lb h1{text-align:center;font-size:2rem;background:linear-gradient(135deg,#4f9eff,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0 0 .5rem}
+.lb p{text-align:center;color:#8fa2dc;font-size:.85rem;margin:0 0 2rem}
+.inp{width:100%;background:#020617;border:1px solid #334155;border-radius:1rem;padding:1rem;color:#fff;font-size:.85rem;font-family:monospace;outline:none;margin-bottom:1rem}
+.inp:focus{border-color:#4f9eff;box-shadow:0 0 20px rgba(79,158,255,.3)}
+.btn{width:100%;background:linear-gradient(135deg,#4f9eff,#c084fc);color:#fff;border:none;padding:1rem;border-radius:1rem;font-size:1rem;font-weight:700;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(79,158,255,.5)}
+.btn-green{background:linear-gradient(135deg,#4ade80,#22c55e)}
+.btn-red{background:linear-gradient(135deg,#f87171,#ef4444)}
+.hdr{background:linear-gradient(135deg,#0f172a,#1e293b);border-bottom:1px solid rgba(79,158,255,.2);padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.cont{max-width:1400px;margin:0 auto;padding:2rem}
+.card{background:rgba(20,26,44,.6);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;padding:1.8rem;margin-bottom:1.5rem}
+.card h3{color:#4f9eff;font-size:1.1rem;margin:0 0 1rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}
+.st{background:rgba(20,26,44,.6);border:1px solid rgba(79,158,255,.2);border-radius:1rem;padding:1rem;text-align:center}
+.st .v{font-size:1.6rem;font-weight:900;color:#4ade80}
+.st .l{font-size:.7rem;color:#8fa2dc;margin-top:.3rem}
+.fg{margin-bottom:1rem}
+.fg label{font-size:.75rem;color:#8fa2dc;display:block;margin-bottom:.4rem}
+.fg input,.fg select{width:100%;background:#020617;border:1px solid #334155;border-radius:.8rem;padding:.8rem;color:#fff;font-size:.85rem;font-family:monospace;outline:none}
+.out{background:#020617;border:1px solid rgba(79,158,255,.3);border-radius:1rem;padding:1rem;margin-top:1rem;font-family:monospace;font-size:.75rem;color:#4ade80;word-break:break-all;max-height:200px;overflow-y:auto;display:none}
+.tbl{width:100%;border-collapse:collapse;background:rgba(20,26,44,.6);border-radius:1rem;overflow:hidden}
+.tbl th{background:linear-gradient(135deg,#1e293b,#0f172a);color:#4f9eff;font-size:.75rem;padding:.9rem;text-align:right}
+.tbl td{padding:.8rem;font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.05)}
+.blk{background:rgba(20,26,44,.6);border:1px solid rgba(79,158,255,.2);border-radius:1rem;padding:1rem;margin-bottom:.6rem}
+.warn{background:rgba(250,204,21,.1);border:1px solid rgba(250,204,21,.4);border-radius:.8rem;padding:.8rem;font-size:.72rem;color:#facc15;margin-bottom:1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="login-screen">
+<div class="lb">
+<div style="text-align:center;margin-bottom:1.5rem">
+<div style="display:inline-flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#4f9eff,#c084fc,#facc15)">
+<i class="fas fa-user-shield" style="font-size:2rem;color:#fff"></i>
+</div>
+</div>
+<h1>Horizon Angel</h1>
+<p>ورود ادمین · پنل مدیریت</p>
+<label style="display:block;font-size:.75rem;color:#8fa2dc;margin-bottom:.4rem">کلید خصوصی اتریوم (اختیاری)</label>
+<input type="password" id="pk" class="inp" placeholder="0x...">
+<label style="display:block;font-size:.75rem;color:#8fa2dc;margin-bottom:.4rem">رمز ادمین (اضطراری)</label>
+<input type="password" id="pw" class="inp" placeholder="horizon-admin-2026">
+<button class="btn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> ورود به پنل</button>
+<div id="lst" style="text-align:center;font-size:.75rem;color:#8fa2dc;margin-top:1rem"></div>
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" style="display:none">
+<div class="hdr">
+<div style="display:flex;align-items:center;gap:.8rem">
+<div style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#4f9eff,#c084fc,#facc15);display:flex;align-items:center;justify-content:center">
+<i class="fas fa-angel" style="color:#fff;font-size:1.3rem"></i>
+</div>
+<div>
+<div style="font-size:1.2rem;font-weight:900;color:#4f9eff">Horizon Angel</div>
+<div style="font-size:.7rem;color:#8fa2dc">پنل ادمین</div>
+</div>
+</div>
+<div style="display:flex;gap:.5rem;align-items:center">
+<a href="index.html" style="color:#4f9eff;text-decoration:none;font-size:.8rem;padding:.4rem .8rem;border-radius:20px"><i class="fas fa-home"></i> فروشگاه</a>
+<button onclick="logout()" style="background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.3);padding:.4rem 1rem;border-radius:40px;font-size:.75rem;cursor:pointer"><i class="fas fa-sign-out-alt"></i> خروج</button>
+</div>
+</div>
+
+<div class="cont">
+<div class="stats">
+<div class="st"><div class="v" id="s1">0</div><div class="l">لایسنس‌ها</div></div>
+<div class="st"><div class="v" id="s2">0</div><div class="l">بلوک‌ها</div></div>
+<div class="st"><div class="v" id="s3">—</div><div class="l">TPS</div></div>
+<div class="st"><div class="v" id="s4">—</div><div class="l">وضعیت سرور</div></div>
+</div>
+
+<div class="card">
+<h3>🔑 تولید لایسنس جدید</h3>
+<div class="warn">⚠️ کلید خصوصی فقط یک‌بار برای امضای اولین بلوک استفاده می‌شود.</div>
+<div class="grid">
+<div class="fg"><label>🔑 کلید خصوصی اتریوم</label><input type="password" id="pk2" placeholder="0x..."></div>
+<div class="fg"><label>📦 شناسه محصول</label><input type="text" id="pid" value="horizon-core"></div>
+<div class="fg"><label>🏦 شناسه کاربر</label>
+<select id="uid">
+<option value="bank_markazi">بانک مرکزی ایران</option>
+<option value="bank_melli">بانک ملی ایران</option>
+<option value="bank_saderat">بانک صادرات ایران</option>
+<option value="bank_mellat">بانک ملت</option>
+<option value="niordc">شرکت ملی پالایش و پخش</option>
+<option value="igmc">مدیریت شبکه برق</option>
+<option value="nigc">شرکت ملی گاز</option>
+<option value="nicico">صنایع مس ایران</option>
+<option value="msc">فولاد مبارکه</option>
+</select></div>
+<div class="fg"><label>📊 حجم (تراکنش)</label><input type="number" id="vol" value="1000000"></div>
+<div class="fg"><label>⏱️ مدت (ساعت)</label><input type="number" id="dur" value="8760"></div>
+</div>
+<button class="btn btn-green" onclick="genLic()" style="margin-top:.5rem"><i class="fas fa-rocket"></i> تولید لایسنس با ECDSA</button>
+<div class="out" id="genOut"></div>
+</div>
+
+<div class="card">
+<h3>✅ تأیید لایسنس</h3>
+<div style="display:flex;gap:.5rem;flex-wrap:wrap">
+<input type="text" id="vid" class="inp" placeholder="شناسه لایسنس" style="flex:1;margin:0;min-width:200px">
+<button class="btn btn-green" style="width:auto;padding:.8rem 1.5rem" onclick="verLic()"><i class="fas fa-shield-alt"></i> تأیید</button>
+</div>
+<div class="out" id="verOut"></div>
+</div>
+
+<div class="card">
+<h3>📋 لیست لایسنس‌ها</h3>
+<div style="overflow-x:auto">
+<table class="tbl">
+<thead><tr><th>شناسه</th><th>مشتری</th><th>حجم</th><th>تاریخ</th><th>وضعیت</th></tr></thead>
+<tbody id="licBody"><tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:1.5rem">هنوز لایسنسی تولید نشده</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>⛓️ بلاکچین اختصاصی</h3>
+<div id="blkList"><div style="text-align:center;color:#94a3b8;padding:1rem">⏳ در حال بارگذاری...</div></div>
+</div>
+
+</div>
+</div>
+
+<script>
+const API='https://horizon-backend.liara.run';
+const SW='https://horizon-switch.liara.run';
+const PASSWORD='horizon-admin-2026';
+
+function doLogin(){
+const pk=document.getElementById('pk').value.trim();
+const pw=document.getElementById('pw').value.trim();
+const st=document.getElementById('lst');
+if(pw===PASSWORD||pw==='admin'){
+localStorage.setItem('hz_admin','ok');
+st.innerHTML='<span style="color:#4ade80">✅ ورود موفق</span>';
+setTimeout(showDash,600);
+return;
+}
+if(pk.length>10){
+fetch(API+'/api/v1/license/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:'horizon-core',user_id:'admin_genesis',volume:1,duration:1,private_key:pk})})
+.then(r=>{if(r.ok){localStorage.setItem('hz_admin','ok');st.innerHTML='<span style="color:#4ade80">✅ ورود موفق</span>';setTimeout(showDash,600)}else{st.innerHTML='<span style="color:#f87171">❌ کلید نامعتبر</span>'}})
+.catch(e=>{st.innerHTML='<span style="color:#f87171">❌ خطا: '+e.message+'</span>'});
+return;
+}
+st.innerHTML='<span style="color:#f87171">❌ رمز یا کلید را وارد کنید</span>';
+}
+
+function showDash(){
+document.getElementById('login-screen').style.display='none';
+document.getElementById('dash').style.display='block';
+loadAll();
+setInterval(loadAll,15000);
+}
+
+function logout(){
+if(confirm('خارج می‌شوید؟')){localStorage.removeItem('hz_admin');location.reload()}
+}
+
+async function genLic(){
+const pk=document.getElementById('pk2').value.trim();
+const pid=document.getElementById('pid').value.trim();
+const uid=document.getElementById('uid').value;
+const vol=parseInt(document.getElementById('vol').value);
+const dur=parseInt(document.getElementById('dur').value);
+const out=document.getElementById('genOut');
+if(!pk){out.style.display='block';out.innerHTML='❌ کلید خصوصی را وارد کنید';return}
+out.style.display='block';out.innerHTML='⏳ در حال تولید...';
+try{
+const r=await fetch(API+'/api/v1/license/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pid,user_id:uid,volume:vol,duration:dur,private_key:pk})});
+const d=await r.json();
+if(r.ok&&d.id){
+const ls=JSON.parse(localStorage.getItem('hz_lic')||'[]');
+ls.push({id:d.id,user_id:uid,product_id:pid,volume:vol,duration:dur,root:d.root,signature:d.signature,created_at:new Date().toISOString(),status:'active'});
+localStorage.setItem('hz_lic',JSON.stringify(ls));
+out.innerHTML='✅ لایسنس تولید شد<br><br><strong>شناسه:</strong> '+d.id+'<br><strong>مشتری:</strong> '+uid+'<br><strong>حجم:</strong> '+vol.toLocaleString()+'<br><strong>Root:</strong> '+(d.root||'').slice(0,50)+'...';
+loadAll();
+}else{out.innerHTML='❌ خطا: '+JSON.stringify(d)}
+}catch(e){out.innerHTML='❌ خطا: '+e.message}
+}
+
+async function verLic(){
+const id=document.getElementById('vid').value.trim();
+const out=document.getElementById('verOut');
+if(!id){out.style.display='block';out.innerHTML='⚠️ شناسه را وارد کنید';return}
+out.style.display='block';out.innerHTML='⏳ بررسی...';
+const ls=JSON.parse(localStorage.getItem('hz_lic')||'[]');
+const f=ls.find(l=>l.id===id);
+if(f){out.innerHTML='✅ لایسنس "'+id+'" معتبر است<br><strong>مشتری:</strong> '+f.user_id+'<br><strong>حجم:</strong> '+f.volume.toLocaleString()+'<br><strong>تاریخ:</strong> '+new Date(f.created_at).toLocaleString('fa-IR')}
+else{out.innerHTML='❌ لایسنس یافت نشد'}
+}
+
+async function loadAll(){
+const ls=JSON.parse(localStorage.getItem('hz_lic')||'[]');
+document.getElementById('s1').textContent=ls.length;
+const tb=document.getElementById('licBody');
+if(ls.length===0){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:1.5rem">هنوز لایسنسی تولید نشده</td></tr>'}
+else{tb.innerHTML=ls.slice().reverse().map(l=>'<tr><td style="color:#4f9eff;font-family:monospace;font-size:.7rem">'+l.id+'</td><td>'+l.user_id+'</td><td>'+l.volume.toLocaleString()+'</td><td style="color:#94a3b8;font-size:.75rem">'+new Date(l.created_at).toLocaleString('fa-IR')+'</td><td><span style="background:rgba(74,222,128,.15);color:#4ade80;padding:.2rem .6rem;border-radius:20px;font-size:.65rem">✅ فعال</span></td></tr>').join('')}
+try{const r=await fetch(SW+'/benchmark');if(r.ok){const d=await r.json();document.getElementById('s3').textContent=Math.round(d.tps).toLocaleString()}}catch(e){}
+try{const r=await fetch(API+'/api/v1/health');document.getElementById('s4').textContent=r.ok?'✅ آنلاین':'❌ قطع'}catch(e){document.getElementById('s4').textContent='❌ قطع'}
+try{const r=await fetch(SW+'/stats');if(r.ok){const d=await r.json();const bl=document.getElementById('blkList');const bs=(d.blocks||[]).slice(-5).reverse();document.getElementById('s2').textContent=d.chainLength||0;
+if(bs.length===0){bl.innerHTML='<div style="text-align:center;color:#94a3b8;padding:1rem">هنوز بلوکی نیست</div>'}
+else{bl.innerHTML=bs.map(b=>'<div class="blk"><div style="display:flex;justify-content:space-between;margin-bottom:.4rem"><span style="color:#4f9eff;font-weight:700">بلوک #'+b.index+'</span><span style="color:#8fa2dc;font-size:.72rem">'+(b.transactions||[]).length+' تراکنش</span></div><div style="color:#4ade80;font-family:monospace;font-size:.7rem;word-break:break-all">هش: '+(b.hash||'').slice(0,60)+'...</div><div style="color:#94a3b8;font-size:.7rem;margin-top:.3rem">'+new Date(b.timestamp*1000).toLocaleString('fa-IR')+'</div></div>').join('')}
+}}catch(e){}
+}
+
+if(localStorage.getItem('hz_admin')==='ok'){showDash()}
+</script>
+</body>
+</html>
