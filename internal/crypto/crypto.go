@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"crypto/x509"
+	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
@@ -18,81 +19,105 @@ import (
 	"math/big"
 )
 
-// Hashing
+type ecdsaSignature struct {
+	R *big.Int
+	S *big.Int
+}
+
 func Sha256Hash(data []byte) []byte {
 	h := sha256.Sum256(data)
 	return h[:]
 }
 
 func SHA256HashString(text string) string {
-	hash := sha256.Sum256([]byte(text))
-	return hex.EncodeToString(hash[:])
+	h := sha256.Sum256([]byte(text))
+	return hex.EncodeToString(h[:])
 }
 
 func SHA512HashString(text string) string {
-	hash := sha512.Sum512([]byte(text))
-	return hex.EncodeToString(hash[:])
+	h := sha512.Sum512([]byte(text))
+	return hex.EncodeToString(h[:])
 }
 
-func DoubleSHA256(data []byte) string {
-	first := sha256.Sum256(data)
-	second := sha256.Sum256(first[:])
-	return hex.EncodeToString(second[:])
-}
-
-// ECDSA
 func SignData(data []byte, privKey *ecdsa.PrivateKey) (string, error) {
 	if privKey == nil {
-		return "", fmt.Errorf("private key is nil")
+		return "", errors.New("private key is nil")
 	}
-	r, s, err := ecdsa.Sign(rand.Reader, privKey, Sha256Hash(data))
+	digest := Sha256Hash(data)
+	r, s, err := ecdsa.Sign(rand.Reader, privKey, digest)
 	if err != nil {
 		return "", err
 	}
-	sig := append(r.Bytes(), s.Bytes()...)
-	return hex.EncodeToString(sig), nil
+	der, err := asn1.Marshal(ecdsaSignature{r, s})
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(der), nil
 }
 
 func VerifySignature(pubKey *ecdsa.PublicKey, data []byte, signatureHex string) bool {
-	signature, err := hex.DecodeString(signatureHex)
+	if pubKey == nil {
+		return false
+	}
+	der, err := hex.DecodeString(signatureHex)
 	if err != nil {
 		return false
 	}
-	if len(signature) < 64 {
+	var sig ecdsaSignature
+	if _, err := asn1.Unmarshal(der, &sig); err != nil || sig.R == nil || sig.S == nil {
 		return false
 	}
-	r := new(big.Int).SetBytes(signature[:len(signature)/2])
-	s := new(big.Int).SetBytes(signature[len(signature)/2:])
-	hash := sha256.Sum256(data)
-	return ecdsa.Verify(pubKey, hash[:], r, s)
+	digest := Sha256Hash(data)
+	return ecdsa.Verify(pubKey, digest, sig.R, sig.S)
 }
 
-func GenerateKeyPair() (privPEM string, err error) {
+func GenerateKeyPair() (string, error) {
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return "", err
 	}
-	privBytes, err := x509.MarshalECPrivateKey(priv)
+	b, err := x509.MarshalECPrivateKey(priv)
 	if err != nil {
 		return "", err
 	}
-	privPEM = string(pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes}))
-	return privPEM, nil
+	return string(pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: b})), nil
 }
 
 func PEMToPrivateKey(pemStr string) (*ecdsa.PrivateKey, error) {
 	block, _ := pem.Decode([]byte(pemStr))
 	if block == nil {
-		return nil, fmt.Errorf("failed to decode PEM block")
+		return nil, errors.New("invalid private key PEM")
 	}
-	priv, err := x509.ParseECPrivateKey(block.Bytes)
+	return x509.ParseECPrivateKey(block.Bytes)
+}
+
+func PEMToPublicKey(pemStr string) (*ecdsa.PublicKey, error) {
+	block, _ := pem.Decode([]byte(pemStr))
+	if block == nil {
+		return nil, errors.New("invalid public key PEM")
+	}
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
-	return priv, nil
+	key, ok := pub.(*ecdsa.PublicKey)
+	if !ok {
+		return nil, errors.New("public key is not ECDSA")
+	}
+	return key, nil
 }
 
-// AES-GCM
+func PublicKeyPEM(priv *ecdsa.PrivateKey) (string, error) {
+	if priv == nil {
+		return "", errors.New("private key is nil")
+	}
+	b, err := x509.MarshalPKIXPublicKey(&priv.PublicKey)
+	if err != nil {
+		return "", err
+	}
+	return string(pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: b})), nil
+}
+
 func EncryptAES(key []byte, plaintext string) (string, error) {
 	if len(key) != 16 && len(key) != 24 && len(key) != 32 {
 		return "", errors.New("key length must be 16, 24, or 32 bytes")
@@ -109,15 +134,15 @@ func EncryptAES(key []byte, plaintext string) (string, error) {
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
 		return "", err
 	}
-	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
+	out := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
+	return base64.StdEncoding.EncodeToString(out), nil
 }
 
-func DecryptAES(key []byte, ciphertextBase64 string) (string, error) {
+func DecryptAES(key []byte, encoded string) (string, error) {
 	if len(key) != 16 && len(key) != 24 && len(key) != 32 {
 		return "", errors.New("key length must be 16, 24, or 32 bytes")
 	}
-	ciphertext, err := base64.StdEncoding.DecodeString(ciphertextBase64)
+	data, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
 		return "", err
 	}
@@ -129,50 +154,16 @@ func DecryptAES(key []byte, ciphertextBase64 string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	nonceSize := gcm.NonceSize()
-	if len(ciphertext) < nonceSize {
+	ns := gcm.NonceSize()
+	if len(data) < ns {
 		return "", errors.New("ciphertext too short")
 	}
-	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	return stringData(gcm.Open(nil, data[:ns], data[ns:], nil))
+}
+
+func stringData(data []byte, err error) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(plaintext), nil
-}
-
-// Random & UUID
-func GenerateRandomBytes(length int) ([]byte, error) {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return nil, err
-	}
-	return bytes, nil
-}
-
-func GenerateRandomHex(length int) (string, error) {
-	bytes, err := GenerateRandomBytes(length)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes), nil
-}
-
-func GenerateRandomInt(max int64) (int64, error) {
-	n, err := rand.Int(rand.Reader, big.NewInt(max))
-	if err != nil {
-		return 0, err
-	}
-	return n.Int64(), nil
-}
-
-func GenerateUUID() (string, error) {
-	bytes, err := GenerateRandomBytes(16)
-	if err != nil {
-		return "", err
-	}
-	bytes[6] = (bytes[6] & 0x0f) | 0x40
-	bytes[8] = (bytes[8] & 0x3f) | 0x80
-	return hex.EncodeToString(bytes), nil
+	return string(data), nil
 }

@@ -1,84 +1,68 @@
 package license
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
-	"time"
+	"errors"
+	"fmt"
 )
 
+type ProofStep struct {
+	Sibling string `json:"sibling"`
+	Left    bool   `json:"left"`
+}
+
 type PrepaidPackage struct {
-	Volume int
-	Seed   []byte
-	Root   []byte
+	Volume int      `json:"volume"`
+	Seed   []byte   `json:"seed"`
+	Leaves [][]byte `json:"leaves"`
+	Root   []byte   `json:"root"`
 }
 
 func NewPrepaidPackage(volume int) *PrepaidPackage {
-	if volume <= 0 {
-		volume = 1
+	p := &PrepaidPackage{Volume: volume}
+	if volume > 0 {
+		p.Leaves = make([][]byte, 0, volume)
 	}
-	seed := make([]byte, 32)
-	hash := sha256.Sum256([]byte("HorizonSeed" + time.Now().String()))
-	copy(seed, hash[:])
-	return &PrepaidPackage{Volume: volume, Seed: seed}
+	return p
 }
 
 func (p *PrepaidPackage) Generate() error {
-	leaves := make([][]byte, p.Volume)
-	for i := 0; i < p.Volume; i++ {
-		leafData := append(p.Seed, byte(i>>24), byte(i>>16), byte(i>>8), byte(i))
-		hash := sha256.Sum256(leafData)
-		leaves[i] = hash[:]
+	if p.Volume <= 0 {
+		return errors.New("volume must be greater than zero")
 	}
-	level := leaves
+	p.Seed = make([]byte, 32)
+	if _, err := rand.Read(p.Seed); err != nil {
+		return err
+	}
+	p.Leaves = make([][]byte, p.Volume)
+	for i := range p.Leaves {
+		h := sha256.Sum256(append(append([]byte{}, p.Seed...), byte(i>>24), byte(i>>16), byte(i>>8), byte(i)))
+		p.Leaves[i] = h[:]
+	}
+	level := append([][]byte(nil), p.Leaves...)
 	for len(level) > 1 {
-		var next [][]byte
+		next := make([][]byte, 0, (len(level)+1)/2)
 		for i := 0; i < len(level); i += 2 {
+			left := level[i]
+			right := left
 			if i+1 < len(level) {
-				combined := append(level[i], level[i+1]...)
-				hash := sha256.Sum256(combined)
-				next = append(next, hash[:])
-			} else {
-				next = append(next, level[i])
+				right = level[i+1]
 			}
+			h := sha256.Sum256(append(append([]byte{}, left...), right...))
+			next = append(next, h[:])
 		}
 		level = next
 	}
-	p.Root = level[0]
+	p.Root = append([]byte(nil), level[0]...)
 	return nil
 }
 
-func (p *PrepaidPackage) RootHex() string {
-	return hex.EncodeToString(p.Root)
-}
+func (p *PrepaidPackage) RootHex() string { return hex.EncodeToString(p.Root) }
+func (p *PrepaidPackage) SeedHex() string { return hex.EncodeToString(p.Seed) }
 
-func (p *PrepaidPackage) SeedHex() string {
-	return hex.EncodeToString(p.Seed)
-}
-
-// VerifyMerkleProof (تأیید صحت درخت)
-func VerifyMerkleProof(leafHash string, proof []string, rootHash string) bool {
-	currentHash := leafHash
-	for _, sibling := range proof {
-		combined := currentHash + sibling
-		hash := sha256.Sum256([]byte(combined))
-		currentHash = hex.EncodeToString(hash[:])
-	}
-	return currentHash == rootHash
-}
-
-type LicenseInfo struct {
-	ID        string    `json:"id"`
-	ProductID string    `json:"product_id"`
-	UserID    string    `json:"user_id"`
-	CreatedAt time.Time `json:"created_at"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Active    bool      `json:"active"`
-	Signature string    `json:"signature"`
-	RootHash  string    `json:"root_hash"`
-}
-
-func (l *LicenseInfo) ToJSON() []byte {
-	data, _ := json.Marshal(l)
-	return data
+func HashHex(data []byte) string {
+	h := sha256.Sum256(data)
+	return hex.EncodeToString(h[:])
 }

@@ -2,87 +2,49 @@ package db
 
 import (
 	"crypto/ecdsa"
-	"crypto/x509"
-	"database/sql"
-	"encoding/pem"
 	"fmt"
-
-	_ "github.com/glebarez/sqlite"
+	"os"
+	"sync"
 
 	"horizon-core/internal/crypto"
 )
 
-var DB *sql.DB
-var PrivateKey *ecdsa.PrivateKey
+var (
+	PrivateKey *ecdsa.PrivateKey
+	mu         sync.RWMutex
+)
 
 func InitDB() error {
-	var err error
-	DB, err = sql.Open("sqlite", "./horizon.db")
-	if err != nil {
-		return err
-	}
+	mu.Lock()
+	defer mu.Unlock()
 
-	_, err = DB.Exec(`
-		CREATE TABLE IF NOT EXISTS licenses (
-			id TEXT PRIMARY KEY,
-			volume INTEGER,
-			root TEXT,
-			seed TEXT,
-			created_at DATETIME,
-			signature TEXT
-		);
-		CREATE TABLE IF NOT EXISTS keys (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			private_key TEXT
-		);
-	`)
-	if err != nil {
-		return err
-	}
-
-	var privPEM string
-	err = DB.QueryRow("SELECT private_key FROM keys LIMIT 1").Scan(&privPEM)
-	if err != nil {
-		privPEM, err = generateAndSaveKey()
+	if pemValue := os.Getenv("LICENSE_PRIVATE_KEY_PEM"); pemValue != "" {
+		key, err := crypto.PEMToPrivateKey(pemValue)
 		if err != nil {
-			return err
+			return fmt.Errorf("invalid LICENSE_PRIVATE_KEY_PEM: %w", err)
 		}
+		PrivateKey = key
+		return nil
 	}
-	PrivateKey, err = loadPrivateKey(privPEM)
-	return err
-}
-
-func Close() {
-	if DB != nil {
-		DB.Close()
-	}
-}
-
-func generateAndSaveKey() (string, error) {
-	privPEM, err := crypto.GenerateKeyPair()
+	pemValue, err := crypto.GenerateKeyPair()
 	if err != nil {
-		return "", err
+		return err
 	}
-	err = SavePrivateKey(privPEM)
+	key, err := crypto.PEMToPrivateKey(pemValue)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return privPEM, nil
+	PrivateKey = key
+	return nil
 }
 
-func loadPrivateKey(pemStr string) (*ecdsa.PrivateKey, error) {
-	block, _ := pem.Decode([]byte(pemStr))
-	if block == nil {
-		return nil, fmt.Errorf("failed to decode PEM block")
+func PublicKeyPEM() (string, error) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if PrivateKey == nil {
+		return "", fmt.Errorf("private key unavailable")
 	}
-	priv, err := x509.ParseECPrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-	return priv, nil
+	return crypto.PublicKeyPEM(PrivateKey)
 }
 
-func SavePrivateKey(pemData string) error {
-	_, err := DB.Exec("INSERT INTO keys (private_key) VALUES (?)", pemData)
-	return err
-}
+func Close() {}

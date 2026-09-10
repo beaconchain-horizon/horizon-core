@@ -7,9 +7,9 @@
 *.exe
 *.db
 *.sqlite
+*.log
+*.tmp
+*.save
+*.backup
 .DS_Store
 Thumbs.db
-*.log
-switch.exe
-api.exe
-horizon-core.db

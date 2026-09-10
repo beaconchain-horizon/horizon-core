@@ -7,62 +7,65 @@ import (
 )
 
 type SubnetInfo struct {
-	NetworkAddress string
-	Broadcast      string
-	FirstIP        string
-	LastIP         string
-	TotalIPs       int
-	Netmask        string
-	CIDR           int
+	NetworkAddress string `json:"network_address"`
+	Broadcast      string `json:"broadcast"`
+	FirstIP        string `json:"first_ip"`
+	LastIP         string `json:"last_ip"`
+	TotalIPs       uint64 `json:"total_ips"`
+	Netmask        string `json:"netmask"`
+	CIDR           int    `json:"cidr"`
 }
 
 func CalculateSubnet(cidr string) (*SubnetInfo, error) {
-	_, ipnet, err := net.ParseCIDR(cidr)
+	ip, ipnet, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return nil, err
 	}
+	ip4 := ip.To4()
+	if ip4 == nil {
+		return nil, fmt.Errorf("IPv6 is not supported")
+	}
 	ones, bits := ipnet.Mask.Size()
-	totalIPs := 1 << (bits - ones)
-	ip := ipnet.IP.To4()
-	if ip == nil {
-		return nil, fmt.Errorf("IPv6 not supported yet")
+	if bits != 32 {
+		return nil, fmt.Errorf("only IPv4 is supported")
 	}
-	network := ip.Mask(ipnet.Mask)
-	broadcast := make(net.IP, len(ipnet.IP))
-	copy(broadcast, ipnet.IP)
-	for i := range broadcast {
-		broadcast[i] = broadcast[i] | ^ipnet.Mask[i]
+	network := ip4.Mask(ipnet.Mask).To4()
+	broadcast := make(net.IP, 4)
+	for i := 0; i < 4; i++ {
+		broadcast[i] = network[i] | ^ipnet.Mask[i]
 	}
-	firstIP := make(net.IP, len(ipnet.IP))
-	copy(firstIP, network)
-	firstIP[3]++
-	lastIP := make(net.IP, len(broadcast))
-	copy(lastIP, broadcast)
-	lastIP[3]--
+	total := uint64(1) << uint(bits-ones)
+	first, last := append(net.IP(nil), network...), append(net.IP(nil), broadcast...)
+	if ones < 31 {
+		first[3]++
+		last[3]--
+	}
 	return &SubnetInfo{
 		NetworkAddress: network.String(),
 		Broadcast:      broadcast.String(),
-		FirstIP:        firstIP.String(),
-		LastIP:         lastIP.String(),
-		TotalIPs:       totalIPs,
+		FirstIP:        first.String(),
+		LastIP:         last.String(),
+		TotalIPs:       total,
 		Netmask:        net.IP(ipnet.Mask).String(),
 		CIDR:           ones,
 	}, nil
 }
 
 func LookupOUI(mac string) string {
-	mac = strings.ToUpper(strings.ReplaceAll(strings.ReplaceAll(mac, "-", ":"), ".", ":"))
-	parts := strings.Split(mac, ":")
+	clean := strings.ToUpper(strings.NewReplacer("-", ":", ".", ":").Replace(mac))
+	parts := strings.Split(clean, ":")
 	if len(parts) < 3 {
 		return "invalid"
 	}
-	db := map[string]string{
-		"00:1A:2B": "Cisco",
-		"00:0C:29": "VMware",
-		"00:1E:8C": "Apple",
+	oui := strings.Join(parts[:3], ":")
+	switch oui {
+	case "00:1A:2B":
+		return "Cisco"
+	case "00:0C:29":
+		return "VMware"
+	case "00:1E:8C":
+		return "Apple"
+	default:
+		return "Unknown"
 	}
-	if v, ok := db[strings.Join(parts[:3], ":")]; ok {
-		return v
-	}
-	return "Unknown"
 }
