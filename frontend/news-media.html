@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon Angel · اخبار تصویری</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{font-family:Tahoma;box-sizing:border-box}
+body{background:#060b18;color:#eef2ff;margin:0}
+.hdr{background:linear-gradient(135deg,#0f172a,#1e293b);border-bottom:1px solid rgba(79,158,255,.2);padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;position:sticky;top:0;z-index:100}
+.cont{max-width:1400px;margin:0 auto;padding:2rem}
+.sec-title{font-size:1.4rem;color:#c084fc;margin:2rem 0 1.5rem;display:flex;align-items:center;gap:.6rem;padding-right:1rem;border-right:4px solid #c084fc}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;margin-bottom:2rem}
+.media-card{background:rgba(20,26,44,.7);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;overflow:hidden;transition:all .4s;cursor:pointer}
+.media-card:hover{transform:translateY(-8px);border-color:#4f9eff;box-shadow:0 20px 50px rgba(79,158,255,.3)}
+.media-card img{width:100%;height:200px;object-fit:cover;display:block;transition:transform .4s}
+.media-card:hover img{transform:scale(1.08)}
+.media-card .info{padding:1.2rem}
+.media-card .cat{font-size:.7rem;color:#facc15;background:rgba(250,204,21,.1);padding:.2rem .7rem;border-radius:20px;display:inline-block;margin-bottom:.6rem}
+.media-card h4{font-size:1rem;margin:.4rem 0;line-height:1.5;color:#eef2ff}
+.media-card p{font-size:.78rem;color:#94a3b8;line-height:1.6;margin:0}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:1.5rem;margin-bottom:2rem}
+.video-card{background:rgba(20,26,44,.7);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;overflow:hidden;transition:all .3s}
+.video-card:hover{border-color:#4f9eff}
+.video-card .v-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden}
+.video-card iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.video-card .v-info{padding:1rem}
+.video-card h4{font-size:.95rem;margin:0 0 .4rem;color:#4f9eff}
+.video-card p{font-size:.75rem;color:#94a3b8;margin:0}
+.hero-media{position:relative;height:400px;border-radius:2rem;overflow:hidden;margin-bottom:2rem;background:linear-gradient(135deg,#1e1b4b,#4c1d95)}
+.hero-media img{width:100%;height:100%;object-fit:cover;opacity:.4}
+.hero-media .overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+.hero-media h1{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#fff,#4f9eff,#facc15);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0 0 1rem}
+.hero-media p{color:#cbd5e1;font-size:1.1rem;max-width:700px}
+.news-ticker{background:linear-gradient(90deg,#1e293b,#0f172a);border-top:1px solid rgba(79,158,255,.2);border-bottom:1px solid rgba(79,158,255,.2);padding:.8rem 0;overflow:hidden;margin-bottom:2rem}
+.ticker-track{display:flex;gap:3rem;animation:tick 40s linear infinite;white-space:nowrap}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{color:#4f9eff;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
+.ticker-item i{color:#facc15}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+<div style="display:flex;align-items:center;gap:.8rem">
+<div style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#4f9eff,#c084fc,#facc15);display:flex;align-items:center;justify-content:center">
+<i class="fas fa-angel" style="color:#fff;font-size:1.3rem"></i>
+</div>
+<div>
+<div style="font-size:1.2rem;font-weight:900;color:#4f9eff">Horizon Angel</div>
+<div style="font-size:.7rem;color:#8fa2dc">اخبار و رسانه</div>
+</div>
+</div>
+<a href="index.html" style="color:#4f9eff;text-decoration:none;font-size:.85rem;padding:.5rem 1rem;border:1px solid #4f9eff;border-radius:20px"><i class="fas fa-home"></i> بازگشت به فروشگاه</a>
+</div>
+
+<!-- Live News Ticker -->
+<div class="news-ticker">
+<div class="ticker-track">
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> افزایش حملات سایبری به زیرساخت‌های بانکی ایران</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> Horizon Angel: راه‌حل امنیت بلاکچین برای بانک‌ها</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> رشد ۴۰ درصدی حملات ransomware در خاورمیانه</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> بلاکچین خصوصی: آینده امنیت شبکه‌های صنعتی</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> افزایش ۵۰ درصدی حملات فیشینگ به بانک‌های ایران</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> سرمایه‌گذاری Visa روی بلاکچین‌های خصوصی</div>
+<!-- تکرار برای حلقه بی‌نهایت -->
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> افزایش حملات سایبری به زیرساخت‌های بانکی ایران</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> Horizon Angel: راه‌حل امنیت بلاکچین برای بانک‌ها</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> رشد ۴۰ درصدی حملات ransomware در خاورمیانه</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> بلاکچین خصوصی: آینده امنیت شبکه‌های صنعتی</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> افزایش ۵۰ درصدی حملات فیشینگ به بانک‌های ایران</div>
+<div class="ticker-item"><i class="fas fa-circle" style="font-size:.5rem"></i> سرمایه‌گذاری Visa روی بلاکچین‌های خصوصی</div>
+</div>
+</div>
+
+<div class="cont">
+
+<!-- Hero with Image -->
+<div class="hero-media">
+<img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&q=80" alt="Cybersecurity">
+<div class="overlay">
+<h1>Horizon Angel</h1>
+<p>شبکه بلاکچین اختصاصی · مقاوم در برابر قطعی اینترنت · امضای دیجیتال ECDSA</p>
+</div>
+</div>
+
+<!-- SECTION: NEWS IMAGES -->
+<h2 class="sec-title"><i class="fas fa-newspaper"></i> اخبار تصویری</h2>
+
+<div class="media-grid">
+
+<a href="https://www.cybersecurity-insiders.com" target="_blank" class="media-card">
+<img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80" alt="Cyberattack">
+<div class="info">
+<span class="cat">🚨 امنیت سایبری</span>
+<h4>یک حمله سایبری می‌تواند صدها گزارش نقض داده ایجاد کند</h4>
+<p>تحلیل جدید از Cybersecurity Insiders درباره تأثیر حملات زنجیره‌ای</p>
+</div>
+</a>
+
+<a href="https://www.reuters.com" target="_blank" class="media-card">
+<img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80" alt="Banking">
+<div class="info">
+<span class="cat">🏦 بانکداری</span>
+<h4>افزایش امنیت تراکنش‌های بانکی با بلاکچین خصوصی</h4>
+<p>بانک‌های بزرگ جهان به سمت فناوری بلاکچین اختصاصی حرکت می‌کنند</p>
+</div>
+</a>
+
+<a href="https://thehackernews.com" target="_blank" class="media-card">
+<img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80" alt="Hacking">
+<div class="info">
+<span class="cat">🔒 هک</span>
+<h4>افزایش ۵۰ درصدی حملات ransomware در سال ۲۰۲۶</h4>
+<p>گزارش The Hacker News از افزایش حملات به زیرساخت‌های حیاتی</p>
+</div>
+</a>
+
+<a href="https://www.bloomberg.com" target="_blank" class="media-card">
+<img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80" alt="Economy">
+<div class="info">
+<span class="cat">💱 اقتصاد</span>
+<h4>سرمایه‌گذاری Visa و Mastercard روی بلاکچین</h4>
+<p>شرکت‌های مالی بزرگ جهان روی بلاکچین‌های خصوصی سرمایه‌گذاری می‌کنند</p>
+</div>
+</a>
+
+<a href="https://www.aljazeera.com" target="_blank" class="media-card">
+<img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80" alt="Data">
+<div class="info">
+<span class="cat">📊 تحلیل داده</span>
+<h4>آینده مدیریت داده‌های صنعتی با بلاکچین</h4>
+<p>پالایشگاه‌ها و صنایع بزرگ به دنبال راه‌حل‌های امن داده</p>
+</div>
+</a>
+
+<a href="https://www.bbc.com/news" target="_blank" class="media-card">
+<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80" alt="Network">
+<div class="info">
+<span class="cat">🌐 شبکه</span>
+<h4>شبکه‌های خصوصی بلاکچین برای حفاظت از داده‌های حساس</h4>
+<p>راه‌حل‌های جدید برای حفاظت از داده‌های صنعتی و مالی</p>
+</div>
+</a>
+
+</div>
+
+<!-- SECTION: VIDEOS -->
+<h2 class="sec-title"><i class="fas fa-video"></i> ویدیوهای آموزشی و خبری</h2>
+
+<div class="video-grid">
+
+<div class="video-card">
+<div class="v-wrap">
+<iframe src="https://www.youtube.com/embed/SSo_EIwHSd4" title="What is Blockchain" allowfullscreen></iframe>
+</div>
+<div class="v-info">
+<h4>🎥 بلاکچین چیست؟ (به زبان ساده)</h4>
+<p>آشنایی با فناوری بلاکچین و کاربردهای آن</p>
+</div>
+</div>
+
+<div class="video-card">
+<div class="v-wrap">
+<iframe src="https://www.youtube.com/embed/3y2vuoTsbuY" title="Cybersecurity" allowfullscreen></iframe>
+</div>
+<div class="v-info">
+<h4>🎥 امنیت سایبری در سال ۲۰۲۶</h4>
+<p>چالش‌های امنیتی و راه‌حل‌های جدید</p>
+</div>
+</div>
+
+<div class="video-card">
+<div class="v-wrap">
+<iframe src="https://www.youtube.com/embed/bBC-nXj3Ng4" title="Private Blockchain" allowfullscreen></iframe>
+</div>
+<div class="v-info">
+<h4>🎥 بلاکچین خصوصی vs عمومی</h4>
+<p>تفاوت‌ها و کاربردهای هر کدام</p>
+</div>
+</div>
+
+<div class="video-card">
+<div class="v-wrap">
+<iframe src="https://www.youtube.com/embed/6meB4cF3TLA" title="Banking Security" allowfullscreen></iframe>
+</div>
+<div class="v-info">
+<h4>🎥 امنیت در بانکداری دیجیتال</h4>
+<p>چطور بانک‌ها از داده‌های شما محافظت می‌کنند؟</p>
+</div>
+</div>
+
+</div>
+
+<!-- SECTION: SECURITY NEWS -->
+<h2 class="sec-title"><i class="fas fa-shield-alt"></i> خبرهای امنیتی جهان</h2>
+
+<div class="media-grid">
+
+<div class="media-card">
+<img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" alt="Cyberwar">
+<div class="info">
+<span class="cat">🔴 فوری</span>
+<h4>حمله سایبری به زیرساخت‌های انرژی اروپا</h4>
+<p>حملات سازمان‌یافته به شبکه‌های برق و گاز در اروپا</p>
+</div>
+</div>
+
+<div class="media-card">
+<img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80" alt="Hardware">
+<div class="info">
+<span class="cat">💻 سخت‌افزار</span>
+<h4>آسیب‌پذیری جدید در پردازنده‌های Intel</h4>
+<p>کشف حفره امنیتی در چیپ‌های نسل ۱۳ و ۱۴</p>
+</div>
+</div>
+
+<div class="media-card">
+<img src="https://images.unsplash.com/photo-1633265486064-086b219458ec?w=800&q=80" alt="Data Breach">
+<div class="info">
+<span class="cat">⚠️ نقض داده</span>
+<h4>افشای داده‌های ۲ میلیون کاربر ایرانی</h4>
+<p>هشدار برای تغییر رمز عبور در سرویس‌های آنلاین</p>
+</div>
+</div>
+
+<div class="media-card">
+<img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80" alt="Crypto">
+<div class="info">
+<span class="cat">💰 کریپتو</span>
+<h4>رشد ۳۰۰ درصدی استفاده از ارزهای دیجیتال در ایران</h4>
+<p>گزارش جدید درباره پذیرش ارز دیجیتال در ایران</p>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
