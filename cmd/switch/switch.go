@@ -1,4 +1,3 @@
-cat > cmd/switch/switch.go << 'EOF'
 package main
 
 import (
@@ -13,14 +12,6 @@ import (
 	"time"
 )
 
-type Block struct {
-	Index        int           `json:"index"`
-	Timestamp    int64         `json:"timestamp"`
-	Transactions []Transaction `json:"transactions"`
-	PrevHash     string        `json:"prev_hash"`
-	Hash         string        `json:"hash"`
-}
-
 type Transaction struct {
 	ID     string `json:"id"`
 	From   string `json:"from"`
@@ -29,72 +20,74 @@ type Transaction struct {
 	Time   int64  `json:"time"`
 }
 
+type Block struct {
+	Index        int           `json:"index"`
+	Timestamp    int64         `json:"timestamp"`
+	Transactions []Transaction `json:"transactions"`
+	PrevHash     string        `json:"prev_hash"`
+	Hash         string        `json:"hash"`
+}
+
 type Blockchain struct {
-	Chain  []Block `json:"chain"`
-	mu     sync.Mutex
-	txs    chan Transaction
-	txMu   sync.Mutex
+	mu    sync.Mutex
+	Chain []Block
+	Txs   []Transaction
+	txMu  sync.Mutex
 }
 
 var bc = &Blockchain{
-	Chain: []Block{},
-	txs:   make(chan Transaction, 10000),
+	Chain: []Block{{
+		Index:     0,
+		Timestamp: time.Now().Unix(),
+		PrevHash:  "genesis",
+		Hash:      "genesis-hash",
+	}},
 }
 
 func (b *Block) CalculateHash() string {
-	record := fmt.Sprintf("%d%d%s%s", b.Index, b.Timestamp, b.PrevHash, b.Transactions)
+	data, _ := json.Marshal(b.Transactions)
+	record := fmt.Sprintf("%d%d%s%s", b.Index, b.Timestamp, b.PrevHash, string(data))
 	hash := sha256.Sum256([]byte(record))
 	return hex.EncodeToString(hash[:])
 }
 
-func NewBlock(prevBlock Block, txs []Transaction) Block {
-	block := Block{
-		Index:        prevBlock.Index + 1,
-		Timestamp:    time.Now().Unix(),
-		Transactions: txs,
-		PrevHash:     prevBlock.Hash,
-	}
-	block.Hash = block.CalculateHash()
-	return block
+func (bc *Blockchain) AddTransaction(tx Transaction) {
+	bc.txMu.Lock()
+	bc.Txs = append(bc.Txs, tx)
+	bc.txMu.Unlock()
 }
 
-func (bc *Blockchain) AddBlock(txs []Transaction) Block {
+func (bc *Blockchain) CreateBlock() {
+	bc.txMu.Lock()
+	txs := bc.Txs
+	bc.Txs = []Transaction{}
+	bc.txMu.Unlock()
+
+	if len(txs) == 0 {
+		return
+	}
+
 	bc.mu.Lock()
 	defer bc.mu.Unlock()
-	var prevBlock Block
-	if len(bc.Chain) == 0 {
-		prevBlock = Block{Index: -1, Hash: "0"}
-	} else {
-		prevBlock = bc.Chain[len(bc.Chain)-1]
+
+	prev := bc.Chain[len(bc.Chain)-1]
+	newBlock := Block{
+		Index:        prev.Index + 1,
+		Timestamp:    time.Now().Unix(),
+		Transactions: txs,
+		PrevHash:     prev.Hash,
 	}
-	newBlock := NewBlock(prevBlock, txs)
+	newBlock.Hash = newBlock.CalculateHash()
 	bc.Chain = append(bc.Chain, newBlock)
-	return newBlock
 }
 
-func (bc *Blockchain) AddTransaction(tx Transaction) {
-	bc.txs <- tx
-}
-
-func (bc *Blockchain) GetPendingTxs() []Transaction {
-	var txs []Transaction
-	for {
-		select {
-		case tx := <-bc.txs:
-			txs = append(txs, tx)
-		default:
-			return txs
-		}
-	}
-}
-
-func generateTestTx(id int) Transaction {
+func generateTx(id int) Transaction {
 	return Transaction{
 		ID:     fmt.Sprintf("tx-%d", id),
 		From:   "alice",
 		To:     "bob",
 		Amount: int64(100 + id%100),
-		Time:   time.Now().Unix(),
+		Time:   time.Now().UnixNano(),
 	}
 }
 
@@ -103,6 +96,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "online",
 		"service": "horizon-switch",
+		"version": "2.2",
 	})
 }
 
@@ -116,17 +110,20 @@ func statsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func benchmarkTPS(iterations int, concurrency int) float64 {
+func benchmarkHandler(w http.ResponseWriter, r *http.Request) {
+	iterations := 50000
+	concurrency := 200
+
 	var wg sync.WaitGroup
-	start := time.Now()
 	sem := make(chan struct{}, concurrency)
+	start := time.Now()
 
 	for i := 0; i < iterations; i++ {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
 			sem <- struct{}{}
-			tx := generateTestTx(id)
+			tx := generateTx(id)
 			bc.AddTransaction(tx)
 			<-sem
 		}(i)
@@ -134,45 +131,34 @@ func benchmarkTPS(iterations int, concurrency int) float64 {
 	wg.Wait()
 	elapsed := time.Since(start).Seconds()
 
-	txs := bc.GetPendingTxs()
-	if len(txs) > 0 {
-		bc.AddBlock(txs)
+	bc.CreateBlock()
+
+	tps := float64(iterations) / elapsed
+
+	bc.mu.Lock()
+	blocks := len(bc.Chain)
+	lastBlock := bc.Chain[blocks-1]
+	bc.mu.Unlock()
+
+	result := map[string]interface{}{
+		"iterations":      iterations,
+		"concurrency":     concurrency,
+		"time_sec":        elapsed,
+		"tps":             tps,
+		"blocks":          blocks,
+		"last_block_txs":  len(lastBlock.Transactions),
+		"last_block_hash": lastBlock.Hash,
 	}
-
-	return float64(iterations) / elapsed
-}
-
-func benchmarkHandler(w http.ResponseWriter, r *http.Request) {
-	iterations := 50000
-	concurrency := 1000
-	results := struct {
-		Iterations  int     `json:"iterations"`
-		Concurrency int     `json:"concurrency"`
-		TPS         float64 `json:"tps"`
-		TimeSec     float64 `json:"time_sec"`
-		Blocks      int     `json:"blocks"`
-	}{
-		Iterations:  iterations,
-		Concurrency: concurrency,
-	}
-
-	start := time.Now()
-	tps := benchmarkTPS(iterations, concurrency)
-	elapsed := time.Since(start).Seconds()
-
-	results.TPS = tps
-	results.TimeSec = elapsed
-	results.Blocks = len(bc.Chain)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(results)
+	json.NewEncoder(w).Encode(result)
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
-		"service": "Horizon Switch with Blockchain & TPS Benchmark",
-		"version": "2.0",
+		"service": "Horizon Switch",
+		"version": "2.2",
 	})
 }
 
@@ -186,7 +172,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Printf("Horizon Switch running on port %s", port)
+	log.Printf("Horizon Switch v2.2 running on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
-EOF
