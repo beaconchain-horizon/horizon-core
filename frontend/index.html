@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Angel · فروشگاه رسمی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { font-family: 'Inter', Tahoma, sans-serif; box-sizing: border-box; }
+        body { background: #060b18; color: #eef2ff; margin: 0; }
+
+        /* ============ HEADER ============ */
+        .top-header {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-bottom: 1px solid rgba(79, 158, 255, 0.2);
+            padding: 0.8rem 1.5rem;
+            display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 1rem;
+            position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        .logo-section { display: flex; align-items: center; gap: 0.8rem; }
+        .logo-icon {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: linear-gradient(135deg, #4f9eff, #c084fc, #facc15);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            animation: glow 3s ease-in-out infinite;
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(79, 158, 255, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(250, 204, 21, 0.6); }
+        }
+        .logo-icon .angel { font-size: 1.5rem; color: #fff; }
+        .logo-icon .telescope {
+            position: absolute; bottom: 5px; left: 5px;
+            font-size: 0.65rem; color: #facc15;
+        }
+        .logo-text h1 {
+            font-size: 1.3rem; font-weight: 900; line-height: 1;
+            background: linear-gradient(135deg, #4f9eff, #c084fc);
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent;
+        }
+        .logo-text span { font-size: 0.65rem; color: #8fa2dc; display: block; margin-top: 2px; }
+
+        .live-stats { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .stat-pill {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(79, 158, 255, 0.2);
+            border-radius: 40px; padding: 0.35rem 0.85rem;
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.72rem; transition: all 0.3s;
+        }
+        .stat-pill:hover { border-color: #4f9eff; background: rgba(79, 158, 255, 0.1); }
+        .stat-pill .icon { color: #4f9eff; }
+        .stat-pill .value { font-weight: 700; color: #4ade80; font-family: monospace; }
+        .stat-pill .dot {
+            width: 7px; height: 7px; background: #4ade80; border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        .user-menu { display: flex; gap: 0.5rem; align-items: center; }
+        .user-menu a {
+            color: #8fa2dc; font-size: 0.8rem; text-decoration: none;
+            display: flex; align-items: center; gap: 0.3rem;
+            transition: all 0.3s; padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+        .user-menu a:hover { color: #4f9eff; background: rgba(79, 158, 255, 0.1); }
+        .user-menu .ai-btn {
+            background: linear-gradient(135deg, #4f9eff, #c084fc);
+            color: #fff !important; font-weight: 700;
+        }
+        .user-menu .ai-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(79, 158, 255, 0.5); }
+
+        /* ============ HERO ============ */
+        .hero {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #4c1d95);
+            padding: 4rem 2rem; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(79, 158, 255, 0.15), transparent 50%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate { to { transform: rotate(360deg); } }
+        .hero h1 {
+            font-size: 3rem; font-weight: 900; margin: 0;
+            background: linear-gradient(135deg, #fff, #4f9eff, #facc15);
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent; position: relative; z-index: 1;
+        }
+        .hero p {
+            color: #94a3b8; margin: 1rem 0 0 0; font-size: 1.1rem;
+            position: relative; z-index: 1;
+        }
+        .hero-buttons {
+            display: flex; justify-content: center; gap: 1rem;
+            margin-top: 2rem; flex-wrap: wrap;
+            position: relative; z-index: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4f9eff, #c084fc);
+            color: white; padding: 0.8rem 2rem;
+            border-radius: 60px; font-weight: 700;
+            text-decoration: none; display: inline-flex;
+            align-items: center; gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(79, 158, 255, 0.4); }
+        .btn-outline {
+            background: transparent; border: 2px solid #4f9eff;
+            color: #4f9eff; padding: 0.8rem 2rem;
+            border-radius: 60px; font-weight: 700;
+            text-decoration: none; display: inline-flex;
+            align-items: center; gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .btn-outline:hover { background: rgba(79, 158, 255, 0.1); }
+
+        /* ============ SECTION ============ */
+        .section { padding: 3rem 1.5rem; max-width: 1400px; margin: 0 auto; }
+        .section-title {
+            font-size: 1.5rem; font-weight: 700; color: #c084fc;
+            margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem;
+        }
+        .section-title::before {
+            content: ''; width: 5px; height: 30px;
+            background: linear-gradient(180deg, #4f9eff, #c084fc);
+            border-radius: 4px;
+        }
+
+        /* ============ PRODUCTS ============ */
+        .carousel-wrapper { position: relative; }
+        .carousel-track {
+            display: flex; gap: 1.2rem; overflow-x: auto;
+            scroll-behavior: smooth; padding: 0.5rem 0;
+            scrollbar-width: thin;
+        }
+        .carousel-track::-webkit-scrollbar { height: 6px; }
+        .carousel-track::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+        .carousel-track::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
+
+        .product-card {
+            min-width: 260px; flex-shrink: 0;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(79, 158, 255, 0.2);
+            border-radius: 1.5rem; padding: 1.5rem; text-align: center;
+            transition: all 0.4s;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .product-card:nth-child(even) { animation-delay: 1s; }
+        .product-card:hover {
+            transform: scale(1.05) translateY(-10px);
+            border-color: #4f9eff;
+            box-shadow: 0 20px 40px rgba(79, 158, 255, 0.3);
+        }
+        .product-card .icon { font-size: 3rem; color: #facc15; margin-bottom: 1rem; }
+        .product-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .product-card .price { font-size: 1.3rem; color: #4ade80; font-weight: 700; margin: 0.8rem 0; }
+        .product-card .desc { font-size: 0.75rem; color: #94a3b8; margin-bottom: 1rem; min-height: 40px; }
+        .product-card .buy-btn {
+            background: #4f9eff; color: #0a0f1e;
+            padding: 0.5rem 1.5rem; border-radius: 40px;
+            text-decoration: none; font-weight: 700;
+            font-size: 0.8rem; display: inline-block;
+            transition: all 0.3s;
+        }
+        .product-card .buy-btn:hover { background: #3a7bd5; transform: scale(1.05); }
+
+        .carousel-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(79, 158, 255, 0.9);
+            border: none; color: #0a0f1e;
+            width: 40px; height: 40px; border-radius: 50%;
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; z-index: 5;
+        }
+        .carousel-nav:hover { background: #4f9eff; transform: translateY(-50%) scale(1.15); }
+        .carousel-nav.prev { right: -10px; }
+        .carousel-nav.next { left: -10px; }
+
+        /* ============ COMPANIES ============ */
+        .companies-wrapper {
+            overflow: hidden; padding: 1rem 0;
+            position: relative;
+        }
+        .companies-track {
+            display: flex; gap: 1.5rem;
+            animation: marquee 60s linear infinite;
+            width: max-content;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .companies-track:hover { animation-play-state: paused; }
+        .company-pill {
+            background: rgba(20, 26, 44, 0.8);
+            border: 1px solid rgba(79, 158, 255, 0.2);
+            border-radius: 40px; padding: 0.6rem 1.3rem;
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: #eef2ff;
+            font-size: 0.8rem; white-space: nowrap;
+            transition: all 0.3s; flex-shrink: 0;
+        }
+        .company-pill:hover {
+            background: rgba(79, 158, 255, 0.15);
+            border-color: #4f9eff; transform: scale(1.08);
+        }
+        .company-pill i { color: #4f9eff; }
+
+        /* ============ TRANSACTIONS ============ */
+        .tx-table {
+            width: 100%; border-collapse: collapse;
+            background: rgba(20, 26, 44, 0.6);
+            border-radius: 1rem; overflow: hidden;
+        }
+        .tx-table th {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #4f9eff; font-size: 0.75rem;
+            padding: 1rem; text-align: right; font-weight: 600;
+            border-bottom: 1px solid rgba(79, 158, 255, 0.2);
+        }
+        .tx-table td {
+            padding: 0.9rem 1rem; font-size: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tx-table tr:hover { background: rgba(79, 158, 255, 0.05); }
+        .tx-hash { font-family: monospace; color: #c084fc; font-size: 0.7rem; }
+        .tx-amount { color: #4ade80; font-weight: 700; font-family: monospace; }
+        .tx-status { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.65rem; font-weight: 600; }
+        .tx-status.confirmed { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .tx-status.pending { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+
+        /* ============ NEWS ============ */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.2rem;
+        }
+        .news-card {
+            background: rgba(20, 26, 44, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.2rem; padding: 1.3rem;
+            transition: all 0.3s;
+        }
+        .news-card:hover {
+            border-color: #facc15; transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(250, 204, 21, 0.15);
+        }
+        .news-source {
+            font-size: 0.7rem; color: #facc15;
+            margin-bottom: 0.6rem;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .news-card h4 { font-size: 0.95rem; margin: 0 0 0.5rem 0; line-height: 1.5; }
+        .news-card p { font-size: 0.75rem; color: #94a3b8; line-height: 1.6; margin: 0; }
+        .news-card a {
+            color: #4f9eff; font-size: 0.75rem;
+            text-decoration: none; display: inline-block;
+            margin-top: 0.8rem;
+        }
+
+        /* ============ AI CHAT ============ */
+        .ai-fab {
+            position: fixed; bottom: 25px; right: 25px;
+            width: 65px; height: 65px; border-radius: 50%;
+            background: linear-gradient(135deg, #4f9eff, #c084fc);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 999;
+            box-shadow: 0 10px 30px rgba(79, 158, 255, 0.5);
+            animation: floatFab 3s ease-in-out infinite;
+            border: none;
+        }
+        @keyframes floatFab {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.05); }
+        }
+        .ai-fab i { font-size: 1.7rem; color: #fff; }
+        .ai-fab .ai-dot {
+            position: absolute; top: 5px; right: 5px;
+            width: 14px; height: 14px; background: #4ade80;
+            border-radius: 50%; border: 2px solid #0f172a;
+            animation: pulse 1.5s infinite;
+        }
+
+        .ai-panel {
+            position: fixed; bottom: 100px; right: 25px;
+            width: 380px; max-width: calc(100vw - 40px);
+            height: 550px; max-height: calc(100vh - 140px);
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid rgba(79, 158, 255, 0.3);
+            border-radius: 20px;
+            display: none; flex-direction: column;
+            z-index: 998;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+        .ai-panel.open { display: flex; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .ai-header {
+            background: linear-gradient(135deg, #4f9eff, #c084fc);
+            padding: 1rem 1.2rem;
+            display: flex; justify-content: space-between;
+            align-items: center; color: #fff;
+        }
+        .ai-header h3 { margin: 0; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .ai-header button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none; color: #fff;
+            width: 30px; height: 30px; border-radius: 50%;
+            cursor: pointer; font-size: 0.9rem;
+        }
+        .ai-header button:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .ai-messages {
+            flex: 1; overflow-y: auto; padding: 1rem;
+            display: flex; flex-direction: column; gap: 0.8rem;
+        }
+        .ai-msg {
+            max-width: 85%; padding: 0.7rem 1rem;
+            border-radius: 15px; font-size: 0.82rem;
+            line-height: 1.6; word-wrap: break-word;
+        }
+        .ai-msg.user {
+            background: #4f9eff; color: #0a0f1e;
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
+        }
+        .ai-msg.bot {
+            background: rgba(30, 41, 59, 0.9);
+            color: #eef2ff; align-self: flex-start;
+            border: 1px solid rgba(79, 158, 255, 0.2);
+            border-bottom-right-radius: 4px;
+        }
+        .ai-msg.typing {
+            background: rgba(30, 41, 59, 0.9);
+            color: #94a3b8;
+            align-self: flex-start;
+            font-style: italic;
+        }
+
+        .ai-suggestions {
+            padding: 0 1rem 0.5rem;
+            display: flex; gap: 0.4rem; flex-wrap: wrap;
+        }
+        .ai-suggestions button {
+            background: rgba(79, 158, 255, 0.1);
+            border: 1px solid rgba(79, 158, 255, 0.3);
+            color: #4f9eff;
+            font-size: 0.7rem; padding: 0.3rem 0.7rem;
+            border-radius: 20px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ai-suggestions button:hover {
+            background: rgba(79, 158, 255, 0.2);
+        }
+
+        .ai-input {
+            padding: 0.8rem;
+            border-top: 1px solid rgba(79, 158, 255, 0.2);
+            display: flex; gap: 0.5rem;
+        }
+        .ai-input input {
+            flex: 1; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(79, 158, 255, 0.2);
+            border-radius: 25px; padding: 0.6rem 1rem;
+            color: #fff; font-size: 0.82rem; outline: none;
+        }
+        .ai-input input:focus { border-color: #4f9eff; }
+        .ai-input button {
+            background: linear-gradient(135deg, #4f9eff, #c084fc);
+            border: none; color: #fff;
+            width: 42px; height: 42px; border-radius: 50%;
+            cursor: pointer; font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .ai-input button:hover { transform: scale(1.1); }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: #0f172a; padding: 3rem 1.5rem 1.5rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(79, 158, 255, 0.15);
+        }
+        .footer-grid {
+            max-width: 1400px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem; margin-bottom: 2rem;
+        }
+        .footer-col h4 { color: #4f9eff; font-size: 0.9rem; margin-bottom: 1rem; }
+        .footer-col a {
+            display: block; color: #94a3b8; font-size: 0.8rem;
+            text-decoration: none; margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+        .footer-col a:hover { color: #4f9eff; }
+        .footer-bottom {
+            text-align: center; padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #64748b; font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<div class="top-header">
+    <div class="logo-section">
+        <div class="logo-icon">
+            <i class="fas fa-angel angel"></i>
+            <i class="fas fa-telescope telescope"></i>
+        </div>
+        <div class="logo-text">
+            <h1>Horizon Angel</h1>
+            <span>شبکه بلاکچین اختصاصی</span>
+        </div>
+    </div>
+
+    <div class="live-stats">
+        <div class="stat-pill">
+            <span class="dot"></span>
+            <i class="fas fa-shield-alt icon"></i>
+            <span>مانیتورینگ:</span>
+            <span class="value" id="hdr-status">—</span>
+        </div>
+        <div class="stat-pill">
+            <i class="fas fa-cubes icon"></i>
+            <span>بلوک‌ها:</span>
+            <span class="value" id="hdr-blocks">—</span>
+        </div>
+        <div class="stat-pill">
+            <i class="fas fa-bolt icon"></i>
+            <span>TPS:</span>
+            <span class="value" id="hdr-tps">—</span>
+        </div>
+        <div class="stat-pill">
+            <i class="fas fa-key icon"></i>
+            <span>لایسنس:</span>
+            <span class="value" id="hdr-licenses">—</span>
+        </div>
+        <div class="stat-pill">
+            <i class="fas fa-credit-card icon"></i>
+            <span>اعتبار:</span>
+            <span class="value" id="hdr-credit">—</span>
+        </div>
+    </div>
+
+    <div class="user-menu">
+        <a href="license.html"><i class="fas fa-key"></i> لایسنس</a>
+        <a href="#" class="ai-btn" onclick="toggleAI(event)"><i class="fas fa-robot"></i> دستیار AI</a>
+    </div>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<div class="hero">
+    <h1>Horizon Angel</h1>
+    <p>زیرساخت امن برای اقتصاد دیجیتال · شبکه بلاکچین اختصاصی · مقاوم در برابر قطعی اینترنت</p>
+    <div class="hero-buttons">
+        <a href="license.html" class="btn-primary"><i class="fas fa-key"></i> خرید لایسنس</a>
+        <a href="#products" class="btn-outline"><i class="fas fa-box"></i> مشاهده محصولات</a>
+    </div>
+</div>
+
+<!-- ==================== PRODUCTS ==================== -->
+<div class="section" id="products">
+    <h2 class="section-title">🛍️ محصولات و بسته‌های لایسنس</h2>
+    <div class="carousel-wrapper">
+        <button class="carousel-nav prev" onclick="scrollCarousel(-1)"><i class="fas fa-chevron-right"></i></button>
+        <button class="carousel-nav next" onclick="scrollCarousel(1)"><i class="fas fa-chevron-left"></i></button>
+        <div class="carousel-track" id="products-track">
+            <div class="product-card">
+                <i class="fas fa-seedling icon"></i>
+                <h3>بسته برنزی</h3>
+                <div class="price">۴۹۹,۰۰۰ تومان</div>
+                <p class="desc">۱ میلیون تراکنش · ۱ سال اعتبار</p>
+                <a href="license.html" class="buy-btn">خرید</a>
+            </div>
+            <div class="product-card">
+                <i class="fas fa-medal icon"></i>
+                <h3>بسته نقره‌ای</h3>
+                <div class="price">۳,۹۰۰,۰۰۰ تومان</div>
+                <p class="desc">۱۰ میلیون تراکنش · ۱ سال اعتبار</p>
+                <a href="license.html" class="buy-btn">خرید</a>
+            </div>
+            <div class="product-card">
+                <i class="fas fa-crown icon"></i>
+                <h3>بسته طلایی</h3>
+                <div class="price">۱۹,۰۰۰,۰۰۰ تومان</div>
+                <p class="desc">۵۰ میلیون تراکنش · ۱ سال اعتبار</p>
+                <a href="license.html" class="buy-btn">خرید</a>
+            </div>
+            <div class="product-card">
+                <i class="fas fa-gem icon"></i>
+                <h3>بسته الماس</h3>
+                <div class="price">۳۹,۰۰۰,۰۰۰ تومان</div>
+                <p class="desc">۱۰۰ میلیون تراکنش · ۱ سال اعتبار</p>
+                <a href="license.html" class="buy-btn">خرید</a>
+            </div>
+            <div class="product-card">
+                <i class="fas fa-landmark icon"></i>
+                <h3>بسته بانکی</h3>
+                <div class="price">توافقی</div>
+                <p class="desc">بالای ۵۰۰ میلیون تراکنش · اختصاصی</p>
+                <a href="license.html" class="buy-btn">مشاوره</a>
+            </div>
+            <div class="product-card">
+                <i class="fas fa-industry icon"></i>
+                <h3>بسته صنعتی</h3>
+                <div class="price">۲,۹۰۰,۰۰۰ تومان</div>
+                <p class="desc">۱ میلیون سنسور · ۱ سال اعتبار</p>
+                <a href="license.html" class="buy-btn">خرید</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== COMPANIES ==================== -->
+<div class="section">
+    <h2 class="section-title">🏭 مشتریان و شرکای ما</h2>
+    <div class="companies-wrapper">
+        <div class="companies-track">
+            <a href="https://www.niordc.ir" target="_blank" class="company-pill"><i class="fas fa-oil-well"></i> شرکت ملی پالایش و پخش</a>
+            <a href="https://www.ikorc.ir" target="_blank" class="company-pill"><i class="fas fa-industry"></i> پالایشگاه امام خمینی</a>
+            <a href="https://www.baorco.ir" target="_blank" class="company-pill"><i class="fas fa-oil-can"></i> پالایشگاه بندرعباس</a>
+            <a href="https://www.korc.ir" target="_blank" class="company-pill"><i class="fas fa-gas-pump"></i> پالایشگاه آبادان</a>
+            <a href="https://www.igmc.ir" target="_blank" class="company-pill"><i class="fas fa-bolt"></i> مدیریت شبکه برق</a>
+            <a href="https://www.trec.co.ir" target="_blank" class="company-pill"><i class="fas fa-plug"></i> برق منطقه‌ای تهران</a>
+            <a href="https://www.azrec.co.ir" target="_blank" class="company-pill"><i class="fas fa-bolt-lightning"></i> برق آذربایجان</a>
+            <a href="https://www.nigc.ir" target="_blank" class="company-pill"><i class="fas fa-fire"></i> شرکت ملی گاز ایران</a>
+            <a href="https://www.nicico.com" target="_blank" class="company-pill"><i class="fas fa-gem"></i> صنایع مس ایران</a>
+            <a href="https://www.scico.ir" target="_blank" class="company-pill"><i class="fas fa-mountain"></i> مس سرچشمه</a>
+            <a href="https://www.msc.ir" target="_blank" class="company-pill"><i class="fas fa-hard-hat"></i> فولاد مبارکه</a>
+            <a href="https://www.esfahansteel.com" target="_blank" class="company-pill"><i class="fas fa-cog"></i> ذوب آهن اصفهان</a>
+            <a href="https://www.cbi.ir" target="_blank" class="company-pill"><i class="fas fa-landmark"></i> بانک مرکزی</a>
+            <a href="https://www.bmi.ir" target="_blank" class="company-pill"><i class="fas fa-university"></i> بانک ملی</a>
+            <a href="https://www.bsi.ir" target="_blank" class="company-pill"><i class="fas fa-building-columns"></i> بانک صادرات</a>
+            <a href="https://www.bankmellat.ir" target="_blank" class="company-pill"><i class="fas fa-money-bill-trend-up"></i> بانک ملت</a>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TRANSACTIONS ==================== -->
+<div class="section">
+    <h2 class="section-title">📊 تراکنش‌های اخیر شبکه بلاکچین</h2>
+    <div style="overflow-x:auto;">
+        <table class="tx-table">
+            <thead>
+                <tr>
+                    <th>شناسه</th>
+                    <th>فرستنده</th>
+                    <th>گیرنده</th>
+                    <th>مبلغ (ریال)</th>
+                    <th>هش بلوک</th>
+                    <th>زمان</th>
+                    <th>وضعیت</th>
+                </tr>
+            </thead>
+            <tbody id="tx-body">
+                <tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:2rem;">
+                    ⏳ در حال بارگذاری تراکنش‌ها...
+                </td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ==================== NEWS ==================== -->
+<div class="section">
+    <h2 class="section-title">📰 اخبار امنیت سایبری ایران و جهان</h2>
+    <div class="news-grid">
+        <div class="news-card">
+            <div class="news-source"><i class="fas fa-newspaper"></i> Reuters</div>
+            <h4>افزایش حملات سایبری به زیرساخت‌های صنعتی خاورمیانه</h4>
+            <p>گزارش جدید نشان می‌دهد حملات به شبکه‌های OT و ICS در منطقه در سال ۲۰۲۵ رشد ۴۰ درصدی داشته است.</p>
+            <a href="https://www.reuters.com" target="_blank">مشاهده خبر ←</a>
+        </div>
+        <div class="news-card">
+            <div class="news-source"><i class="fas fa-shield-halved"></i> Security Magazine</div>
+            <h4>Horizon Angel: راه‌حل امنیت بلاکچین برای بانک‌های ایرانی</h4>
+            <p>شبکه بلاکچین اختصاصی مقاوم در برابر قطعی اینترنت، امکان امنیت کامل بدون افشای داده را فراهم می‌کند.</p>
+            <a href="#" target="_blank">مشاهده خبر ←</a>
+        </div>
+        <div class="news-card">
+            <div class="news-source"><i class="fas fa-lock"></i> The Hacker News</div>
+            <h4>افزایش ۵۰ درصدی حملات فیشینگ به بانک‌های ایران</h4>
+            <p>حملات باج‌افزاری و فیشینگ به بانک‌ها و صرافی‌های ایران به‌شدت افزایش یافته است.</p>
+            <a href="https://thehackernews.com" target="_blank">مشاهده خبر ←</a>
+        </div>
+        <div class="news-card">
+            <div class="news-source"><i class="fas fa-globe"></i> Bloomberg</div>
+            <h4>سرمایه‌گذاری Visa و Mastercard روی بلاکچین خصوصی</h4>
+            <p>شرکت‌های مالی بزرگ جهان به سمت بلاکچین‌های خصوصی برای امنیت بیشتر حرکت می‌کنند.</p>
+            <a href="https://www.bloomberg.com" target="_blank">مشاهده خبر ←</a>
+        </div>
+        <div class="news-card">
+            <div class="news-source"><i class="fas fa-newspaper"></i> Press TV</div>
+            <h4>ایران به دنبال زیرساخت بومی امنیت شبکه</h4>
+            <p>مقامات ایرانی از توسعه فناوری‌های بومی برای حفاظت از داده‌های مالی و صنعتی خبر دادند.</p>
+            <a href="https://www.presstv.ir" target="_blank">مشاهده خبر ←</a>
+        </div>
+        <div class="news-card">
+            <div class="news-source"><i class="fas fa-shield"></i> Cybersecurity Insiders</div>
+            <h4>بلاکچین خصوصی: آینده امنیت شبکه‌های صنعتی</h4>
+            <p>شبکه‌های بلاکچین خصوصی به‌عنوان راه‌حل اصلی حفاظت از داده‌های ICS و SCADA شناخته می‌شوند.</p>
+            <a href="https://www.cybersecurity-insiders.com" target="_blank">مشاهده خبر ←</a>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<div class="footer">
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>Horizon Angel</h4>
+            <p style="color:#94a3b8; font-size:0.8rem; line-height:1.7;">
+                شرکت فناوری ارائه‌دهنده شبکه بلاکچین اختصاصی، امن و مقاوم در برابر قطعی اینترنت برای بانک‌ها، صنایع و صرافی‌ها.
+            </p>
+        </div>
+        <div class="footer-col">
+            <h4>بانک‌های جهانی</h4>
+            <a href="https://www.jpmorganchase.com" target="_blank">JPMorgan Chase</a>
+            <a href="https://www.bankofamerica.com" target="_blank">Bank of America</a>
+            <a href="https://www.hsbc.com" target="_blank">HSBC</a>
+            <a href="https://www.deutsche-bank.de" target="_blank">Deutsche Bank</a>
+            <a href="https://www.citibank.com" target="_blank">Citibank</a>
+        </div>
+        <div class="footer-col">
+            <h4>بانک‌های ایرانی</h4>
+            <a href="https://www.cbi.ir" target="_blank">بانک مرکزی</a>
+            <a href="https://www.bmi.ir" target="_blank">بانک ملی</a>
+            <a href="https://www.bsi.ir" target="_blank">بانک صادرات</a>
+            <a href="https://www.bankmellat.ir" target="_blank">بانک ملت</a>
+            <a href="https://www.tejaratbank.ir" target="_blank">بانک تجارت</a>
+        </div>
+        <div class="footer-col">
+            <h4>رسانه‌های خبری</h4>
+            <a href="https://www.reuters.com" target="_blank">Reuters</a>
+            <a href="https://www.bloomberg.com" target="_blank">Bloomberg</a>
+            <a href="https://www.ft.com" target="_blank">Financial Times</a>
+            <a href="https://www.bbc.com/news" target="_blank">BBC News</a>
+            <a href="https://www.aljazeera.com" target="_blank">Al Jazeera</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        © ۲۰۲۶ Horizon Angel · شبکه بلاکچین اختصاصی · مقاوم در برابر قطعی اینترنت
+    </div>
+</div>
+
+<!-- ==================== AI FAB ==================== -->
+<button class="ai-fab" onclick="toggleAI(event)">
+    <i class="fas fa-robot"></i>
+    <span class="ai-dot"></span>
+</button>
+
+<!-- ==================== AI PANEL ==================== -->
+<div class="ai-panel" id="ai-panel">
+    <div class="ai-header">
+        <h3><i class="fas fa-robot"></i> دستیار هوشمند Horizon</h3>
+        <button onclick="toggleAI(event)">✕</button>
+    </div>
+    <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg bot">
+            سلام! من دستیار هوشمند Horizon Angel هستم.
+            می‌تونم در مورد محصولات، لایسنس‌ها، شبکه بلاکچین و امنیت کمکت کنم. چطور می‌تونم خدمت کنم؟
+        </div>
+    </div>
+    <div class="ai-suggestions">
+        <button onclick="askAI('محصولات شما چیه؟')">محصولات</button>
+        <button onclick="askAI('شبکه بلاکچین شما چیه؟')">شبکه بلاکچین</button>
+        <button onclick="askAI('چطور لایسنس بخرم؟')">خرید لایسنس</button>
+        <button onclick="askAI('Horizon Angel چیه؟')">درباره ما</button>
+    </div>
+    <div class="ai-input">
+        <input type="text" id="ai-input" placeholder="سوال خود را بنویسید..." onkeypress="if(event.key==='Enter') sendAI()">
+        <button onclick="sendAI()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+const API_BASE = 'https://horizon-backend.liara.run';
+const SWITCH_BASE = 'https://horizon-switch.liara.run';
+
+// ============ CAROUSEL ============
+function scrollCarousel(direction) {
+    const track = document.getElementById('products-track');
+    track.scrollBy({ left: direction * 300, behavior: 'smooth' });
+}
+
+// ============ LIVE STATS ============
+async function updateHeaderStats() {
+    try {
+        const r = await fetch(`${SWITCH_BASE}/benchmark`);
+        if (r.ok) {
+            const d = await r.json();
+            document.getElementById('hdr-tps').textContent = Math.round(d.tps).toLocaleString();
+        }
+    } catch (e) {}
+
+    try {
+        const r = await fetch(`${SWITCH_BASE}/stats`);
+        if (r.ok) {
+            const d = await r.json();
+            document.getElementById('hdr-blocks').textContent = d.chainLength || 0;
+        }
+    } catch (e) {}
+
+    try {
+        const r = await fetch(`${API_BASE}/api/v1/health`);
+        document.getElementById('hdr-status').textContent = r.ok ? 'آنلاین' : 'قطع';
+    } catch (e) {
+        document.getElementById('hdr-status').textContent = 'قطع';
+    }
+
+    // Local licenses
+    let localCount = 0;
+    try {
+        const local = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
+        localCount = local.length;
+    } catch (e) {}
+    document.getElementById('hdr-licenses').textContent = localCount;
+    document.getElementById('hdr-credit').textContent = (localCount * 100).toLocaleString();
+}
+
+// ============ TRANSACTIONS ============
+async function loadTransactions() {
+    const tbody = document.getElementById('tx-body');
+    try {
+        const r = await fetch(`${API_BASE}/api/v1/transactions`);
+        let txs = [];
+
+        if (r.ok) {
+            const d = await r.json();
+            txs = Array.isArray(d) ? d : (d.transactions || []);
+        }
+
+        // اگر خالی بود، از بلوک‌های سوئیچ بخون
+        if (txs.length === 0) {
+            try {
+                const sr = await fetch(`${SWITCH_BASE}/stats`);
+                if (sr.ok) {
+                    const sd = await sr.json();
+                    const blocks = sd.blocks || [];
+                    for (const b of blocks.slice(-5)) {
+                        for (const t of (b.transactions || []).slice(0, 3)) {
+                            txs.push({
+                                id: t.id || '—',
+                                from: t.from || 'alice',
+                                to: t.to || 'bob',
+                                amount: t.amount || 0,
+                                hash: b.hash || '',
+                                created_at: t.time ? new Date(t.time / 1000000).toISOString() : new Date().toISOString(),
+                                status: 'confirmed'
+                            });
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        if (txs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:2rem;">هنوز تراکنشی ثبت نشده</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = txs.slice(-10).reverse().map(tx => `
+            <tr>
+                <td>${tx.id || '—'}</td>
+                <td>${tx.from || '—'}</td>
+                <td>${tx.to || '—'}</td>
+                <td class="tx-amount">${(tx.amount || 0).toLocaleString()}</td>
+                <td><span class="tx-hash" title="${tx.hash || ''}">${(tx.hash || '').slice(0, 12)}...</span></td>
+                <td style="color:#94a3b8; font-size:0.75rem;">
+                    ${new Date(tx.created_at || Date.now()).toLocaleString('fa-IR')}
+                </td>
+                <td><span class="tx-status confirmed">✅ تأییدشده</span></td>
+            </tr>
+        `).join('');
+
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#f87171; padding:2rem;">خطا در دریافت تراکنش‌ها</td></tr>';
+    }
+}
+
+// ============ AI CHAT ============
+function toggleAI(e) {
+    if (e) e.preventDefault();
+    const panel = document.getElementById('ai-panel');
+    panel.classList.toggle('open');
+}
+
+async function sendAI() {
+    const input = document.getElementById('ai-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const messages = document.getElementById('ai-messages');
+    messages.innerHTML += `<div class="ai-msg user">${escapeHtml(text)}</div>`;
+    input.value = '';
+    messages.scrollTop = messages.scrollHeight;
+
+    const typing = document.createElement('div');
+    typing.className = 'ai-msg typing';
+    typing.id = 'ai-typing';
+    typing.textContent = 'Horizon AI در حال فکر کردن...';
+    messages.appendChild(typing);
+    messages.scrollTop = messages.scrollHeight;
+
+    await askAI(text);
+}
+
+async function askAI(question) {
+    if (question) {
+        const messages = document.getElementById('ai-messages');
+        messages.innerHTML += `<div class="ai-msg user">${escapeHtml(question)}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+
+        const typing = document.createElement('div');
+        typing.className = 'ai-msg typing';
+        typing.id = 'ai-typing';
+        typing.textContent = 'Horizon AI در حال فکر کردن...';
+        messages.appendChild(typing);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    try {
+        const r = await fetch(`${API_BASE}/api/v1/ai/ask`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: question || 'سلام' })
+        });
+
+        const data = await r.json();
+        document.getElementById('ai-typing')?.remove();
+
+        let answer = 'پاسخی دریافت نشد.';
+        if (data.answer) {
+            if (typeof data.answer === 'string') answer = data.answer;
+            else if (data.answer.choices?.[0]?.message?.content) answer = data.answer.choices[0].message.content;
+            else answer = JSON.stringify(data.answer);
+        }
+
+        document.getElementById('ai-messages').innerHTML += `<div class="ai-msg bot">${escapeHtml(answer)}</div>`;
+        document.getElementById('ai-messages').scrollTop = 999999;
+    } catch (e) {
+        document.getElementById('ai-typing')?.remove();
+        document.getElementById('ai-messages').innerHTML += `<div class="ai-msg bot" style="color:#f87171;">⚠️ خطا در ارتباط با سرور</div>`;
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ============ INIT ============
+updateHeaderStats();
+loadTransactions();
+setInterval(updateHeaderStats, 15000);
+setInterval(loadTransactions, 20000);
+</script>
+
+</body>
+</html>
