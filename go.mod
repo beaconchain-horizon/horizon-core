@@ -6,7 +6,7 @@ require (
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/go-github/v62 v62.0.0
-	golang.org/x/oauth2 v0.37.0
+	golang.org/x/oauth2 v0.21.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.7
 )
