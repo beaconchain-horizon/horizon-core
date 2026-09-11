@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل بانک · Horizon Angel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{font-family:Tahoma;box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(135deg,#020617,#1e1b4b);color:#eef2ff;min-height:100vh;padding:2rem}
+.cont{max-width:1200px;margin:0 auto}
+.card{background:rgba(15,23,42,.8);backdrop-filter:blur(20px);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem}
+.login-box{max-width:450px;margin:5rem auto}
+.login-box h1{text-align:center;font-size:2rem;background:linear-gradient(135deg,#4f9eff,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.5rem}
+.login-box p{text-align:center;color:#8fa2dc;font-size:.85rem;margin-bottom:2rem}
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:.75rem;color:#8fa2dc;margin-bottom:.4rem}
+.fg input{width:100%;background:#020617;border:1px solid #334155;border-radius:.8rem;padding:.9rem;color:#fff;font-size:.9rem;font-family:monospace;outline:none}
+.fg input:focus{border-color:#4f9eff;box-shadow:0 0 20px rgba(79,158,255,.3)}
+.btn{background:linear-gradient(135deg,#4f9eff,#c084fc);color:#fff;border:none;padding:.9rem 2rem;border-radius:1rem;font-weight:700;cursor:pointer;font-size:.9rem;width:100%;font-family:Tahoma}
+.btn:hover{transform:translateY(-2px);box-shadow:0 15px 40px rgba(79,158,255,.5)}
+.hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:2rem}
+.hdr h1{font-size:1.5rem;color:#4f9eff}
+.hdr .bank-info{font-size:.85rem;color:#8fa2dc}
+.lic-card{background:linear-gradient(135deg,rgba(79,158,255,.15),rgba(192,132,252,.15));border:1px solid rgba(79,158,255,.4);border-radius:1.5rem;padding:1.8rem;margin-bottom:1.5rem}
+.lic-card h3{color:#4f9eff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.lic-row{display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem}
+.lic-row:last-child{border-bottom:none}
+.lic-row .lbl{color:#8fa2dc}
+.lic-row .val{font-family:monospace;color:#4ade80;word-break:break-all;max-width:60%;text-align:left}
+.status-badge{background:rgba(74,222,128,.15);color:#4ade80;padding:.3rem .8rem;border-radius:20px;font-size:.75rem;font-weight:700}
+.status-badge.inactive{background:rgba(248,113,113,.15);color:#f87171}
+.tbl{width:100%;border-collapse:collapse;border-radius:1rem;overflow:hidden}
+.tbl th{background:linear-gradient(135deg,#1e293b,#0f172a);color:#4f9eff;padding:.9rem;text-align:right;font-size:.75rem}
+.tbl td{padding:.8rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem}
+.tbl tr:hover td{background:rgba(79,158,255,.05)}
+.hash{color:#c084fc;font-family:monospace;font-size:.7rem}
+.amount{color:#4ade80;font-family:monospace;font-weight:700}
+.blk-item{background:rgba(0,0,0,.3);border-right:3px solid #4ade80;border-radius:.8rem;padding:.9rem;margin-bottom:.5rem;font-size:.8rem}
+.blk-item .bnum{color:#4f9eff;font-weight:700}
+.blk-item .bhash{color:#4ade80;font-family:monospace;font-size:.7rem;word-break:break-all;margin-top:.3rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="cont">
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-box card">
+<h1>🏦 پنل بانک</h1>
+<p>Horizon Angel · ورود به حساب بانک</p>
+<div class="fg">
+<label>شناسه بانک</label>
+<input type="text" id="bank-id" value="bank_markazi">
+</div>
+<div class="fg">
+<label>رمز عبور</label>
+<input type="password" id="bank-pass" value="bank2026">
+</div>
+<button class="btn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> ورود به پنل</button>
+<div id="login-status" style="text-align:center;font-size:.8rem;color:#8fa2dc;margin-top:1rem"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" style="display:none">
+
+<div class="hdr">
+<div>
+<h1><i class="fas fa-university"></i> <span id="bank-name">—</span></h1>
+<div class="bank-info">شناسه: <span id="bank-id-show">—</span></div>
+</div>
+<button class="btn" style="width:auto;padding:.6rem 1.5rem;font-size:.8rem" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+</div>
+
+<!-- LICENSE -->
+<div class="lic-card" id="license-card">
+<h3><i class="fas fa-key"></i> لایسنس شما</h3>
+<div id="license-content">در حال بارگذاری...</div>
+</div>
+
+<!-- STATS -->
+<div class="card">
+<h3 style="color:#4f9eff;margin-bottom:1rem"><i class="fas fa-chart-line"></i> آمار شبکه</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem">
+<div style="text-align:center;padding:1rem;background:rgba(0,0,0,.3);border-radius:1rem">
+<div style="font-size:1.8rem;font-weight:900;color:#4ade80" id="stat-blocks">—</div>
+<div style="font-size:.75rem;color:#8fa2dc">بلوک‌ها</div>
+</div>
+<div style="text-align:center;padding:1rem;background:rgba(0,0,0,.3);border-radius:1rem">
+<div style="font-size:1.8rem;font-weight:900;color:#c084fc" id="stat-tx">—</div>
+<div style="font-size:.75rem;color:#8fa2dc">تراکنش‌ها</div>
+</div>
+<div style="text-align:center;padding:1rem;background:rgba(0,0,0,.3);border-radius:1rem">
+<div style="font-size:1.8rem;font-weight:900;color:#facc15" id="stat-pending">—</div>
+<div style="font-size:.75rem;color:#8fa2dc">در انتظار</div>
+</div>
+</div>
+</div>
+
+<!-- GRID: TRANSACTIONS + BLOCKS -->
+<div class="grid-2">
+
+<div class="card">
+<h3 style="color:#4f9eff;margin-bottom:1rem"><i class="fas fa-exchange-alt"></i> تراکنش‌های اخیر</h3>
+<div id="tx-list" style="max-height:400px;overflow-y:auto">در حال بارگذاری...</div>
+</div>
+
+<div class="card">
+<h3 style="color:#4f9eff;margin-bottom:1rem"><i class="fas fa-cubes"></i> بلوک‌های اخیر</h3>
+<div id="blocks-list" style="max-height:400px;overflow-y:auto">در حال بارگذاری...</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+// ============ CONFIG ============
+var SWITCH_URL = 'http://localhost:8080';
+// وقتی سوئیچ روی لیارا رفت، این رو عوض کن:
+// var SWITCH_URL = 'https://horizon-switch.liara.run';
+
+var currentBank = null;
+
+// ============ LOGIN ============
+function doLogin() {
+    var bankId = document.getElementById('bank-id').value.trim();
+    var password = document.getElementById('bank-pass').value.trim();
+    var status = document.getElementById('login-status');
+
+    if (!bankId || !password) {
+        status.innerHTML = '<span style="color:#f87171">❌ شناسه و رمز را وارد کنید</span>';
+        return;
+    }
+
+    status.innerHTML = '⏳ در حال بررسی...';
+
+    fetch(SWITCH_URL + '/api/v1/bank/login', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({bank_id: bankId, password: password})
+    }).then(function(r){return r.json()}).then(function(d){
+        if (d.status === 'ok') {
+            currentBank = d.bank;
+            localStorage.setItem('hz_bank_session', JSON.stringify({
+                bank_id: bankId,
+                logged_in: new Date().toISOString()
+            }));
+            status.innerHTML = '<span style="color:#4ade80">✅ ورود موفق</span>';
+            setTimeout(function(){
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dash').style.display = 'block';
+                showDashboard(d.bank, d.license);
+                loadAll();
+            }, 500);
+        } else {
+            status.innerHTML = '<span style="color:#f87171">❌ ' + (d.error || 'خطا در ورود') + '</span>';
+        }
+    }).catch(function(e){
+        status.innerHTML = '<span style="color:#f87171">❌ خطا: ' + e.message + '</span>';
+    });
+}
+
+function doLogout() {
+    if (confirm('خارج می‌شوید؟')) {
+        localStorage.removeItem('hz_bank_session');
+        location.reload();
+    }
+}
+
+// ============ SHOW DASHBOARD ============
+function showDashboard(bank, license) {
+    document.getElementById('bank-name').textContent = bank.bank_name || bank.bank_id;
+    document.getElementById('bank-id-show').textContent = bank.bank_id;
+    renderLicense(license);
+}
+
+function renderLicense(lic) {
+    var el = document.getElementById('license-content');
+    if (!lic || !lic.license_id) {
+        el.innerHTML = '<p style="color:#f87171">❌ لایسنس فعالی یافت نشد</p>';
+        return;
+    }
+    var expires = new Date(lic.expires_at * 1000).toLocaleDateString('fa-IR');
+    el.innerHTML = 
+        '<div class="lic-row"><span class="lbl">شناسه لایسنس</span><span class="val">' + lic.license_id + '</span></div>' +
+        '<div class="lic-row"><span class="lbl">محصول</span><span class="val">' + lic.product_id + '</span></div>' +
+        '<div class="lic-row"><span class="lbl">حجم</span><span class="val">' + lic.volume.toLocaleString('fa-IR') + ' تراکنش</span></div>' +
+        '<div class="lic-row"><span class="lbl">مصرف شده</span><span class="val">' + lic.used + '</span></div>' +
+        '<div class="lic-row"><span class="lbl">انقضا</span><span class="val">' + expires + '</span></div>' +
+        '<div class="lic-row"><span class="lbl">Merkle Root</span><span class="val">' + (lic.merkle_root||'').slice(0,32) + '...</span></div>' +
+        '<div class="lic-row"><span class="lbl">امضا (ECDSA)</span><span class="val">' + (lic.signature||'').slice(0,32) + '...</span></div>' +
+        '<div class="lic-row"><span class="lbl">وضعیت</span><span class="val"><span class="status-badge">✅ ' + lic.status + '</span></span></div>';
+}
+
+// ============ LOAD DATA ============
+function loadAll() {
+    loadStats();
+    loadTx();
+    loadBlocks();
+}
+
+function loadStats() {
+    fetch(SWITCH_URL + '/api/v1/stats').then(function(r){return r.json()}).then(function(d){
+        document.getElementById('stat-blocks').textContent = d.chainLength || 0;
+        document.getElementById('stat-tx').textContent = d.totalTx || 0;
+        document.getElementById('stat-pending').textContent = d.pendingTx || 0;
+    }).catch(function(){});
+}
+
+function loadTx() {
+    fetch(SWITCH_URL + '/api/v1/tx/list').then(function(r){return r.json()}).then(function(d){
+        var el = document.getElementById('tx-list');
+        var txs = d.transactions || [];
+        if (txs.length === 0) {
+            el.innerHTML = '<p style="color:#94a3b8;font-size:.8rem;text-align:center;padding:1rem">هیچ تراکنشی نیست</p>';
+            return;
+        }
+        el.innerHTML = '<table class="tbl"><thead><tr><th>از</th><th>به</th><th>مبلغ</th><th>وضعیت</th></tr></thead><tbody>' +
+            txs.slice(0, 20).map(function(t){
+                return '<tr>' +
+                    '<td>' + (t.from||'—') + '</td>' +
+                    '<td>' + (t.to||'—') + '</td>' +
+                    '<td class="amount">' + (t.amount||0).toLocaleString('fa-IR') + '</td>' +
+                    '<td>' + (t.block_index >= 0 ? '<span class="status-badge">✅ تأیید</span>' : '<span class="status-badge inactive">⏳ در انتظار</span>') + '</td>' +
+                '</tr>';
+            }).join('') + '</tbody></table>';
+    }).catch(function(){});
+}
+
+function loadBlocks() {
+    fetch(SWITCH_URL + '/api/v1/block/list').then(function(r){return r.json()}).then(function(d){
+        var el = document.getElementById('blocks-list');
+        var blocks = d.blocks || [];
+        if (blocks.length === 0) {
+            el.innerHTML = '<p style="color:#94a3b8;font-size:.8rem;text-align:center;padding:1rem">هیچ بلوکی نیست</p>';
+            return;
+        }
+        el.innerHTML = blocks.slice(0, 10).map(function(b){
+            return '<div class="blk-item">' +
+                '<div style="display:flex;justify-content:space-between">' +
+                '<span class="bnum">بلوک #' + b.block_num + '</span>' +
+                '<span style="color:#8fa2dc;font-size:.7rem">' + b.tx_count + ' تراکنش</span>' +
+                '</div>' +
+                '<div class="bhash">' + b.hash + '</div>' +
+                '<div style="color:#8fa2dc;font-size:.7rem;margin-top:.3rem">' + new Date(b.timestamp*1000).toLocaleString('fa-IR') + '</div>' +
+            '</div>';
+        }).join('');
+    }).catch(function(){});
+}
+
+// ============ AUTO-LOGIN ============
+window.addEventListener('DOMContentLoaded', function(){
+    var sess = localStorage.getItem('hz_bank_session');
+    if (sess) {
+        try {
+            var s = JSON.parse(sess);
+            document.getElementById('bank-id').value = s.bank_id;
+            doLogin();
+        } catch(e){}
+    }
+    setInterval(function(){
+        if (document.getElementById('dash').style.display !== 'none') loadAll();
+    }, 15000);
+});
+</script>
+</body>
+</html>
