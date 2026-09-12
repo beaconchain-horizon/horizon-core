@@ -49,6 +49,7 @@
 .tab.active{background:linear-gradient(135deg,#4f9eff,#c084fc);color:#fff}
 .tc{display:none}.tc.active{display:block}
 </style>
+<script src="clients.js"></script>
 </head>
 <body>
 
@@ -166,8 +167,8 @@
 <button class="btn btn-red" onclick="clearLicenses()" style="margin-bottom:1rem;font-size:.75rem;padding:.5rem 1rem"><i class="fas fa-trash"></i> پاک کردن همه</button>
 <div style="overflow-x:auto">
 <table class="tbl">
-<thead><tr><th>شناسه</th><th>مشتری</th><th>حجم</th><th>امضا</th><th>تاریخ</th><th>وضعیت</th></tr></thead>
-<tbody id="licBody"><tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:1.5rem">هنوز لایسنسی تولید نشده</td></tr></tbody>
+<thead><tr><th>شناسه</th><th>مشتری</th><th>Chain ID</th><th>نوع</th><th>Air-Gap</th><th>حجم</th><th>امضا</th><th>وضعیت</th></tr></thead>
+<tbody id="licBody"><tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:1.5rem">هنوز لایسنسی تولید نشده</td></tr></tbody>
 </table>
 </div>
 </div>
@@ -387,19 +388,30 @@ function loadLicenses(){
     const ls=JSON.parse(localStorage.getItem('hz_licenses') || '[]');
     const tb=document.getElementById('licBody');
     if(ls.length===0){
-        tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:1.5rem">هنوز لایسنسی تولید نشده</td></tr>';
+        tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:1.5rem">هنوز لایسنسی تولید نشده</td></tr>';
         return;
     }
-    tb.innerHTML=ls.slice().reverse().map(l=>
-        '<tr>'+
-        '<td style="color:#4f9eff;font-family:monospace;font-size:.7rem">'+l.id+'</td>'+
-        '<td>'+l.user_id+'</td>'+
-        '<td>'+l.volume.toLocaleString()+'</td>'+
-        '<td style="color:#c084fc;font-family:monospace;font-size:.68rem">'+(l.signature||'').slice(0,15)+'...</td>'+
-        '<td style="color:#94a3b8;font-size:.72rem">'+new Date(l.created_at).toLocaleString('fa-IR')+'</td>'+
-        '<td><span style="background:rgba(74,222,128,.15);color:#4ade80;padding:.2rem .6rem;border-radius:20px;font-size:.65rem">✅ فعال</span></td>'+
-        '</tr>'
-    ).join('');
+    tb.innerHTML=ls.slice().reverse().map(l=>{
+        const c=getClient(l.user_id);
+        const airGapBadge = c.air_gap
+            ? '<span style="background:rgba(74,222,128,.15);color:#4ade80;padding:.2rem .6rem;border-radius:20px;font-size:.65rem">🔒 فعال</span>'
+            : '<span style="background:rgba(148,163,184,.15);color:#94a3b8;padding:.2rem .6rem;border-radius:20px;font-size:.65rem">🌐 خاموش</span>';
+        const typeBadge = c.type==='bank'
+            ? '<span style="color:#4f9eff">🏦 بانک</span>'
+            : c.type==='industry'
+            ? '<span style="color:#c084fc">🏭 صنعت</span>'
+            : '<span style="color:#94a3b8">❓</span>';
+        return '<tr>'+
+            '<td style="color:#4f9eff;font-family:monospace;font-size:.7rem">'+l.id+'</td>'+
+            '<td>'+c.icon+' '+c.name+'</td>'+
+            '<td style="font-family:monospace;font-size:.7rem;color:#c084fc">'+c.chain_id+'</td>'+
+            '<td style="font-size:.75rem">'+typeBadge+'</td>'+
+            '<td style="font-size:.75rem">'+airGapBadge+'</td>'+
+            '<td>'+l.volume.toLocaleString()+'</td>'+
+            '<td style="color:#c084fc;font-family:monospace;font-size:.68rem">'+(l.signature||'').slice(0,15)+'...'+'</td>'+
+            '<td><span style="background:rgba(74,222,128,.15);color:#4ade80;padding:.2rem .6rem;border-radius:20px;font-size:.65rem">✅ فعال</span></td>'+
+            '</tr>';
+    }).join('');
 }
 
 function loadStats(){
