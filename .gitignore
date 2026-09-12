@@ -26,3 +26,9 @@ Thumbs.db
 *.db
 *.db-shm
 *.db-wal
+
+# Backups and local configs
+*.backup-*
+cmd/switch.backup-*/
+Dockerfile.broken-backup
+config/chain.json
