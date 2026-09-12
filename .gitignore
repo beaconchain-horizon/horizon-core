@@ -13,3 +13,16 @@
 *.backup
 .DS_Store
 Thumbs.db
+
+# Secrets
+.env
+
+# Backups
+*.bak
+*.bak*
+*.exe~
+*.exe
+*.log
+*.db
+*.db-shm
+*.db-wal
