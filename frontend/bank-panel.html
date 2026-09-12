@@ -76,6 +76,7 @@ body{background:linear-gradient(135deg,#020617,#1e1b4b);color:#eef2ff;min-height
 <!-- LICENSE -->
 <div class="lic-card" id="license-card">
 <h3><i class="fas fa-key"></i> لایسنس شما</h3>
+<div id="license-verify" style="margin-bottom:1rem;padding:.6rem;border-radius:.6rem;background:rgba(0,0,0,.3);font-size:.8rem">⏳ در حال تأیید امضا...</div>
 <div id="license-content">در حال بارگذاری...</div>
 </div>
 
@@ -183,6 +184,8 @@ function renderLicense(lic) {
         el.innerHTML = '<p style="color:#f87171">❌ لایسنس فعالی یافت نشد</p>';
         return;
     }
+    // verify signature
+    verifyLicenseSignature(lic.license_id);
     var expires = new Date(lic.expires_at * 1000).toLocaleDateString('fa-IR');
     el.innerHTML = 
         '<div class="lic-row"><span class="lbl">شناسه لایسنس</span><span class="val">' + lic.license_id + '</span></div>' +
@@ -193,6 +196,37 @@ function renderLicense(lic) {
         '<div class="lic-row"><span class="lbl">Merkle Root</span><span class="val">' + (lic.merkle_root||'').slice(0,32) + '...</span></div>' +
         '<div class="lic-row"><span class="lbl">امضا (ECDSA)</span><span class="val">' + (lic.signature||'').slice(0,32) + '...</span></div>' +
         '<div class="lic-row"><span class="lbl">وضعیت</span><span class="val"><span class="status-badge">✅ ' + lic.status + '</span></span></div>';
+}
+
+// ============ VERIFY LICENSE ============
+function verifyLicenseSignature(licenseId) {
+    var el = document.getElementById('license-verify');
+    if (!el) return;
+    fetch(SWITCH_URL + '/api/v1/license/verify', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({license_id: licenseId})
+    }).then(function(r){return r.json()}).then(function(v){
+        if (v.valid && v.signature_valid) {
+            el.innerHTML = '✅ <b style="color:#4ade80">امضای ECDSA معتبر است</b>' +
+                '<div style="color:#8fa2dc;font-size:.7rem;margin-top:.3rem;word-break:break-all">' +
+                'امضاکننده: <span style="color:#4f9eff">' + (v.address||'—') + '</span></div>';
+            el.style.background = 'rgba(74,222,128,.1)';
+            el.style.border = '1px solid rgba(74,222,128,.4)';
+        } else if (v.expired) {
+            el.innerHTML = '⏰ <b style="color:#facc15">لایسنس منقضی شده</b>';
+            el.style.background = 'rgba(250,204,21,.1)';
+            el.style.border = '1px solid rgba(250,204,21,.4)';
+        } else {
+            el.innerHTML = '❌ <b style="color:#f87171">امضا نامعتبر است</b>' +
+                '<div style="color:#8fa2dc;font-size:.7rem;margin-top:.3rem">' +
+                (v.error||'امضا با کلید عمومی مطابقت ندارد') + '</div>';
+            el.style.background = 'rgba(248,113,113,.1)';
+            el.style.border = '1px solid rgba(248,113,113,.4)';
+        }
+    }).catch(function(e){
+        el.innerHTML = '⚠️ <b style="color:#facc15">خطا در تأیید</b> ' + e.message;
+    });
 }
 
 // ============ LOAD DATA ============
