@@ -94,6 +94,8 @@ var (
 	unlockedKey  *ecdsa.PrivateKey
 	unlockedAddr string
 	stateMutex   sync.RWMutex
+	ledger       *Ledger
+	ledgerStop   chan struct{}
 )
 
 // ============================================================
@@ -401,8 +403,6 @@ func keyStatusHandler(c *gin.Context) {
 	})
 }
 
-// ============ TRANSACTIONS ============
-
 func createTxHandler(c *gin.Context) {
 	var req struct {
 		From   string  `json:"from" binding:"required"`
@@ -415,7 +415,6 @@ func createTxHandler(c *gin.Context) {
 		return
 	}
 
-	// ===== Validation =====
 	if req.Amount <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "amount must be positive"})
 		return
@@ -428,29 +427,13 @@ func createTxHandler(c *gin.Context) {
 		req.Type = "transfer"
 	}
 
-	// ===== چک وجود حساب‌ها =====
-	var sender, receiver Account
-	if err := db.Where("bank_id = ?", req.From).First(&sender).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "sender account not found: " + req.From})
-		return
-	}
-	if err := db.Where("bank_id = ?", req.To).First(&receiver).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "receiver account not found: " + req.To})
+	// ===== Fast in-memory transfer =====
+	if err := ledger.Transfer(req.From, req.To, req.Amount); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// ===== چک موجودی کافی =====
-	if sender.Balance < req.Amount {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":    "insufficient balance",
-			"bank_id":  req.From,
-			"balance":  sender.Balance,
-			"required": req.Amount,
-		})
-		return
-	}
-
-	// ===== ساخت tx و انتقال اتمیک =====
+	// ===== Build tx record (async persist) =====
 	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixNano(), hashData([]byte(req.From+req.To))[:8])
 	tx := &Transaction{
 		TxID:       txID,
@@ -462,39 +445,17 @@ func createTxHandler(c *gin.Context) {
 		BlockIndex: -1,
 		Synced:     false,
 	}
+	queueTransaction(tx)
 
-	err := db.Transaction(func(d *gorm.DB) error {
-		if err := d.Create(tx).Error; err != nil {
-			return err
-		}
-		if err := d.Model(&Account{}).Where("bank_id = ?", req.From).
-			Update("balance", gorm.Expr("balance - ?", req.Amount)).Error; err != nil {
-			return err
-		}
-		if err := d.Model(&Account{}).Where("bank_id = ?", req.To).
-			Update("balance", gorm.Expr("balance + ?", req.Amount)).Error; err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// ===== خواندن موجودی جدید =====
-	var newSender, newReceiver Account
-	db.Where("bank_id = ?", req.From).First(&newSender)
-	db.Where("bank_id = ?", req.To).First(&newReceiver)
-
-	log.Printf("💸 TX: %s | %.2f | %s → %s | bal %s: %.2f → %.2f",
-		txID, req.Amount, req.From, req.To, req.From, sender.Balance, newSender.Balance)
+	// ===== Read new balances from RAM (fast) =====
+	newFrom := ledger.GetBalance(req.From)
+	newTo := ledger.GetBalance(req.To)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"tx": tx,
 		"balances": gin.H{
-			req.From: newSender.Balance,
-			req.To:   newReceiver.Balance,
+			req.From: newFrom,
+			req.To:   newTo,
 		},
 	})
 }
@@ -699,6 +660,9 @@ func main() {
 		dbPath = "./data/horizon-switch.db"
 	}
 	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	if err := configureSQLite(db); err != nil {
+		log.Printf("⚠️  configureSQLite failed: %v", err)
+	}
 	if err != nil {
 		log.Fatal("❌ Failed to open database:", err)
 	}
@@ -709,6 +673,19 @@ func main() {
 	}
 	log.Println("✅ SQLite database ready:", dbPath)
 
+	// === In-Memory Ledger ===
+	ledger = NewLedger()
+	initAirGap()
+	initChainConfig()
+	initAuditMiddleware()
+	if err := loadLedgerFromDB(ledger); err != nil {
+		log.Printf("ledger load warning: %v", err)
+	}
+	initTxQueue()
+	ledgerStop = make(chan struct{})
+	startLedgerLoops(ledger, ledgerStop)
+	log.Println("Ledger initialized (in-memory + async persist)")
+
 	// Ensure genesis block exists
 	getLastBlock()
 
@@ -716,6 +693,9 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(corsMiddleware())
+	r.Use(airgapMiddleware())
+	r.Use(chainIDMiddleware())
+	r.Use(auditMiddleware())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -727,6 +707,7 @@ func main() {
 	api := r.Group("/api/v1")
 	{
 		api.GET("/health", healthHandler)
+		api.GET("/chain/info", chainInfoHandler)
 		api.GET("/stats", statsHandler)
 
 		// Key vault
@@ -779,10 +760,8 @@ func main() {
 
 	// Compat endpoints (for old frontend)
 	r.GET("/health", healthHandler)
+		r.GET("/benchmark", benchmarkHandler)
 	r.GET("/stats", statsHandler)
-	r.GET("/benchmark", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"tps": 35000, "status": "online"})
-	})
 
 	port := os.Getenv("SWITCH_PORT")
 	if port == "" {
