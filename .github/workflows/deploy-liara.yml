@@ -14,10 +14,21 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "20"
       
       - name: Install Liara CLI
-        run: npm i -g @liara/cli@9
+        run: npm install -g @liara/cli
+      
+      - name: Debug token
+        run: |
+          if [ -z "${{ secrets.LIARA_API_TOKEN }}" ]; then
+            echo "❌ TOKEN IS EMPTY"
+            exit 1
+          else
+            echo "✅ Token exists (length: ${#LIARA_TOKEN})"
+          fi
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
       
       - name: Deploy Switch
         env:
@@ -29,7 +40,8 @@ jobs:
             --platform=docker \
             --port=8080 \
             --path=. \
-            --no-app-logs
+            --no-app-logs \
+            --debug
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -39,10 +51,10 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "20"
       
       - name: Install Liara CLI
-        run: npm i -g @liara/cli@9
+        run: npm install -g @liara/cli
       
       - name: Deploy Frontend
         env:
