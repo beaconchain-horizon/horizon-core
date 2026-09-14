@@ -1,8 +1,16 @@
 FROM golang:1.24-alpine
+
 WORKDIR /app
+
 COPY go.mod go.sum ./
 RUN go mod download
+
 COPY . .
-RUN go build -o switch ./cmd/switch
+
+RUN go build -o api ./cmd/api
+
 EXPOSE 8080
-CMD ["./switch"]
+
+ENV GIN_MODE=release
+
+CMD ["./api"]
