@@ -163,7 +163,7 @@ func connectPostgres() error {
 		return errors.New("DATABASE_URL is required")
 	}
 	var err error
-	pgDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	pgDB, err = gorm.Open(postgres.New(postgres.Config{DSN: dsn, PreferSimpleProtocol: true}), &gorm.Config{})
 	if err != nil {
 		return err
 	}
