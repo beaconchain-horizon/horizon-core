@@ -1,13 +1,13 @@
 module horizon-core
 
-go 1.26.0
+go 1.24.0
 
 require (
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/go-github/v62 v62.0.0
-	golang.org/x/crypto v0.57.0
+	golang.org/x/crypto v0.31.0
 	golang.org/x/oauth2 v0.21.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.30.0
@@ -42,9 +42,9 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/net v0.58.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/text v0.42.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.22.5 // indirect
