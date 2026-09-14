@@ -1,10 +1,8 @@
 {
-  "deployments": [
-    {
-      "app": "horizon-switch",
-      "platform": "docker",
-      "path": ".",
-      "port": 8080
-    }
-  ]
+  "app": "horizon-switch",
+  "port": 8080,
+  "build": {
+    "location": "iran"
+  },
+  "disks": []
 }
