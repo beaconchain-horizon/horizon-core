@@ -167,11 +167,7 @@ func connectPostgres() error {
 	if err != nil {
 		return err
 	}
-	return pgDB.AutoMigrate(
-		&Customer{}, &Payment{}, &LicenseRecord{}, &Transaction{}, &LicensePackage{},
-		&IndustrialSensor{}, &SensorReading{}, &IndustryAlert{}, &StartToken{},
-		&Gateway{}, &Wallet{},
-	)
+	return nil
 }
 
 func canonicalLicenseData(l LicenseRecord) []byte {
