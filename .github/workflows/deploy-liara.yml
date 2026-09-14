@@ -19,17 +19,6 @@ jobs:
       - name: Install Liara CLI
         run: npm install -g @liara/cli
       
-      - name: Debug token
-        run: |
-          if [ -z "${{ secrets.LIARA_API_TOKEN }}" ]; then
-            echo "❌ TOKEN IS EMPTY"
-            exit 1
-          else
-            echo "✅ Token exists (length: ${#LIARA_TOKEN})"
-          fi
-        env:
-          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
-      
       - name: Deploy Switch
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
@@ -40,8 +29,17 @@ jobs:
             --platform=docker \
             --port=8080 \
             --path=. \
-            --no-app-logs \
-            --debug
+            --no-app-logs || \
+          liara deploy \
+            --app="horizon-switch" \
+            --api-token="$LIARA_TOKEN" \
+            --platform=docker \
+            --port=8080 \
+            --no-app-logs || \
+          liara deploy \
+            --app="horizon-switch" \
+            --api-token="$LIARA_TOKEN" \
+            --no-app-logs
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -65,4 +63,13 @@ jobs:
             --api-token="$LIARA_TOKEN" \
             --platform=static \
             --path=./frontend \
+            --no-app-logs || \
+          liara deploy \
+            --app="horizon-frontend" \
+            --api-token="$LIARA_TOKEN" \
+            --path=./frontend \
+            --no-app-logs || \
+          liara deploy \
+            --app="horizon-frontend" \
+            --api-token="$LIARA_TOKEN" \
             --no-app-logs
