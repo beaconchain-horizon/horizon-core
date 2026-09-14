@@ -11,34 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      
-      - name: Install Liara CLI
-        run: npm install -g @liara/cli
-      
-      - name: Deploy Switch
+
+      - name: Deploy Switch to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
         run: |
-          liara deploy \
+          npx @liara/cli deploy \
             --app="horizon-switch" \
             --api-token="$LIARA_TOKEN" \
             --platform=docker \
             --port=8080 \
             --path=. \
-            --no-app-logs || \
-          liara deploy \
-            --app="horizon-switch" \
-            --api-token="$LIARA_TOKEN" \
-            --platform=docker \
-            --port=8080 \
-            --no-app-logs || \
-          liara deploy \
-            --app="horizon-switch" \
-            --api-token="$LIARA_TOKEN" \
             --no-app-logs
 
   deploy-frontend:
@@ -46,30 +33,18 @@ jobs:
     needs: deploy-switch
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      
-      - name: Install Liara CLI
-        run: npm install -g @liara/cli
-      
-      - name: Deploy Frontend
+
+      - name: Deploy Frontend to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
         run: |
-          liara deploy \
+          npx @liara/cli deploy \
             --app="horizon-frontend" \
             --api-token="$LIARA_TOKEN" \
             --platform=static \
             --path=./frontend \
-            --no-app-logs || \
-          liara deploy \
-            --app="horizon-frontend" \
-            --api-token="$LIARA_TOKEN" \
-            --path=./frontend \
-            --no-app-logs || \
-          liara deploy \
-            --app="horizon-frontend" \
-            --api-token="$LIARA_TOKEN" \
             --no-app-logs
