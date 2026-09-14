@@ -9,42 +9,25 @@ on:
 jobs:
   deploy-switch:
     runs-on: ubuntu-latest
+    container: liara/cli:latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
 
       - name: Deploy Switch to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
         run: |
-          npx @liara/cli deploy \
-            --app="horizon-switch" \
-            --api-token="$LIARA_TOKEN" \
-            --platform=docker \
-            --port=8080 \
-            --path=. \
-            --no-app-logs
+          liara deploy --app="horizon-switch" --api-token="$LIARA_TOKEN" --platform=docker --port=8080 --path=. --no-app-logs
 
   deploy-frontend:
     runs-on: ubuntu-latest
     needs: deploy-switch
+    container: liara/cli:latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
 
       - name: Deploy Frontend to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
         run: |
-          npx @liara/cli deploy \
-            --app="horizon-frontend" \
-            --api-token="$LIARA_TOKEN" \
-            --platform=static \
-            --path=./frontend \
-            --no-app-logs
+          liara deploy --app="horizon-frontend" --api-token="$LIARA_TOKEN" --platform=static --path=./frontend --no-app-logs
