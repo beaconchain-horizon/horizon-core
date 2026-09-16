@@ -11,6 +11,10 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /root/
 COPY --from=builder /app/switch .
+COPY --from=builder /app/config /root/config-seed
 RUN mkdir -p /root/data
+
+RUN printf '#!/bin/sh\nif [ ! -f /root/data/chain.json ]; then cp -r /root/config-seed/. /root/data/ 2>/dev/null || true; fi\n./switch\n' > /root/start.sh && chmod +x /root/start.sh
+
 EXPOSE 8080
-CMD ["./switch"]
+CMD ["/root/start.sh"]
