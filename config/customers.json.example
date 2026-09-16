@@ -1,0 +1,11 @@
+[
+  {"customer_id": "bank_markazi", "name": "بانک مرکزی ایران", "type": "bank", "password": "bank2026"},
+  {"customer_id": "bank_melli",   "name": "بانک ملی ایران",   "type": "bank", "password": "bank2026"},
+  {"customer_id": "bank_saderat", "name": "بانک صادرات ایران", "type": "bank", "password": "bank2026"},
+  {"customer_id": "bank_mellat",  "name": "بانک ملت",          "type": "bank", "password": "bank2026"},
+  {"customer_id": "niordc",       "name": "شرکت ملی پالایش و پخش", "type": "industry", "password": "niordc2026"},
+  {"customer_id": "igmc",         "name": "مدیریت شبکه برق",   "type": "industry", "password": "igmc2026"},
+  {"customer_id": "nigc",         "name": "شرکت ملی گاز",      "type": "industry", "password": "nigc2026"},
+  {"customer_id": "nicico",       "name": "صنایع مس ایران",   "type": "industry", "password": "nicico2026"},
+  {"customer_id": "msc",          "name": "فولاد مبارکه",      "type": "industry", "password": "msc2026"}
+]

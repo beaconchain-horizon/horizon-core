@@ -688,7 +688,7 @@ func main() {
 	}
 
 	// Auto migrate
-	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}); err != nil {
+	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}, &Customer{}); err != nil {
 		log.Fatal("❌ Migration failed:", err)
 	}
 	log.Println("✅ SQLite database ready:", dbPath)
@@ -702,6 +702,7 @@ func main() {
 	ledger = NewLedger()
 	initAirGap()
 	initChainConfig()
+	initCustomers()
 	initAuditMiddleware()
 	if err := loadLedgerFromDB(ledger); err != nil {
 		log.Printf("ledger load warning: %v", err)
@@ -819,6 +820,23 @@ func main() {
 	r.GET("/health", healthHandler)
 
 	r.GET("/payment/mock", mockPaymentPageHandler)
+
+	// Customer panel
+	apiCustomer := r.Group("/api/v1/customer")
+	{
+		apiCustomer.POST("/login", customerLoginHandler)
+		apiCustomer.POST("/logout", customerLogoutHandler)
+
+		authCustomer := apiCustomer.Group("")
+		authCustomer.Use(customerAuthRequired())
+		{
+			authCustomer.GET("/me", customerMeHandler)
+			authCustomer.GET("/licenses", customerLicensesHandler)
+			authCustomer.GET("/invoices", customerInvoicesHandler)
+			authCustomer.GET("/license/download/:license_id", customerDownloadLicenseHandler)
+			authCustomer.POST("/license/renew/:license_id", customerRenewHandler)
+		}
+	}
 		r.GET("/benchmark", benchmarkHandler)
 	r.GET("/stats", statsHandler)
 

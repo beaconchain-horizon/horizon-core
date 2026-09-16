@@ -32,3 +32,6 @@ Thumbs.db
 cmd/switch.backup-*/
 Dockerfile.broken-backup
 config/chain.json
+
+# Customer configs (contains passwords)
+config/customers.json
