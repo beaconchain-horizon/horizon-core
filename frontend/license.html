@@ -1,376 +1,401 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horizon License Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * { font-family: Tahoma, sans-serif; }
-        body { background: #060b18; color: #eef2ff; margin: 0; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .card {
-            background: rgba(20, 26, 44, 0.6);
-            border: 1px solid rgba(79, 158, 255, 0.2);
-            border-radius: 1.5rem; padding: 1.8rem;
-            margin-bottom: 1.5rem;
-        }
-        .card h3 { color: #4f9eff; font-size: 1.1rem; margin: 0 0 1rem 0; }
-        .form-field { margin-bottom: 1rem; }
-        .form-field label { font-size: 0.75rem; color: #8fa2dc; display: block; margin-bottom: 0.4rem; }
-        .form-field input, .form-field select {
-            width: 100%; background: #020617; border: 1px solid #334155;
-            border-radius: 0.8rem; padding: 0.8rem; color: #fff;
-            font-size: 0.85rem; font-family: monospace; outline: none;
-        }
-        .form-field input:focus { border-color: #4f9eff; }
-        .btn {
-            background: linear-gradient(135deg, #4f9eff, #c084fc);
-            color: #fff; border: none; padding: 0.9rem 2rem;
-            border-radius: 1rem; font-weight: 700; cursor: pointer;
-            font-size: 0.85rem;
-        }
-        .btn-success { background: linear-gradient(135deg, #4ade80, #22c55e); }
-        .header {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            border-bottom: 1px solid rgba(79, 158, 255, 0.2);
-            padding: 1rem 2rem;
-            display: flex; justify-content: space-between;
-            align-items: center; flex-wrap: wrap; gap: 1rem;
-        }
-        .stat-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem; margin-bottom: 1.5rem;
-        }
-        .stat { background: rgba(20, 26, 44, 0.6); border: 1px solid rgba(79, 158, 255, 0.2); border-radius: 1rem; padding: 1rem; text-align: center; }
-        .stat .val { font-size: 1.6rem; font-weight: 900; color: #4ade80; }
-        .stat .lbl { font-size: 0.7rem; color: #8fa2dc; margin-top: 0.3rem; }
-        .output {
-            background: #020617; border: 1px solid rgba(79, 158, 255, 0.3);
-            border-radius: 1rem; padding: 1rem; margin-top: 1rem;
-            font-family: monospace; font-size: 0.75rem; color: #4ade80;
-            word-break: break-all; max-height: 200px; overflow-y: auto; display: none;
-        }
-        .data-table { width: 100%; border-collapse: collapse; background: rgba(20, 26, 44, 0.6); border-radius: 1rem; overflow: hidden; }
-        .data-table th { background: linear-gradient(135deg, #1e293b, #0f172a); color: #4f9eff; font-size: 0.75rem; padding: 0.9rem; text-align: right; }
-        .data-table td { padding: 0.8rem; font-size: 0.78rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .block-card { background: rgba(20, 26, 44, 0.6); border: 1px solid rgba(79, 158, 255, 0.2); border-radius: 1rem; padding: 1rem; margin-bottom: 0.6rem; }
-        .block-hash { color: #4ade80; font-family: monospace; font-size: 0.7rem; word-break: break-all; }
-        .key-warning {
-            background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.4);
-            border-radius: 0.8rem; padding: 0.8rem; font-size: 0.72rem;
-            color: #facc15; margin-bottom: 1rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مشتری · Horizon Angel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{font-family:Tahoma;box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(135deg,#020617,#0f172a,#1e1b4b);color:#eef2ff;min-height:100vh;padding:2rem}
+.cont{max-width:1200px;margin:0 auto}
+.card{background:rgba(15,23,42,.85);backdrop-filter:blur(20px);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem}
+.login-box{max-width:450px;margin:5rem auto}
+.login-box h1{text-align:center;font-size:2rem;background:linear-gradient(135deg,#4f9eff,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.5rem}
+.login-box p{text-align:center;color:#8fa2dc;font-size:.85rem;margin-bottom:2rem}
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:.75rem;color:#8fa2dc;margin-bottom:.4rem}
+.fg input{width:100%;background:#020617;border:1px solid #334155;border-radius:.8rem;padding:.9rem;color:#fff;font-size:.9rem;font-family:monospace;outline:none}
+.fg input:focus{border-color:#4f9eff;box-shadow:0 0 20px rgba(79,158,255,.3)}
+.btn{background:linear-gradient(135deg,#4f9eff,#c084fc);color:#fff;border:none;padding:.9rem 2rem;border-radius:1rem;font-weight:700;cursor:pointer;font-size:.9rem;width:100%;font-family:Tahoma;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 15px 40px rgba(79,158,255,.5)}
+.btn-sm{width:auto;padding:.5rem 1rem;font-size:.75rem;border-radius:.6rem;display:inline-block}
+.btn-green{background:linear-gradient(135deg,#4ade80,#22c55e)}
+.btn-outline{background:transparent;border:1px solid #4f9eff;color:#4f9eff}
+.hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+.hdr h1{font-size:1.5rem;color:#4f9eff}
+.hdr .info{font-size:.8rem;color:#8fa2dc;margin-top:.3rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat{padding:1.2rem;background:rgba(0,0,0,.3);border-radius:1rem;border:1px solid rgba(79,158,255,.15);text-align:center}
+.stat .num{font-size:1.8rem;font-weight:900;color:#4ade80;font-family:monospace}
+.stat .lbl{font-size:.75rem;color:#8fa2dc;margin-top:.3rem}
+.tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:1px solid rgba(79,158,255,.2);padding-bottom:.5rem}
+.tab{padding:.6rem 1.2rem;background:transparent;border:none;color:#8fa2dc;cursor:pointer;border-radius:.6rem;font-family:Tahoma;font-size:.85rem}
+.tab:hover{background:rgba(79,158,255,.1)}
+.tab.active{background:linear-gradient(135deg,#4f9eff,#c084fc);color:#fff;font-weight:700}
+.panel{display:none}
+.panel.active{display:block}
+.lic-card{background:rgba(0,0,0,.25);border:1px solid rgba(79,158,255,.2);border-radius:1rem;padding:1.2rem;margin-bottom:1rem}
+.lic-card.expired{border-color:rgba(248,113,113,.4)}
+.lic-card.grace{border-color:rgba(250,204,21,.4)}
+.lic-card .row{display:flex;justify-content:space-between;padding:.4rem 0;font-size:.85rem;flex-wrap:wrap;gap:.3rem}
+.lic-card .lbl{color:#8fa2dc}
+.lic-card .val{font-family:monospace;color:#4ade80;word-break:break-all;max-width:60%;text-align:left}
+.lic-card .actions{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap}
+.tbl{width:100%;border-collapse:collapse;border-radius:1rem;overflow:hidden;margin-top:1rem}
+.tbl th{background:linear-gradient(135deg,#1e293b,#0f172a);color:#4f9eff;padding:.9rem;text-align:right;font-size:.75rem}
+.tbl td{padding:.8rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem}
+.badge{padding:.25rem .7rem;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-block}
+.badge.active{background:rgba(74,222,128,.15);color:#4ade80}
+.badge.paid{background:rgba(74,222,128,.15);color:#4ade80}
+.badge.pending{background:rgba(250,204,21,.15);color:#facc15}
+.badge.expired{background:rgba(248,113,113,.15);color:#f87171}
+.badge.grace{background:rgba(250,204,21,.15);color:#facc15}
+.empty{text-align:center;color:#94a3b8;padding:2rem;font-size:.85rem}
+.toast{position:fixed;top:2rem;left:50%;transform:translateX(-50%);background:#1e293b;padding:1rem 2rem;border-radius:1rem;border:1px solid #4f9eff;color:#fff;z-index:9999;display:none;font-size:.9rem;max-width:90vw}
+.toast.success{border-color:#4ade80;color:#4ade80}
+.toast.error{border-color:#f87171;color:#f87171}
+.conn{font-size:.75rem;color:#8fa2dc}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:.3rem}
+.dot.on{background:#4ade80;box-shadow:0 0 10px #4ade80}
+.dot.off{background:#f87171}
+.warn{background:rgba(250,204,21,.1);border:1px solid rgba(250,204,21,.3);border-radius:.8rem;padding:.8rem 1rem;font-size:.8rem;color:#facc15;margin-bottom:1rem}
+</style>
 </head>
 <body>
+<div class="cont">
 
-<div class="header">
-    <div style="display:flex; align-items:center; gap:0.8rem;">
-        <div style="width:45px; height:45px; border-radius:50%; background:linear-gradient(135deg, #4f9eff, #c084fc, #facc15); display:flex; align-items:center; justify-content:center;">
-            <i class="fas fa-angel" style="color:#fff; font-size:1.3rem;"></i>
-        </div>
-        <div>
-            <div style="font-size:1.2rem; font-weight:900; color:#4f9eff;">Horizon License Manager</div>
-            <div style="font-size:0.7rem; color:#8fa2dc;">پنل ادمین · تولید و مدیریت لایسنس</div>
-        </div>
-    </div>
-    <div style="display:flex; gap:0.5rem;">
-        <a href="index.html" style="color:#4f9eff; text-decoration:none; font-size:0.8rem; padding:0.4rem 0.8rem; border-radius:20px;">
-            <i class="fas fa-home"></i> فروشگاه
-        </a>
-        <span id="conn-status" style="background:rgba(250, 204, 21, 0.15); color:#facc15; padding:0.3rem 0.8rem; border-radius:20px; font-size:0.7rem;">
-            ⏳ بررسی...
-        </span>
-    </div>
+<!-- LOGIN -->
+<div id="login-screen" class="login-box card">
+<h1><i class="fas fa-user"></i> پنل مشتری</h1>
+<p>Horizon Angel · ورود به حساب مشتری</p>
+
+<div class="fg">
+<label>شناسه مشتری</label>
+<input type="text" id="cust-id" placeholder="bank_markazi">
 </div>
 
-<div class="container">
+<div class="fg">
+<label>رمز عبور</label>
+<input type="password" id="cust-pass" placeholder="••••••••">
+</div>
 
-    <div class="stat-grid">
-        <div class="stat">
-            <div class="val" id="stat-licenses">0</div>
-            <div class="lbl">لایسنس‌های تولیدشده</div>
-        </div>
-        <div class="stat">
-            <div class="val" id="stat-blocks">0</div>
-            <div class="lbl">بلوک‌ها</div>
-        </div>
-        <div class="stat">
-            <div class="val" id="stat-tps">—</div>
-            <div class="lbl">TPS</div>
-        </div>
-    </div>
+<button class="btn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> ورود</button>
+<div id="login-status" style="text-align:center;font-size:.8rem;color:#8fa2dc;margin-top:1rem"></div>
+</div>
 
-    <div class="card">
-        <h3>🔑 تولید لایسنس جدید</h3>
+<!-- DASHBOARD -->
+<div id="dash" style="display:none">
 
-        <div class="key-warning">
-            ⚠️ کلید خصوصی اتریوم شما، تنها یک‌بار برای امضای اولین بلوک استفاده می‌شود. این کلید در سرور ذخیره نمی‌شود.
-        </div>
+<div class="hdr">
+<div>
+<h1><i class="fas fa-building"></i> <span id="cust-name">—</span></h1>
+<div class="info">
+شناسه: <span id="cust-id-show">—</span>
+&nbsp;·&nbsp; نوع: <span id="cust-type-show">—</span>
+</div>
+</div>
+<button class="btn btn-sm btn-outline" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+</div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
-            <div class="form-field">
-                <label>🔑 کلید خصوصی اتریوم</label>
-                <input type="password" id="private-key" placeholder="0x..." />
-            </div>
-            <div class="form-field">
-                <label>📦 شناسه محصول</label>
-                <input type="text" id="product-id" value="horizon-core" />
-            </div>
-            <div class="form-field">
-                <label>🏦 شناسه کاربر (مشتری)</label>
-                <select id="user-id">
-                    <option value="bank_markazi">بانک مرکزی ایران</option>
-                    <option value="bank_melli">بانک ملی ایران</option>
-                    <option value="bank_saderat">بانک صادرات ایران</option>
-                    <option value="bank_mellat">بانک ملت</option>
-                    <option value="niordc">شرکت ملی پالایش و پخش</option>
-                    <option value="igmc">مدیریت شبکه برق</option>
-                    <option value="nigc">شرکت ملی گاز</option>
-                    <option value="nicico">صنایع مس ایران</option>
-                    <option value="msc">فولاد مبارکه</option>
-                </select>
-            </div>
-            <div class="form-field">
-                <label>📊 حجم (تعداد تراکنش)</label>
-                <input type="number" id="volume" value="1000000" />
-            </div>
-            <div class="form-field">
-                <label>⏱️ مدت اعتبار (ساعت)</label>
-                <input type="number" id="duration" value="8760" />
-            </div>
-        </div>
+<!-- STATS -->
+<div class="stats">
+<div class="stat"><div class="num" id="s-licenses">—</div><div class="lbl">لایسنس‌ها</div></div>
+<div class="stat"><div class="num" id="s-active">—</div><div class="lbl">فعال</div></div>
+<div class="stat"><div class="num" id="s-invoices">—</div><div class="lbl">فاکتورها</div></div>
+<div class="stat"><div class="num" id="s-paid">—</div><div class="lbl">پرداخت‌شده</div></div>
+</div>
 
-        <button class="btn" onclick="generateLicense()" style="margin-top:0.5rem;">
-            🚀 تولید لایسنس با امضای ECDSA
-        </button>
+<!-- TABS -->
+<div class="tabs">
+<button class="tab active" onclick="showTab('licenses', this)"><i class="fas fa-key"></i> لایسنس‌ها</button>
+<button class="tab" onclick="showTab('invoices', this)"><i class="fas fa-receipt"></i> فاکتورها</button>
+</div>
 
-        <div class="output" id="gen-output"></div>
-    </div>
+<!-- PANEL: LICENSES -->
+<div id="p-licenses" class="panel active card">
+<h3 style="color:#4f9eff;margin-bottom:1rem"><i class="fas fa-key"></i> لایسنس‌های شما</h3>
+<div id="licenses-list"><div class="empty">در حال بارگذاری...</div></div>
+</div>
 
-    <div class="card">
-        <h3>✅ تأیید لایسنس</h3>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <input type="text" id="verify-input" placeholder="شناسه لایسنس (مثلاً lic_...)" style="flex:1; background:#020617; border:1px solid #334155; border-radius:0.8rem; padding:0.8rem; color:#fff; font-family:monospace; min-width:200px;" />
-            <button class="btn btn-success" onclick="verifyLicense()">✅ تأیید</button>
-        </div>
-        <div class="output" id="verify-output"></div>
-    </div>
-
-    <div class="card">
-        <h3>📋 لیست لایسنس‌ها</h3>
-        <div style="overflow-x:auto;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>شناسه</th>
-                        <th>مشتری</th>
-                        <th>حجم</th>
-                        <th>امضا</th>
-                        <th>تاریخ</th>
-                    </tr>
-                </thead>
-                <tbody id="licenses-body">
-                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:1.5rem;">هنوز لایسنسی تولید نشده</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="card">
-        <h3>⛓️ بلاکچین اختصاصی Horizon</h3>
-        <div id="blocks-list">
-            <div style="text-align:center; color:#94a3b8; padding:1rem;">⏳ در حال بارگذاری...</div>
-        </div>
-    </div>
+<!-- PANEL: INVOICES -->
+<div id="p-invoices" class="panel card">
+<h3 style="color:#4f9eff;margin-bottom:1rem"><i class="fas fa-receipt"></i> فاکتورهای شما</h3>
+<div id="invoices-list"><div class="empty">در حال بارگذاری...</div></div>
+</div>
 
 </div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
-const API_BASE = 'https://horizon-backend.liara.run';
-const SWITCH_BASE = 'https://horizon-switch.liara.run';
+var SWITCH_URL = 'http://localhost:8080';
+var token = null;
+var customer = null;
 
-async function checkConnection() {
-    const status = document.getElementById('conn-status');
-    try {
-        const r = await fetch(`${API_BASE}/api/v1/health`);
-        if (r.ok) {
-            status.innerHTML = '✅ متصل';
-            status.style.background = 'rgba(74, 222, 128, 0.15)';
-            status.style.color = '#4ade80';
-            return true;
-        }
-    } catch (e) {}
-    status.innerHTML = '❌ قطع';
-    status.style.background = 'rgba(248, 113, 113, 0.15)';
-    status.style.color = '#f87171';
-    return false;
+function toast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (type || '');
+    t.style.display = 'block';
+    setTimeout(function() { t.style.display = 'none'; }, 3500);
 }
 
-async function generateLicense() {
-    const privateKey = document.getElementById('private-key').value.trim();
-    const productId = document.getElementById('product-id').value.trim();
-    const userId = document.getElementById('user-id').value;
-    const volume = parseInt(document.getElementById('volume').value);
-    const duration = parseInt(document.getElementById('duration').value);
-    const output = document.getElementById('gen-output');
+function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({
+        'Content-Type': 'application/json',
+        'X-Customer-Token': token
+    }, opts.headers || {});
+    return fetch(SWITCH_URL + path, opts).then(function(r) {
+        return r.json().then(function(d) { return { ok: r.ok, data: d }; });
+    });
+}
 
-    if (!privateKey) {
-        output.style.display = 'block';
-        output.innerHTML = '❌ لطفاً کلید خصوصی را وارد کنید';
+// ============ LOGIN ============
+function doLogin() {
+    var cid = document.getElementById('cust-id').value.trim();
+    var pass = document.getElementById('cust-pass').value.trim();
+    var st = document.getElementById('login-status');
+
+    if (!cid || !pass) {
+        st.innerHTML = '<span style="color:#f87171">❌ شناسه و رمز را وارد کنید</span>';
         return;
     }
 
-    output.style.display = 'block';
-    output.innerHTML = '⏳ در حال تولید لایسنس با امضای ECDSA...';
+    st.innerHTML = '⏳ در حال بررسی...';
 
-    try {
-        const r = await fetch(`${API_BASE}/api/v1/license/generate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                product_id: productId,
-                user_id: userId,
-                volume: volume,
-                duration: duration,
-                private_key: privateKey
-            })
-        });
-
-        const data = await r.json();
-
-        if (r.ok && data.id) {
-            const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
-            licenses.push({
-                id: data.id,
-                user_id: userId,
-                product_id: productId,
-                volume: volume,
-                duration: duration,
-                root: data.root,
-                signature: data.signature,
-                public_key: data.public_key,
-                created_at: new Date().toISOString(),
-                status: 'active'
-            });
-            localStorage.setItem('horizon_licenses', JSON.stringify(licenses));
-
-            output.innerHTML = '✅ لایسنس با موفقیت تولید شد<br><br>' +
-                '<strong>شناسه:</strong> ' + data.id + '<br>' +
-                '<strong>مشتری:</strong> ' + userId + '<br>' +
-                '<strong>حجم:</strong> ' + volume.toLocaleString() + ' تراکنش<br>' +
-                '<strong>Root:</strong> ' + (data.root || '').slice(0, 50) + '...<br>' +
-                '<strong>امضا:</strong> ' + (data.signature || '').slice(0, 50) + '...';
-
-            loadLicenses();
-            loadStats();
+    fetch(SWITCH_URL + '/api/v1/customer/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({customer_id: cid, password: pass})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.status === 'ok') {
+            token = d.token;
+            customer = {id: d.customer_id, name: d.name, type: d.type};
+            localStorage.setItem('hz_customer_token', token);
+            localStorage.setItem('hz_customer_data', JSON.stringify(customer));
+            st.innerHTML = '<span style="color:#4ade80">✅ ورود موفق</span>';
+            setTimeout(showDash, 400);
         } else {
-            output.innerHTML = '❌ خطا: ' + JSON.stringify(data);
+            st.innerHTML = '<span style="color:#f87171">❌ ' + (d.error || 'خطا') + '</span>';
         }
-    } catch (e) {
-        output.innerHTML = '❌ خطا در ارتباط: ' + e.message;
-    }
+    })
+    .catch(function(e) {
+        st.innerHTML = '<span style="color:#f87171">❌ ' + e.message + '</span>';
+    });
 }
 
-async function verifyLicense() {
-    const id = document.getElementById('verify-input').value.trim();
-    const output = document.getElementById('verify-output');
-    if (!id) {
-        output.style.display = 'block';
-        output.innerHTML = '⚠️ شناسه لایسنس را وارد کنید';
-        return;
+function doLogout() {
+    if (!confirm('خارج می‌شوید؟')) return;
+    if (token) {
+        fetch(SWITCH_URL + '/api/v1/customer/logout', {
+            method: 'POST',
+            headers: {'X-Customer-Token': token}
+        }).catch(function() {});
     }
-    output.style.display = 'block';
-    output.innerHTML = '⏳ در حال بررسی...';
+    localStorage.removeItem('hz_customer_token');
+    localStorage.removeItem('hz_customer_data');
+    location.reload();
+}
 
-    const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
-    const found = licenses.find(l => l.id === id);
+function showDash() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dash').style.display = 'block';
+    document.getElementById('cust-name').textContent = customer.name || customer.id;
+    document.getElementById('cust-id-show').textContent = customer.id;
+    document.getElementById('cust-type-show').textContent = customer.type;
+    loadAll();
+    setInterval(loadAll, 30000);
+}
 
-    if (found) {
-        output.innerHTML = '✅ لایسنس "' + id + '" در سیستم ثبت شده است<br>' +
-            '<strong>مشتری:</strong> ' + found.user_id + '<br>' +
-            '<strong>حجم:</strong> ' + found.volume.toLocaleString() + '<br>' +
-            '<strong>تاریخ:</strong> ' + new Date(found.created_at).toLocaleString('fa-IR');
-        return;
-    }
+// ============ TABS ============
+function showTab(name, btn) {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('p-' + name).classList.add('active');
+    if (name === 'licenses') loadLicenses();
+    if (name === 'invoices') loadInvoices();
+}
 
-    output.innerHTML = '❌ لایسنس یافت نشد';
+// ============ LOAD ============
+function loadAll() {
+    loadLicenses();
+    loadInvoices();
 }
 
 function loadLicenses() {
-    const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
-    const tbody = document.getElementById('licenses-body');
+    api('/api/v1/customer/licenses').then(function(res) {
+        var d = res.data;
+        var el = document.getElementById('licenses-list');
+        var list = (d.licenses || []);
 
-    if (licenses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:1.5rem;">هنوز لایسنسی تولید نشده</td></tr>';
-        return;
-    }
+        document.getElementById('s-licenses').textContent = list.length;
+        document.getElementById('s-active').textContent = list.filter(function(l) {
+            return l.status === 'active' && !(l.grace && l.grace.is_read_only);
+        }).length;
 
-    tbody.innerHTML = licenses.slice().reverse().map(l => 
-        '<tr>' +
-            '<td style="color:#4f9eff; font-family:monospace; font-size:0.7rem;">' + l.id + '</td>' +
-            '<td>' + l.user_id + '</td>' +
-            '<td>' + l.volume.toLocaleString() + '</td>' +
-            '<td style="color:#c084fc; font-family:monospace; font-size:0.7rem;">' + (l.signature || '').slice(0, 15) + '...</td>' +
-            '<td style="color:#94a3b8; font-size:0.75rem;">' + new Date(l.created_at).toLocaleString('fa-IR') + '</td>' +
-        '</tr>'
-    ).join('');
-}
-
-async function loadStats() {
-    const licenses = JSON.parse(localStorage.getItem('horizon_licenses') || '[]');
-    document.getElementById('stat-licenses').textContent = licenses.length;
-
-    try {
-        const r = await fetch(`${SWITCH_BASE}/benchmark`);
-        if (r.ok) {
-            const d = await r.json();
-            document.getElementById('stat-tps').textContent = Math.round(d.tps).toLocaleString();
-        }
-    } catch (e) {}
-}
-
-async function loadBlocks() {
-    const container = document.getElementById('blocks-list');
-    try {
-        const r = await fetch(`${SWITCH_BASE}/stats`);
-        if (!r.ok) throw new Error('Failed');
-        const d = await r.json();
-        const blocks = (d.blocks || []).slice(-5).reverse();
-
-        if (blocks.length === 0) {
-            container.innerHTML = '<div style="text-align:center; color:#94a3b8;">هنوز بلوکی تولید نشده</div>';
+        if (list.length === 0) {
+            el.innerHTML = '<div class="empty">هنوز لایسنسی ندارید</div>';
             return;
         }
 
-        container.innerHTML = blocks.map(b => 
-            '<div class="block-card">' +
-                '<div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">' +
-                    '<span style="color:#4f9eff; font-weight:700;">بلوک #' + b.index + '</span>' +
-                    '<span style="color:#8fa2dc; font-size:0.72rem;">' + (b.transactions || []).length + ' تراکنش</span>' +
-                '</div>' +
-                '<div class="block-hash">هش: ' + (b.hash || '').slice(0, 60) + '...</div>' +
-                '<div style="color:#94a3b8; font-size:0.7rem; margin-top:0.3rem;">زمان: ' + new Date(b.timestamp * 1000).toLocaleString('fa-IR') + '</div>' +
-            '</div>'
-        ).join('');
+        var html = '';
+        list.forEach(function(l) {
+            var cls = 'lic-card';
+            var badge = '<span class="badge active">✅ فعال</span>';
+            var grace = l.grace || {};
 
-        document.getElementById('stat-blocks').textContent = d.chainLength || 0;
-    } catch (e) {
-        container.innerHTML = '<div style="text-align:center; color:#f87171;">خطا در بارگذاری</div>';
-    }
+            if (grace.is_read_only) {
+                cls += ' expired';
+                badge = '<span class="badge expired">❌ منقضی</span>';
+            } else if (grace.in_grace_period) {
+                cls += ' grace';
+                badge = '<span class="badge grace">⚠️ در Grace</span>';
+            }
+
+            var days = l.days_remaining;
+            var daysColor = days > 30 ? '#4ade80' : (days > 0 ? '#facc15' : '#f87171');
+
+            html += '<div class="' + cls + '">';
+            html += '<div class="row"><span class="lbl">شناسه</span><span class="val">' + l.license_id + '</span></div>';
+            html += '<div class="row"><span class="lbl">محصول</span><span class="val">' + l.product_id + '</span></div>';
+            html += '<div class="row"><span class="lbl">حجم</span><span class="val">' + (l.volume||0).toLocaleString('fa-IR') + '</span></div>';
+            html += '<div class="row"><span class="lbl">مصرف</span><span class="val">' + (l.used||0) + '</span></div>';
+            html += '<div class="row"><span class="lbl">روزهای مانده</span><span class="val" style="color:' + daysColor + '">' + days + '</span></div>';
+            html += '<div class="row"><span class="lbl">انقضا</span><span class="val">' + new Date(l.expires_at * 1000).toLocaleDateString('fa-IR') + '</span></div>';
+            html += '<div class="row"><span class="lbl">وضعیت</span><span>' + badge + '</span></div>';
+            html += '<div class="actions">';
+            html += '<button class="btn btn-sm btn-green" onclick="renewLicense(\'' + l.license_id + '\')"><i class="fas fa-rotate"></i> تمدید</button>';
+            html += '<a class="btn btn-sm btn-outline" href="' + SWITCH_URL + '/api/v1/customer/license/download/' + l.license_id + '?token=' + token + '" target="_blank" onclick="event.preventDefault(); downloadLicense(\'' + l.license_id + '\');"><i class="fas fa-download"></i> دانلود .lic</a>';
+            html += '</div>';
+            html += '</div>';
+        });
+        el.innerHTML = html;
+    }).catch(function() {
+        document.getElementById('licenses-list').innerHTML = '<div class="empty" style="color:#f87171">خطا در بارگذاری</div>';
+    });
 }
 
-checkConnection();
-loadLicenses();
-loadStats();
-loadBlocks();
-setInterval(checkConnection, 15000);
-setInterval(loadStats, 15000);
-setInterval(loadBlocks, 20000);
-</script>
+function loadInvoices() {
+    api('/api/v1/customer/invoices').then(function(res) {
+        var d = res.data;
+        var el = document.getElementById('invoices-list');
+        var list = (d.invoices || []);
 
-<script src="offline-storage.js"></script>
+        document.getElementById('s-invoices').textContent = list.length;
+        document.getElementById('s-paid').textContent = list.filter(function(i) { return i.status === 'paid'; }).length;
+
+        if (list.length === 0) {
+            el.innerHTML = '<div class="empty">هنوز فاکتوری ندارید</div>';
+            return;
+        }
+
+        var html = '<table class="tbl"><thead><tr>';
+        html += '<th>شناسه فاکتور</th><th>لایسنس</th><th>مبلغ (تومان)</th><th>وضعیت</th><th>تاریخ</th>';
+        html += '</tr></thead><tbody>';
+
+        list.forEach(function(inv) {
+            var badge = inv.status === 'paid'
+                ? '<span class="badge paid">✅ پرداخت‌شده</span>'
+                : (inv.status === 'pending'
+                    ? '<span class="badge pending">⏳ در انتظار</span>'
+                    : '<span class="badge expired">' + inv.status + '</span>');
+
+            html += '<tr>';
+            html += '<td style="font-family:monospace;font-size:.7rem">' + inv.invoice_id + '</td>';
+            html += '<td style="font-family:monospace;font-size:.7rem">' + inv.license_id + '</td>';
+            html += '<td style="color:#4ade80;font-weight:700">' + (inv.amount_irr||0).toLocaleString('fa-IR') + '</td>';
+            html += '<td>' + badge + '</td>';
+            html += '<td style="font-size:.75rem">' + new Date(inv.created_at).toLocaleString('fa-IR') + '</td>';
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    }).catch(function() {
+        document.getElementById('invoices-list').innerHTML = '<div class="empty" style="color:#f87171">خطا در بارگذاری</div>';
+    });
+}
+
+// ============ ACTIONS ============
+function renewLicense(licenseID) {
+    var hours = prompt('چند ساعت تمدید؟ (پیش‌فرض: 8760 = 1 سال)', '8760');
+    if (hours === null) return;
+
+    hours = parseInt(hours);
+    if (!hours || hours <= 0) {
+        toast('مدت نامعتبر', 'error');
+        return;
+    }
+
+    api('/api/v1/customer/license/renew/' + licenseID, {
+        method: 'POST',
+        body: JSON.stringify({duration_hours: hours})
+    }).then(function(res) {
+        if (!res.ok) {
+            toast('خطا: ' + (res.data.error || ''), 'error');
+            return;
+        }
+        var d = res.data;
+        var amount = (d.amount_toman || 0).toLocaleString('fa-IR');
+        if (confirm('فاکتور به مبلغ ' + amount + ' تومان ساخته شد.\n\nبرای پرداخت (Mock) به صفحه پرداخت منتقل می‌شوید؟')) {
+            window.location.href = SWITCH_URL + d.redirect_url;
+        }
+        loadAll();
+    }).catch(function(e) {
+        toast('خطا: ' + e.message, 'error');
+    });
+}
+
+function downloadLicense(licenseID) {
+    fetch(SWITCH_URL + '/api/v1/customer/license/download/' + licenseID, {
+        headers: {'X-Customer-Token': token}
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error) {
+            toast('خطا: ' + d.error, 'error');
+            return;
+        }
+        var blob = new Blob([JSON.stringify(d, null, 2)], {type: 'application/json'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = licenseID + '.lic';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast('✅ فایل دانلود شد', 'success');
+    })
+    .catch(function(e) {
+        toast('خطا: ' + e.message, 'error');
+    });
+}
+
+// ============ AUTO-LOGIN ============
+window.addEventListener('DOMContentLoaded', function() {
+    var saved = localStorage.getItem('hz_customer_token');
+    var savedData = localStorage.getItem('hz_customer_data');
+    if (saved && savedData) {
+        token = saved;
+        customer = JSON.parse(savedData);
+        // Validate token
+        api('/api/v1/customer/me').then(function(res) {
+            if (res.ok) {
+                showDash();
+            } else {
+                localStorage.removeItem('hz_customer_token');
+                localStorage.removeItem('hz_customer_data');
+            }
+        }).catch(function() {});
+    }
+});
+</script>
 </body>
 </html>
