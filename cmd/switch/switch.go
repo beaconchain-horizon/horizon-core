@@ -65,6 +65,7 @@ type License struct {
 	ExpiresAt  int64     `json:"expires_at"`
 	Status     string    `json:"status"`
 	CreatedAt  time.Time `json:"created_at"`
+	HardwareID string    `json:"hardware_id"`
 }
 
 type KeyVault struct {
@@ -544,6 +545,7 @@ func saveLicenseHandler(c *gin.Context) {
 		IssuedAt:   now,
 		ExpiresAt:  now + int64(req.Duration*3600),
 		Status:     "active",
+		HardwareID: getHardwareIDOrEmpty(),
 	}
 
 	msg := licenseCanonicalMessage(lic)
