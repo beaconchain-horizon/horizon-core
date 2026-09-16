@@ -180,11 +180,8 @@ func signData(priv *ecdsa.PrivateKey, data []byte) (string, error) {
 		return "", err
 	}
 	sig := make([]byte, 64)
-
 	r.FillBytes(sig[:32])
-
 	s.FillBytes(sig[32:])
-
 	return hex.EncodeToString(sig), nil
 }
 
@@ -246,7 +243,6 @@ func mineBlock() (*Block, error) {
 		return nil, err
 	}
 
-	// Get pending transactions
 	var pending []Transaction
 	db.Where("block_index = ?", -1).Find(&pending)
 
@@ -278,12 +274,11 @@ func mineBlock() (*Block, error) {
 		return nil, err
 	}
 
-	// Update transactions
 	for _, tx := range pending {
 		db.Model(&tx).Update("block_index", newIndex)
 	}
 
-	log.Printf("⛓️  Block #%d mined: %d transactions, merkle=%s", newIndex, len(pending), merkleRoot[:16])
+	log.Printf("Block #%d mined: %d transactions", newIndex, len(pending))
 	return block, nil
 }
 
@@ -334,7 +329,6 @@ func setupKeyHandler(c *gin.Context) {
 		Label:        req.Label,
 	}
 
-	// Delete old keys, keep only one
 	db.Where("1 = 1").Delete(&KeyVault{})
 	if err := db.Create(vault).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "save failed"})
@@ -342,9 +336,9 @@ func setupKeyHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":       "saved",
-		"public_addr":  addr,
-		"message":      "کلید خصوصی با موفقیت رمزنگاری و ذخیره شد",
+		"status":      "saved",
+		"public_addr": addr,
+		"message":     "key encrypted and saved",
 	})
 }
 
@@ -380,8 +374,8 @@ func unlockKeyHandler(c *gin.Context) {
 	unlockedAddr = vault.PublicAddr
 	stateMutex.Unlock()
 
-	log.Printf("🔓 Key unlocked: %s", vault.PublicAddr)
-	// Re-validate license now that the key is unlocked
+	log.Printf("Key unlocked: %s", vault.PublicAddr)
+
 	checkLicenseNow()
 
 	c.JSON(http.StatusOK, gin.H{
@@ -406,6 +400,8 @@ func keyStatusHandler(c *gin.Context) {
 	})
 }
 
+// ============ TRANSACTIONS ============
+
 func createTxHandler(c *gin.Context) {
 	var req struct {
 		From   string  `json:"from" binding:"required"`
@@ -420,17 +416,17 @@ func createTxHandler(c *gin.Context) {
 
 	// === License Enforcement ===
 	if !isLicenseValid() {
-	// Grace period check
+		resp := buildLicenseBlockedResponse()
+		c.JSON(http.StatusPaymentRequired, resp)
+		return
+	}
+
+	// === Grace Period Check ===
 	if allowed, reason := isTransactionAllowedInGrace(); !allowed {
 		c.JSON(http.StatusPaymentRequired, gin.H{
 			"error":  "license grace period restriction",
 			"reason": reason,
 		})
-		return
-	}
-
-		resp := buildLicenseBlockedResponse()
-		c.JSON(http.StatusPaymentRequired, resp)
 		return
 	}
 
@@ -446,14 +442,12 @@ func createTxHandler(c *gin.Context) {
 		req.Type = "transfer"
 	}
 
-	// ===== Fast in-memory transfer =====
 	if err := ledger.Transfer(req.From, req.To, req.Amount); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// ===== Build tx record (async persist) =====
-	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixNano(), hashData([]byte(req.From+req.To))[:8])
+	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixNano(), hashData([]byte(req.From + req.To))[:8])
 	tx := &Transaction{
 		TxID:       txID,
 		From:       req.From,
@@ -466,7 +460,6 @@ func createTxHandler(c *gin.Context) {
 	}
 	queueTransaction(tx)
 
-	// ===== Read new balances from RAM (fast) =====
 	newFrom := ledger.GetBalance(req.From)
 	newTo := ledger.GetBalance(req.To)
 
@@ -607,7 +600,6 @@ func bankLoginHandler(c *gin.Context) {
 		return
 	}
 
-	// Get license
 	var license License
 	db.Where("user_id = ?", req.BankID).Order("created_at desc").First(&license)
 
@@ -662,11 +654,11 @@ func statsHandler(c *gin.Context) {
 	db.Order("block_num desc").Limit(10).Find(&recentBlocks)
 
 	c.JSON(http.StatusOK, gin.H{
-		"chainLength":     blockCount,
-		"totalTx":         txCount,
-		"pendingTx":       pendingTx,
-		"licenses":        licCount,
-		"recentBlocks":    recentBlocks,
+		"chainLength":  blockCount,
+		"totalTx":      txCount,
+		"pendingTx":    pendingTx,
+		"licenses":     licCount,
+		"recentBlocks": recentBlocks,
 	})
 }
 
@@ -679,24 +671,25 @@ func main() {
 	if dbPath == "" {
 		dbPath = "./data/horizon-switch.db"
 	}
+
 	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
-	if err := configureSQLite(db); err != nil {
-		log.Printf("⚠️  configureSQLite failed: %v", err)
-	}
 	if err != nil {
-		log.Fatal("❌ Failed to open database:", err)
+		log.Fatal("Failed to open database:", err)
+	}
+	if err := configureSQLite(db); err != nil {
+		log.Printf("configureSQLite failed: %v", err)
 	}
 
 	// Auto migrate
 	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}, &Customer{}); err != nil {
-		log.Fatal("❌ Migration failed:", err)
+		log.Fatal("Migration failed:", err)
 	}
-	log.Println("✅ SQLite database ready:", dbPath)
+	log.Println("SQLite database ready:", dbPath)
 
 	// === License Enforcement ===
 	licenseStopCh := make(chan struct{})
 	go startLicenseChecker(licenseStopCh)
-	log.Println("🔐 License enforcement started")
+	log.Println("License enforcement started")
 
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
@@ -725,7 +718,7 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Customer-Token", "X-Admin-Token"},
 		AllowCredentials: false,
 	}))
 
@@ -736,7 +729,6 @@ func main() {
 		api.GET("/chain/info", chainInfoHandler)
 		api.GET("/stats", statsHandler)
 
-		// License status
 		// License enforcement status
 		api.GET("/license/enforce/status", func(c *gin.Context) {
 			valid, lic, err := getLicenseState()
@@ -757,25 +749,23 @@ func main() {
 			status := getGraceStatus(lic)
 			c.JSON(http.StatusOK, status)
 		})
+
+		// Key vault
 		api.POST("/key/setup", setupKeyHandler)
 		api.POST("/key/unlock", unlockKeyHandler)
 		api.GET("/key/status", keyStatusHandler)
 
 		// Transactions
 		api.POST("/tx", createTxHandler)
+		api.GET("/tx/list", listTxHandler)
 
-		// ===== Accounts (real balances) =====
+		// Accounts
 		api.GET("/account/list", listAccountsHandler)
 		api.GET("/account/balance/:bank_id", getBalanceHandler)
 		api.POST("/account/seed", seedBalanceHandler)
 
-		// ===== Accounts (real balances) =====
-		api.GET("/tx/list", listTxHandler)
-
-		// ===== Sync =====
+		// Sync
 		api.POST("/sync/push", syncPushHandler)
-
-		// ===== Sync =====
 
 		// Blocks
 		api.POST("/block/mine", mineBlockHandler)
@@ -783,6 +773,8 @@ func main() {
 
 		// Licenses
 		api.POST("/license/save", saveLicenseHandler)
+		api.GET("/license/list", listLicensesHandler)
+		api.POST("/license/verify", verifyLicenseHandler)
 
 		// License renewal
 		api.POST("/license/renew/request", requestRenewalHandler)
@@ -790,19 +782,16 @@ func main() {
 		api.GET("/license/renew/history", renewalHistoryHandler)
 		api.GET("/license/status", licenseStatusHandler)
 
-		// Payment (mock mode)
+		// Payment
 		api.POST("/payment/initiate", initiatePaymentHandler)
 		api.POST("/payment/mock/confirm", mockConfirmHandler)
 		api.GET("/payment/success", paymentSuccessPageHandler)
-
-		api.GET("/license/list", listLicensesHandler)
-		api.POST("/license/verify", verifyLicenseHandler)
 
 		// Bank
 		api.POST("/bank/create", createBankHandler)
 		api.POST("/bank/login", bankLoginHandler)
 
-		// ===== Admin =====
+		// Admin
 		api.POST("/admin/login", adminLoginHandler)
 		api.POST("/admin/logout", adminLogoutHandler)
 
@@ -815,11 +804,6 @@ func main() {
 			admin.POST("/license/revoke", revokeLicenseHandler)
 		}
 	}
-
-	// Compat endpoints (for old frontend)
-	r.GET("/health", healthHandler)
-
-	r.GET("/payment/mock", mockPaymentPageHandler)
 
 	// Customer panel
 	apiCustomer := r.Group("/api/v1/customer")
@@ -837,17 +821,20 @@ func main() {
 			authCustomer.POST("/license/renew/:license_id", customerRenewHandler)
 		}
 	}
-		r.GET("/benchmark", benchmarkHandler)
+
+	// Compat endpoints
+	r.GET("/health", healthHandler)
 	r.GET("/stats", statsHandler)
+	r.GET("/benchmark", benchmarkHandler)
+	r.GET("/payment/mock", mockPaymentPageHandler)
 
 	port := os.Getenv("SWITCH_PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	log.Printf("🚀 Horizon Switch v3.0 running on port %s", port)
-	log.Printf("📁 Database: %s", dbPath)
-	log.Printf("🔒 Key status: run POST /api/v1/key/status to check")
+	log.Printf("Horizon Switch v3.0 running on port %s", port)
+	log.Printf("Database: %s", dbPath)
 
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal(err)
