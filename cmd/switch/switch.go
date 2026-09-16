@@ -688,7 +688,7 @@ func main() {
 	}
 
 	// Auto migrate
-	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}); err != nil {
+	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}); err != nil {
 		log.Fatal("❌ Migration failed:", err)
 	}
 	log.Println("✅ SQLite database ready:", dbPath)
@@ -782,6 +782,12 @@ func main() {
 
 		// Licenses
 		api.POST("/license/save", saveLicenseHandler)
+
+		// License renewal
+		api.POST("/license/renew/request", requestRenewalHandler)
+		api.POST("/license/renew/confirm", confirmRenewalHandler)
+		api.GET("/license/renew/history", renewalHistoryHandler)
+		api.GET("/license/status", licenseStatusHandler)
 
 		api.GET("/license/list", listLicensesHandler)
 		api.POST("/license/verify", verifyLicenseHandler)
