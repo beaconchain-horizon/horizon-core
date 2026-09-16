@@ -380,6 +380,8 @@ func unlockKeyHandler(c *gin.Context) {
 	stateMutex.Unlock()
 
 	log.Printf("🔓 Key unlocked: %s", vault.PublicAddr)
+	// Re-validate license now that the key is unlocked
+	checkLicenseNow()
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":      "unlocked",
@@ -412,6 +414,13 @@ func createTxHandler(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "from, to required"})
+		return
+	}
+
+	// === License Enforcement ===
+	if !isLicenseValid() {
+		resp := buildLicenseBlockedResponse()
+		c.JSON(http.StatusPaymentRequired, resp)
 		return
 	}
 
@@ -673,6 +682,11 @@ func main() {
 	}
 	log.Println("✅ SQLite database ready:", dbPath)
 
+	// === License Enforcement ===
+	licenseStopCh := make(chan struct{})
+	go startLicenseChecker(licenseStopCh)
+	log.Println("🔐 License enforcement started")
+
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
 	initAirGap()
@@ -709,6 +723,20 @@ func main() {
 		api.GET("/health", healthHandler)
 		api.GET("/chain/info", chainInfoHandler)
 		api.GET("/stats", statsHandler)
+
+		// License status
+		api.GET("/license/enforce/status", func(c *gin.Context) {
+			valid, lic, err := getLicenseState()
+			var errStr interface{}
+			if err != nil {
+				errStr = err.Error()
+			}
+			c.JSON(http.StatusOK, gin.H{
+				"valid":   valid,
+				"license": lic,
+				"error":   errStr,
+			})
+		})
 
 		// Key vault
 		api.POST("/key/setup", setupKeyHandler)
