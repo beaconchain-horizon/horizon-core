@@ -320,3 +320,70 @@ func licenseStatusHandler(c *gin.Context) {
 		"grace":           graceStatus,
 	})
 }
+
+// ============================================================
+// SHARED: issue a new license for a paid invoice
+// ============================================================
+
+// issueRenewalLicense creates and signs a new license for a
+// paid invoice, and marks the old license as expired.
+//
+// Used by both confirmRenewalHandler and mockConfirmHandler.
+func issueRenewalLicense(inv *Invoice) (*License, error) {
+	if inv == nil {
+		return nil, fmt.Errorf("invoice is nil")
+	}
+
+	var oldLic License
+	if err := db.Where("license_id = ?", inv.LicenseID).First(&oldLic).Error; err != nil {
+		return nil, fmt.Errorf("original license not found: %w", err)
+	}
+
+	stateMutex.RLock()
+	key := unlockedKey
+	stateMutex.RUnlock()
+
+	if key == nil {
+		return nil, fmt.Errorf("key is locked")
+	}
+
+	now := time.Now().Unix()
+	newLicID := nextLicenseID(oldLic.LicenseID)
+
+	newLic := &License{
+		LicenseID:  newLicID,
+		UserID:     oldLic.UserID,
+		ProductID:  oldLic.ProductID,
+		Volume:     oldLic.Volume,
+		Duration:   inv.DurationH,
+		MerkleRoot: oldLic.MerkleRoot,
+		IssuedAt:   now,
+		ExpiresAt:  now + int64(inv.DurationH)*3600,
+		Status:     "active",
+		HardwareID: oldLic.HardwareID,
+	}
+
+	msg := licenseCanonicalMessage(newLic)
+	sig, err := signData(key, []byte(msg))
+	if err != nil {
+		return nil, fmt.Errorf("sign failed: %w", err)
+	}
+	newLic.Signature = sig
+
+	// Mark old license as expired
+	if err := db.Model(&License{}).
+		Where("license_id = ?", oldLic.LicenseID).
+		Update("status", "expired").Error; err != nil {
+		return nil, fmt.Errorf("update old license: %w", err)
+	}
+
+	// Save new license
+	if err := db.Create(newLic).Error; err != nil {
+		return nil, fmt.Errorf("save new license: %w", err)
+	}
+
+	// Re-check license state immediately
+	go checkLicenseNow()
+
+	return newLic, nil
+}
