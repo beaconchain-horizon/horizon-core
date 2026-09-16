@@ -31,6 +31,7 @@ type licenseSigningPayload struct {
 	MerkleRoot string `json:"merkle_root"`
 	IssuedAt   int64  `json:"issued_at"`
 	ExpiresAt  int64  `json:"expires_at"`
+	HardwareID string `json:"hardware_id,omitempty"`
 }
 
 // licenseCanonicalMessage returns the canonical JSON payload
@@ -50,6 +51,7 @@ func licenseCanonicalMessage(lic *License) string {
 		MerkleRoot: lic.MerkleRoot,
 		IssuedAt:   lic.IssuedAt,
 		ExpiresAt:  lic.ExpiresAt,
+		HardwareID: lic.HardwareID,
 	}
 
 	data, err := json.Marshal(payload)
