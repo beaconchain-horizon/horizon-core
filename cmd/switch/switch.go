@@ -420,6 +420,15 @@ func createTxHandler(c *gin.Context) {
 
 	// === License Enforcement ===
 	if !isLicenseValid() {
+	// Grace period check
+	if allowed, reason := isTransactionAllowedInGrace(); !allowed {
+		c.JSON(http.StatusPaymentRequired, gin.H{
+			"error":  "license grace period restriction",
+			"reason": reason,
+		})
+		return
+	}
+
 		resp := buildLicenseBlockedResponse()
 		c.JSON(http.StatusPaymentRequired, resp)
 		return
@@ -727,6 +736,7 @@ func main() {
 		api.GET("/stats", statsHandler)
 
 		// License status
+		// License enforcement status
 		api.GET("/license/enforce/status", func(c *gin.Context) {
 			valid, lic, err := getLicenseState()
 			var errStr interface{}
@@ -740,7 +750,12 @@ func main() {
 			})
 		})
 
-		// Key vault
+		// License grace status
+		api.GET("/license/grace-status", func(c *gin.Context) {
+			lic := getActiveLicenseOrNil()
+			status := getGraceStatus(lic)
+			c.JSON(http.StatusOK, status)
+		})
 		api.POST("/key/setup", setupKeyHandler)
 		api.POST("/key/unlock", unlockKeyHandler)
 		api.GET("/key/status", keyStatusHandler)
@@ -767,6 +782,7 @@ func main() {
 
 		// Licenses
 		api.POST("/license/save", saveLicenseHandler)
+
 		api.GET("/license/list", listLicensesHandler)
 		api.POST("/license/verify", verifyLicenseHandler)
 
