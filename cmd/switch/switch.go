@@ -789,6 +789,11 @@ func main() {
 		api.GET("/license/renew/history", renewalHistoryHandler)
 		api.GET("/license/status", licenseStatusHandler)
 
+		// Payment (mock mode)
+		api.POST("/payment/initiate", initiatePaymentHandler)
+		api.POST("/payment/mock/confirm", mockConfirmHandler)
+		api.GET("/payment/success", paymentSuccessPageHandler)
+
 		api.GET("/license/list", listLicensesHandler)
 		api.POST("/license/verify", verifyLicenseHandler)
 
@@ -812,6 +817,8 @@ func main() {
 
 	// Compat endpoints (for old frontend)
 	r.GET("/health", healthHandler)
+
+	r.GET("/payment/mock", mockPaymentPageHandler)
 		r.GET("/benchmark", benchmarkHandler)
 	r.GET("/stats", statsHandler)
 
