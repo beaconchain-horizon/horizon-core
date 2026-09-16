@@ -283,10 +283,19 @@ func validateLicense(license *License, now time.Time) error {
 		return err
 	}
 
+	// Grace period: allow up to gracePeriodDays after expiry
 	if now.After(expiresAt) {
-		return fmt.Errorf(
-			"license expired at %s",
-			expiresAt.UTC().Format(time.RFC3339),
+		daysOverdue := int(now.Sub(expiresAt).Hours() / 24)
+		if daysOverdue > gracePeriodDays {
+			return fmt.Errorf(
+				"license expired %d days ago (grace period exceeded)",
+				daysOverdue,
+			)
+		}
+		log.Printf(
+			"[LICENSE] grace period: %d days overdue, %d days left",
+			daysOverdue,
+			gracePeriodDays-daysOverdue,
 		)
 	}
 
