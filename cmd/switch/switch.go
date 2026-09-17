@@ -729,6 +729,7 @@ func main() {
 	// Routes
 	api := r.Group("/api/v1")
 	{
+	registerIndustrialRoutes(api)
 		api.GET("/health", healthHandler)
 		api.GET("/chain/info", chainInfoHandler)
 		api.GET("/stats", statsHandler)
