@@ -713,6 +713,7 @@ func main() {
 	// Init Gin
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
+	r.Use(adminAuth)
 	r.Use(corsMiddleware())
 	r.Use(airgapMiddleware())
 	r.Use(chainIDMiddleware())
