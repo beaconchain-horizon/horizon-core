@@ -1,20 +1,32 @@
 FROM golang:1.24-alpine AS builder
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o switch ./cmd/switch
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates tzdata
-WORKDIR /root/
-COPY --from=builder /app/switch .
-COPY --from=builder /app/config /root/config-seed
-RUN mkdir -p /root/data
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -o /horizon-switch ./cmd/switch
 
-RUN printf '#!/bin/sh\nif [ ! -f /root/data/chain.json ]; then cp -r /root/config-seed/. /root/data/ 2>/dev/null || true; fi\n./switch\n' > /root/start.sh && chmod +x /root/start.sh
+FROM alpine:3.20
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates tzdata
+
+ENV GIN_MODE=release
+ENV SWITCH_PORT=8080
+ENV SWITCH_DB=/data/horizon-switch.db
+
+COPY --from=builder /horizon-switch /app/horizon-switch
+COPY --from=builder /app/config /app/config-seed
+
+RUN mkdir -p /data && \
+    printf '#!/bin/sh\nif [ ! -f /data/chain.json ]; then cp -r /app/config-seed/. /data/ 2>/dev/null || true; fi\nexec /app/horizon-switch\n' > /app/start.sh && \
+    chmod +x /app/start.sh
 
 EXPOSE 8080
-CMD ["/root/start.sh"]
+
+CMD ["/app/start.sh"]

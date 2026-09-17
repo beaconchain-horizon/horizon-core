@@ -2,7 +2,13 @@
   "app": "horizon-switch",
   "port": 8080,
   "build": {
-    "location": "iran"
+    "location": "germany"
   },
-  "disks": []
+  "disks": [
+    {
+      "name": "horizon-data",
+      "mountTo": "/data",
+      "size": 2
+    }
+  ]
 }
