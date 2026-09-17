@@ -17,6 +17,7 @@ func registerIndustrialRoutes(api *gin.RouterGroup) {
 		&industrial.Alert{},
 		&industrial.TamperEvent{},
 		&industrial.ControlCommand{},
+		&industrial.SensorState{},
 	)
 
 	ind := api.Group("/industrial")
@@ -32,6 +33,14 @@ func registerIndustrialRoutes(api *gin.RouterGroup) {
 	ind.POST("/control/command", executeControlCommand)
 	ind.GET("/control/log", listControlLog)
 	ind.GET("/tamper", listTamperEvents)
+	ind.GET("/dashboard", industrialDashboard)
+	ind.GET("/panel", func(c *gin.Context) {
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(industrialPanelHTML))
+	})
+}
+
+func startIndustrialBackgroundJobs() {
+	industrial.StartBackgroundJobs(db)
 }
 
 func listIndustrialSites(c *gin.Context) {
@@ -103,39 +112,35 @@ func ingestReading(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "sensor not found"})
 		return
 	}
-	signable := industrial.SignableReading{
-		SensorID: req.SensorID, Value: req.Value,
-		Nonce: req.Nonce, Timestamp: req.Timestamp,
-	}
+	signable := industrial.SignableReading{SensorID: req.SensorID, Value: req.Value,
+		Nonce: req.Nonce, Timestamp: req.Timestamp}
 	if !industrial.VerifyReading(sensor.PublicKey, signable, req.Signature) {
-		db.Create(&industrial.TamperEvent{SensorID: req.SensorID,
-			Reason: "invalid_signature", Detail: "verify failed"})
+		db.Create(&industrial.TamperEvent{SensorID: req.SensorID, Reason: "invalid_signature"})
 		c.JSON(http.StatusForbidden, gin.H{"error": "invalid signature"})
 		return
 	}
 	if !industrial.NonceFresh(req.Nonce, req.Timestamp) {
-		db.Create(&industrial.TamperEvent{SensorID: req.SensorID,
-			Reason: "replay", Detail: req.Nonce})
+		db.Create(&industrial.TamperEvent{SensorID: req.SensorID, Reason: "replay", Detail: req.Nonce})
 		c.JSON(http.StatusForbidden, gin.H{"error": "replay detected"})
 		return
 	}
-	reading := industrial.Reading{
-		SensorID: req.SensorID, Value: req.Value,
-		Nonce: req.Nonce, Timestamp: req.Timestamp,
-		Signature: req.Signature, Verified: true,
-		RecordedAt: time.Now().UTC(),
-	}
+	reading := industrial.Reading{SensorID: req.SensorID, Value: req.Value,
+		Nonce: req.Nonce, Timestamp: req.Timestamp, Signature: req.Signature,
+		Verified: true, RecordedAt: time.Now().UTC()}
 	db.Create(&reading)
+	industrial.UpdateSensorState(db, req.SensorID, req.Value)
 	alert := industrial.EvaluateReading(sensor, req.Value)
+	if a2 := industrial.CheckRateOfChange(db, req.SensorID); a2 != nil {
+		db.Create(a2)
+		if alert == nil {
+			alert = a2
+		}
+	}
 	if alert != nil {
 		db.Create(alert)
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status": "accepted", "verified": true,
-		"reading_id": reading.ID,
-		"hash": industrial.HashReading(signable),
-		"alert": alert,
-	})
+	c.JSON(http.StatusOK, gin.H{"status": "accepted", "verified": true,
+		"reading_id": reading.ID, "hash": industrial.HashReading(signable), "alert": alert})
 }
 
 func ingestReadingBatch(c *gin.Context) {
@@ -169,13 +174,14 @@ func ingestReadingBatch(c *gin.Context) {
 			rejected++
 			continue
 		}
-		db.Create(&industrial.Reading{
-			SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce,
-			Timestamp: r.Timestamp, Signature: r.Signature,
-			Verified: true, RecordedAt: time.Now().UTC(),
-		})
+		db.Create(&industrial.Reading{SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce,
+			Timestamp: r.Timestamp, Signature: r.Signature, Verified: true, RecordedAt: time.Now().UTC()})
+		industrial.UpdateSensorState(db, r.SensorID, r.Value)
 		if a := industrial.EvaluateReading(sensor, r.Value); a != nil {
 			db.Create(a)
+		}
+		if a2 := industrial.CheckRateOfChange(db, r.SensorID); a2 != nil {
+			db.Create(a2)
 		}
 		accepted++
 	}
@@ -184,8 +190,7 @@ func ingestReadingBatch(c *gin.Context) {
 
 func listReadings(c *gin.Context) {
 	var items []industrial.Reading
-	db.Where("sensor_id = ?", c.Param("sensor_id")).
-		Order("id desc").Limit(500).Find(&items)
+	db.Where("sensor_id = ?", c.Param("sensor_id")).Order("id desc").Limit(500).Find(&items)
 	c.JSON(http.StatusOK, gin.H{"readings": items, "total": len(items)})
 }
 
@@ -214,8 +219,7 @@ func executeControlCommand(c *gin.Context) {
 	licOK := false
 	if cmd.LicenseID != "" {
 		var lic License
-		if err := db.Where("license_id = ? AND status = ?", cmd.LicenseID, "active").
-			First(&lic).Error; err == nil {
+		if err := db.Where("license_id = ? AND status = ?", cmd.LicenseID, "active").First(&lic).Error; err == nil {
 			licOK = true
 		}
 	}
@@ -242,4 +246,21 @@ func listTamperEvents(c *gin.Context) {
 	var items []industrial.TamperEvent
 	db.Order("id desc").Limit(200).Find(&items)
 	c.JSON(http.StatusOK, gin.H{"events": items, "total": len(items)})
+}
+
+func industrialDashboard(c *gin.Context) {
+	var sites []industrial.Site
+	var sensors []industrial.Sensor
+	var alerts []industrial.Alert
+	var readingsCount int64
+	var tamperCount int64
+	db.Find(&sites)
+	db.Find(&sensors)
+	db.Order("id desc").Limit(50).Find(&alerts)
+	db.Model(&industrial.Reading{}).Count(&readingsCount)
+	db.Model(&industrial.TamperEvent{}).Count(&tamperCount)
+	c.JSON(http.StatusOK, gin.H{
+		"sites": sites, "sensors": sensors, "alerts": alerts,
+		"readings_count": readingsCount, "tamper_count": tamperCount,
+	})
 }
