@@ -8,12 +8,20 @@ import (
 	"gorm.io/gorm"
 )
 
+// ============================================================
+// ACCOUNT MODEL
+// ============================================================
+
 type Account struct {
 	ID        uint    `gorm:"primaryKey" json:"id"`
 	BankID    string  `gorm:"uniqueIndex;not null" json:"bank_id"`
 	Balance   float64 `gorm:"not null;default:0" json:"balance"`
 	UpdatedAt int64   `json:"updated_at"`
 }
+
+// ============================================================
+// ENSURE ACCOUNT
+// ============================================================
 
 func ensureAccount(bankID string) error {
 	var acc Account
@@ -23,6 +31,10 @@ func ensureAccount(bankID string) error {
 	}
 	return err
 }
+
+// ============================================================
+// TRANSFER FUNDS (atomic)
+// ============================================================
 
 func transferFunds(from, to string, amount float64) error {
 	if amount <= 0 {
@@ -56,6 +68,10 @@ func transferFunds(from, to string, amount float64) error {
 		return nil
 	})
 }
+
+// ============================================================
+// HANDLERS
+// ============================================================
 
 func getBalanceHandler(c *gin.Context) {
 	bankID := c.Param("bank_id")
@@ -108,12 +124,12 @@ func seedBalanceHandler(c *gin.Context) {
 	db.Where("bank_id = ?", req.BankID).First(&acc)
 
 	addAudit("seed_balance", req.BankID,
+		fmt.Sprintf("+%.2f", req.Amount), c.ClientIP())
 
+	// Sync the in-memory ledger with the updated balance.
 	if ledger != nil {
 		ledger.SetBalance(req.BankID, acc.Balance)
 	}
-
-		fmt.Sprintf("+%.2f", req.Amount), c.ClientIP())
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "ok",
