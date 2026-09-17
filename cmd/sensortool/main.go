@@ -19,6 +19,14 @@ import (
 
 type sigASN struct{ R, S *big.Int }
 
+// MUST match industrial.SignableReading field order exactly
+type SignableReading struct {
+	SensorID  string  `json:"sensor_id"`
+	Value     float64 `json:"value"`
+	Nonce     string  `json:"nonce"`
+	Timestamp int64   `json:"timestamp"`
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("usage:")
@@ -60,21 +68,27 @@ func main() {
 			fmt.Println("parse key:", err)
 			os.Exit(1)
 		}
-		nonce := randHex(16)
-		ts := time.Now().Unix()
-		payload := map[string]any{
-			"sensor_id": *sensorID,
-			"value":     *value,
-			"nonce":     nonce,
-			"timestamp": ts,
+
+		sr := SignableReading{
+			SensorID:  *sensorID,
+			Value:     *value,
+			Nonce:     randHex(16),
+			Timestamp: time.Now().Unix(),
 		}
-		canonical, _ := json.Marshal(payload)
+		canonical, _ := json.Marshal(sr)
 		digest := sha256.Sum256(canonical)
 		r, s, _ := ecdsa.Sign(rand.Reader, priv, digest[:])
 		der, _ := asn1.Marshal(sigASN{r, s})
-		payload["signature"] = hex.EncodeToString(der)
-		out, _ := json.MarshalIndent(payload, "", "  ")
-		fmt.Println(string(out))
+
+		out := map[string]any{
+			"sensor_id": sr.SensorID,
+			"value":     sr.Value,
+			"nonce":     sr.Nonce,
+			"timestamp": sr.Timestamp,
+			"signature": hex.EncodeToString(der),
+		}
+		b, _ := json.MarshalIndent(out, "", "  ")
+		fmt.Println(string(b))
 	}
 }
 
