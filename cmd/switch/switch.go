@@ -730,6 +730,8 @@ func main() {
 	api := r.Group("/api/v1")
 	{
 	registerIndustrialRoutes(api)
+
+	startIndustrialBackgroundJobs()
 		api.GET("/health", healthHandler)
 		api.GET("/chain/info", chainInfoHandler)
 		api.GET("/stats", statsHandler)

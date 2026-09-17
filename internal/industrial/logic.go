@@ -11,8 +11,6 @@ import (
 	"horizon-core/internal/crypto"
 )
 
-// ============ MODELS ============
-
 type Site struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	SiteID    string    `gorm:"uniqueIndex" json:"site_id"`
@@ -38,14 +36,15 @@ type Sensor struct {
 }
 
 type Reading struct {
-	ID         uint      `gorm:"primaryKey" json:"id"`
-	SensorID   string    `gorm:"index" json:"sensor_id"`
-	Value      float64   `json:"value"`
-	Nonce      string    `gorm:"uniqueIndex" json:"nonce"`
-	Timestamp  int64     `json:"timestamp"`
-	Signature  string    `gorm:"type:text" json:"signature"`
-	Verified   bool      `json:"verified"`
-	RecordedAt time.Time `json:"recorded_at"`
+	ID         uint       `gorm:"primaryKey" json:"id"`
+	SensorID   string     `gorm:"index" json:"sensor_id"`
+	Value      float64    `json:"value"`
+	Nonce      string     `gorm:"uniqueIndex" json:"nonce"`
+	Timestamp  int64      `json:"timestamp"`
+	Signature  string     `gorm:"type:text" json:"signature"`
+	Verified   bool       `json:"verified"`
+	RecordedAt time.Time  `json:"recorded_at"`
+	Synced     *time.Time `json:"synced_at,omitempty"`
 }
 
 type Alert struct {
@@ -78,7 +77,12 @@ type ControlCommand struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// ============ SIGNATURE ============
+type SensorState struct {
+	SensorID   string    `gorm:"primaryKey" json:"sensor_id"`
+	LastValue  float64   `json:"last_value"`
+	LastSeenAt time.Time `json:"last_seen_at"`
+	Recent     string    `gorm:"type:text" json:"recent"`
+}
 
 type SignableReading struct {
 	SensorID  string  `json:"sensor_id"`
@@ -104,8 +108,6 @@ func VerifyReading(pubPEM string, r SignableReading, sigHex string) bool {
 	}
 	return crypto.VerifySignature(pub, r.Canonical(), sigHex)
 }
-
-// ============ ANTI-TAMPER ============
 
 var (
 	seenNonces  = make(map[string]int64)
@@ -135,24 +137,14 @@ func NonceFresh(nonce string, ts int64) bool {
 	return true
 }
 
-// ============ ALERT ENGINE ============
-
 func EvaluateReading(s Sensor, value float64) *Alert {
 	if value > s.MaxValue {
-		return &Alert{
-			SensorID: s.SensorID,
-			Value:    value,
-			Severity: "critical",
-			Message:  fmt.Sprintf("HIGH %s=%.3f>%.3f", s.SensorID, value, s.MaxValue),
-		}
+		return &Alert{SensorID: s.SensorID, Value: value, Severity: "critical",
+			Message: fmt.Sprintf("HIGH %s=%.3f>%.3f", s.SensorID, value, s.MaxValue)}
 	}
 	if value < s.MinValue {
-		return &Alert{
-			SensorID: s.SensorID,
-			Value:    value,
-			Severity: "critical",
-			Message:  fmt.Sprintf("LOW %s=%.3f<%.3f", s.SensorID, value, s.MinValue),
-		}
+		return &Alert{SensorID: s.SensorID, Value: value, Severity: "critical",
+			Message: fmt.Sprintf("LOW %s=%.3f<%.3f", s.SensorID, value, s.MinValue)}
 	}
 	span := s.MaxValue - s.MinValue
 	if span > 0 {
@@ -168,8 +160,6 @@ func EvaluateReading(s Sensor, value float64) *Alert {
 	}
 	return nil
 }
-
-// ============ CONTROL GUARD ============
 
 func ValidateCommand(cmd ControlCommand, licActive bool) error {
 	if !licActive {
