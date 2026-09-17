@@ -102,11 +102,40 @@ func HashReading(r SignableReading) string {
 }
 
 func VerifyReading(pubPEM string, r SignableReading, sigHex string) bool {
+	pubPEM = normalizePEM(pubPEM)
+	pubPEM = normalizePEM(pubPEM)
 	pub, err := crypto.PEMToPublicKey(pubPEM)
 	if err != nil {
 		return false
 	}
 	return crypto.VerifySignature(pub, r.Canonical(), sigHex)
+}
+
+// normalizePEM converts literal "\n" sequences to real newlines
+// so PEM decoded from DB works even if client sent escaped newlines.
+func normalizePEM(s string) string {
+	if !contains(s, "\n") {
+		return s
+	}
+	out := make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		if i+1 < len(s) && s[i] == 0x5c && s[i+1] == 0x6e {
+			out = append(out, 0x0a)
+			i++
+			continue
+		}
+		out = append(out, s[i])
+	}
+	return string(out)
+}
+
+func contains(s, sub string) bool {
+	for i := 0; i+len(sub) <= len(s); i++ {
+		if s[i:i+len(sub)] == sub {
+			return true
+		}
+	}
+	return false
 }
 
 var (
