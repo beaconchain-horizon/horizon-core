@@ -9,7 +9,7 @@ import (
 
 func adminAuth(c *gin.Context) {
     p := c.Request.URL.Path
-    if p == "/api/v1/health" || strings.HasPrefix(p, "/api/v1/customer/login") {
+    if p == "/api/v1/health" || p == "/api/v1/industrial/panel" || strings.HasPrefix(p, "/api/v1/customer/login") {
         c.Next()
         return
     }
