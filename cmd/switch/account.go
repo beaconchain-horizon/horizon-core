@@ -108,6 +108,11 @@ func seedBalanceHandler(c *gin.Context) {
 	db.Where("bank_id = ?", req.BankID).First(&acc)
 
 	addAudit("seed_balance", req.BankID,
+
+	if ledger != nil {
+		ledger.SetBalance(req.BankID, acc.Balance)
+	}
+
 		fmt.Sprintf("+%.2f", req.Amount), c.ClientIP())
 
 	c.JSON(http.StatusOK, gin.H{

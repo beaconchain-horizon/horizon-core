@@ -564,6 +564,8 @@ func saveLicenseHandler(c *gin.Context) {
 	}
 
 	log.Printf("License signed & saved: %s for %s", lic.LicenseID, lic.UserID)
+	go checkLicenseNow()
+
 	c.JSON(http.StatusCreated, lic)
 }
 
