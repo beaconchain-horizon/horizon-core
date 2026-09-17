@@ -64,7 +64,8 @@ function renderAlerts(a){
 }
 async function load(){
   try{
-    var r=await fetch('/api/v1/industrial/dashboard');
+    var r=await fetch("/api/v1/industrial/dashboard");
+    if(r.status===401){document.getElementById("stats").innerHTML="<div class="muted">dashboard محافظت‌شده است (نیاز به توکن ادمین)</div>";return;}
     var d=await r.json();
     renderStats(d);renderSites(d.sites||[]);renderSensors(d.sensors||[]);renderAlerts(d.alerts||[]);
   }catch(e){console.error(e);}
