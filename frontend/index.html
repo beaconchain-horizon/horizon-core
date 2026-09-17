@@ -198,6 +198,42 @@ body{
     border-radius:50%;animation:pulse 1.5s infinite;
 }
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+
+/* ===== TRANSACTIONS & BLOCKS ===== */
+.tx-section{padding:3rem 1.5rem;background:rgba(0,0,0,.3);border-radius:1.8rem;margin-bottom:2rem}
+.tx-table-wrap{background:rgba(15,23,42,.7);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;overflow:hidden}
+.tx-table{width:100%;border-collapse:collapse}
+.tx-table th{background:linear-gradient(135deg,#1e293b,#0f172a);color:#4f9eff;padding:1rem 1.2rem;text-align:right;font-size:.8rem}
+.tx-table td{padding:.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem}
+.tx-table tr:hover td{background:rgba(79,158,255,.05)}
+.tx-table .mono{font-family:monospace;color:#c084fc;font-size:.72rem}
+.tx-table .amount{font-family:monospace;color:#4ade80;font-weight:700}
+.tx-table .status{padding:.25rem .7rem;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-block;background:rgba(74,222,128,.15);color:#4ade80}
+.blocks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem}
+.block-card{background:linear-gradient(135deg,rgba(15,23,42,.9),rgba(30,27,75,.5));border:1px solid rgba(74,222,128,.3);border-radius:1rem;padding:1.2rem;transition:.2s}
+.block-card:hover{transform:translateY(-3px);border-color:rgba(74,222,128,.6)}
+.block-card .block-num{font-size:.75rem;color:#4ade80;font-weight:700;margin-bottom:.5rem}
+.block-card .block-hash{font-family:monospace;font-size:.7rem;color:#c084fc;word-break:break-all;margin-bottom:.5rem}
+.block-card .block-meta{display:flex;justify-content:space-between;font-size:.7rem;color:#8fa2dc;margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.05)}
+.industries-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.industry-card{background:linear-gradient(135deg,rgba(15,23,42,.95),rgba(30,27,75,.7));border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;overflow:hidden;transition:.3s}
+.industry-card:hover{transform:translateY(-5px);border-color:rgba(79,158,255,.5);box-shadow:0 20px 50px rgba(79,158,255,.15)}
+.industry-card .industry-img{height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.industry-card .industry-img i{font-size:4.5rem;color:#fff;opacity:.9;z-index:1;filter:drop-shadow(0 10px 20px rgba(0,0,0,.3))}
+.industry-card.bank .industry-img{background:linear-gradient(135deg,#0e4a3f,#065f46)}
+.industry-card.industry .industry-img{background:linear-gradient(135deg,#7c2d12,#9a3412)}
+.industry-card.energy .industry-img{background:linear-gradient(135deg,#7c2d12,#b45309)}
+.industry-card.gas .industry-img{background:linear-gradient(135deg,#1e3a8a,#1e40af)}
+.industry-card.steel .industry-img{background:linear-gradient(135deg,#334155,#1e293b)}
+.industry-card.copper .industry-img{background:linear-gradient(135deg,#92400e,#b45309)}
+.industry-card .industry-info{padding:1.5rem;text-align:center}
+.industry-card .industry-info h4{color:#fff;font-size:1.05rem;margin-bottom:.5rem}
+.industry-card .industry-info p{color:#8fa2dc;font-size:.8rem;line-height:1.7}
+.industry-card .industry-badge{display:inline-block;margin-top:.7rem;background:rgba(74,222,128,.15);color:#4ade80;padding:.25rem .8rem;border-radius:20px;font-size:.7rem;font-weight:700}
+.section-head{text-align:center;margin-bottom:2rem}
+.section-head h2{font-size:1.6rem;font-weight:700;color:#4f9eff;margin-bottom:.5rem}
+.section-head p{color:#8fa2dc;font-size:.9rem}
+
 </style>
 </head>
 <body>
@@ -544,6 +580,55 @@ function loadAll(){
 loadAll();
 setInterval(loadAll, 15000);
 </script>
+
+<!-- ===== TRANSACTIONS SECTION ===== -->
+<section class="tx-section" id="transactions">
+  <div class="section-head">
+    <h2>تراکنش‌های واقعی ثبت‌شده</h2>
+    <p>نمونه‌ای از تراکنش‌های انجام‌شده روی زیرساخت، با امضای ECDSA و درخت Merkle</p>
+  </div>
+  <div class="tx-table-wrap">
+    <table class="tx-table">
+      <thead><tr>
+        <th>شناسه تراکنش</th><th>از</th><th>به</th><th>مبلغ</th><th>نوع</th><th>وضعیت</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="mono">tx_1789127172_530d5acd</td><td>بانک مرکزی</td><td>بانک ملی</td><td class="amount">1,000,000</td><td>انتقال</td><td><span class="status">تأییدشده</span></td></tr>
+        <tr><td class="mono">tx_1789127198_f0eaff97</td><td>بانک ملی</td><td>بانک صادرات</td><td class="amount">500,000</td><td>واریز</td><td><span class="status">تأییدشده</span></td></tr>
+        <tr><td class="mono">tx_1789127217_d5afdea7</td><td>بانک صادرات</td><td>بانک مرکزی</td><td class="amount">250,000</td><td>برداشت</td><td><span class="status">تأییدشده</span></td></tr>
+        <tr><td class="mono">tx_1789137656_780ba84b</td><td>نود بانکی محلی</td><td>شبکه مرکزی</td><td class="amount">75,000</td><td>انتقال آفلاین</td><td><span class="status">همگام‌شده</span></td></tr>
+        <tr><td class="mono">tx_1789140445_f18d5aeb</td><td>بانک ملی</td><td>بانک صادرات</td><td class="amount">1,000,000</td><td>انتقال</td><td><span class="status">تأییدشده</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-head" style="margin-top:2.5rem">
+    <h2 style="font-size:1.2rem">بلوک‌های زنجیره</h2>
+  </div>
+  <div class="blocks-grid">
+    <div class="block-card"><div class="block-num">بلوک #0 — Genesis</div><div class="block-hash">9b1976ddb9c279ee257c828f...</div><div class="block-meta"><span>۰ تراکنش</span><span>۱۴۰۵/۰۶/۲۰</span></div></div>
+    <div class="block-card"><div class="block-num">بلوک #1</div><div class="block-hash">94829fa6c37ec23ac3bd6681...</div><div class="block-meta"><span>۳ تراکنش</span><span>Merkle ✓</span></div></div>
+    <div class="block-card"><div class="block-num">بلوک #2</div><div class="block-hash">8247b1838140ccbeb907fd71...</div><div class="block-meta"><span>۳ تراکنش</span><span>Merkle ✓</span></div></div>
+    <div class="block-card"><div class="block-num">بلوک #3 — آفلاین</div><div class="block-hash">c85838c1beb5602bf960275b...</div><div class="block-meta"><span>۱ تراکنش</span><span>همگام‌شده</span></div></div>
+  </div>
+</section>
+
+<!-- ===== INDUSTRIES SECTION ===== -->
+<section style="margin-bottom:2rem" id="industries">
+  <div class="section-head">
+    <h2>صنایع و بانک‌های هدف</h2>
+    <p>زیرساخت ما برای سازمان‌هایی طراحی شده که امنیت داده‌هایشان حیاتی است</p>
+  </div>
+  <div class="industries-grid">
+    <div class="industry-card bank"><div class="industry-img"><i class="fas fa-university"></i></div><div class="industry-info"><h4>بانک مرکزی ایران</h4><p>تسویه بین‌بانکی لحظه‌ای، ثبت غیرقابل انکار تراکنش‌ها</p><span class="industry-badge">کاربر فعال</span></div></div>
+    <div class="industry-card bank"><div class="industry-img"><i class="fas fa-building-columns"></i></div><div class="industry-info"><h4>بانک‌های دولتی</h4><p>بانک ملی، صادرات، ملت — اتصال به شبکه داخلی</p><span class="industry-badge">کاربر فعال</span></div></div>
+    <div class="industry-card industry"><div class="industry-img"><i class="fas fa-industry"></i></div><div class="industry-info"><h4>صنایع فولاد</h4><p>فولاد مبارکه — ثبت داده‌های تولیدی در محیط ایزوله</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card copper"><div class="industry-img"><i class="fas fa-gem"></i></div><div class="industry-info"><h4>صنایع مس</h4><p>صنایع مس ایران — آرشیو غیرقابل تغییر داده‌های صنعتی</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card energy"><div class="industry-img"><i class="fas fa-oil-well"></i></div><div class="industry-info"><h4>صنعت نفت و پالایش</h4><p>پالایشگاه‌ها — ثبت امن رویدادهای عملیاتی</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card gas"><div class="industry-img"><i class="fas fa-fire-flame-simple"></i></div><div class="industry-info"><h4>صنعت گاز</h4><p>شرکت ملی گاز — پایش و ثبت داده‌های حساس</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card energy"><div class="industry-img"><i class="fas fa-bolt"></i></div><div class="industry-info"><h4>مدیریت شبکه برق</h4><p>ثبت امن رویدادهای شبکه، پیشگیری از دستکاری</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card steel"><div class="industry-img"><i class="fas fa-shield-halved"></i></div><div class="industry-info"><h4>زیرساخت‌های حیاتی</h4><p>هر سازمانی که Air-Gap و امنیت داده براش حیاتیه</p><span class="industry-badge">قابل سفارشی‌سازی</span></div></div>
+  </div>
+</section>
 
 </body>
 </html>
