@@ -155,15 +155,19 @@ func ingestReadingBatch(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	sensorCache := make(map[string]industrial.Sensor)
+	var toInsert []industrial.Reading
 	accepted, rejected := 0, 0
 	for _, r := range reqs {
-		var sensor industrial.Sensor
-		if err := db.Where("sensor_id = ?", r.SensorID).First(&sensor).Error; err != nil {
-			rejected++
-			continue
+		sensor, ok := sensorCache[r.SensorID]
+		if !ok {
+			if err := db.Where("sensor_id = ?", r.SensorID).First(&sensor).Error; err != nil {
+				rejected++
+				continue
+			}
+			sensorCache[r.SensorID] = sensor
 		}
-		sig := industrial.SignableReading{SensorID: r.SensorID, Value: r.Value,
-			Nonce: r.Nonce, Timestamp: r.Timestamp}
+		sig := industrial.SignableReading{SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce, Timestamp: r.Timestamp}
 		if !industrial.VerifyReading(sensor.PublicKey, sig, r.Signature) {
 			db.Create(&industrial.TamperEvent{SensorID: r.SensorID, Reason: "invalid_signature"})
 			rejected++
@@ -174,18 +178,24 @@ func ingestReadingBatch(c *gin.Context) {
 			rejected++
 			continue
 		}
-		db.Create(&industrial.Reading{SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce,
-			Timestamp: r.Timestamp, Signature: r.Signature, Verified: true, RecordedAt: time.Now().UTC()})
-		industrial.UpdateSensorState(db, r.SensorID, r.Value)
-		if a := industrial.EvaluateReading(sensor, r.Value); a != nil {
-			db.Create(a)
-		}
-		if a2 := industrial.CheckRateOfChange(db, r.SensorID); a2 != nil {
-			db.Create(a2)
-		}
+		toInsert = append(toInsert, industrial.Reading{
+			SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce,
+			Timestamp: r.Timestamp, Signature: r.Signature,
+			Verified: true, RecordedAt: time.Now().UTC(),
+		})
 		accepted++
 	}
+	if len(toInsert) > 0 {
+		if err := industrial.InsertReadingsBulk(db, toInsert); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		for _, r := range toInsert {
+			industrial.UpdateSensorState(db, r.SensorID, r.Value)
+		}
+	}
 	c.JSON(http.StatusOK, gin.H{"accepted": accepted, "rejected": rejected})
+}
 }
 
 func listReadings(c *gin.Context) {
