@@ -196,7 +196,6 @@ func ingestReadingBatch(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"accepted": accepted, "rejected": rejected})
 }
-}
 
 func listReadings(c *gin.Context) {
 	var items []industrial.Reading
