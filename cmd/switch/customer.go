@@ -119,12 +119,16 @@ func initCustomers() {
 		if ctype == "" {
 			ctype = "bank"
 		}
-		db.Create(&Customer{
+		if err := db.Create(&Customer{
 			CustomerID:   s.CustomerID,
 			Name:         s.Name,
 			Type:         ctype,
 			PasswordHash: string(hash),
-		})
+		}).Error; err != nil {
+			log.Printf("customers: failed to seed %s: %v", s.CustomerID, err)
+			continue
+		}
+		log.Printf("customers: seeded %s", s.CustomerID)
 	}
 
 	log.Printf("customers: seeded %d customers", len(seeds))
