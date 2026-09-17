@@ -3,12 +3,5 @@
   "port": 8080,
   "build": {
     "location": "germany"
-  },
-  "disks": [
-    {
-      "name": "horizon-data",
-      "mountTo": "/data",
-      "size": 2
-    }
-  ]
+  }
 }

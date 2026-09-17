@@ -12,21 +12,21 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 
 FROM alpine:3.20
 
-WORKDIR /app
+WORKDIR /root
 
 RUN apk add --no-cache ca-certificates tzdata
 
 ENV GIN_MODE=release
 ENV SWITCH_PORT=8080
-ENV SWITCH_DB=/data/horizon-switch.db
+ENV SWITCH_DB=/root/data/horizon-switch.db
 
-COPY --from=builder /horizon-switch /app/horizon-switch
-COPY --from=builder /app/config /app/config-seed
+COPY --from=builder /horizon-switch /root/horizon-switch
+COPY --from=builder /app/config /root/config-seed
 
-RUN mkdir -p /data && \
-    printf '#!/bin/sh\nif [ ! -f /data/chain.json ]; then cp -r /app/config-seed/. /data/ 2>/dev/null || true; fi\nexec /app/horizon-switch\n' > /app/start.sh && \
-    chmod +x /app/start.sh
+RUN mkdir -p /root/data && \
+    printf '#!/bin/sh\nif [ ! -f /root/data/chain.json ]; then cp -r /root/config-seed/. /root/data/ 2>/dev/null || true; fi\nexec /root/horizon-switch\n' > /root/start.sh && \
+    chmod +x /root/start.sh
 
 EXPOSE 8080
 
-CMD ["/app/start.sh"]
+CMD ["/root/start.sh"]
