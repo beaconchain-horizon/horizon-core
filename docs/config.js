@@ -1,17 +1,14 @@
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  HORIZON CORE — Configuration
-//  ⚠️ فقط این فایل رو بعد از خرید دامنه تغییر بده
-// ═══════════════════════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════
 window.HORIZON_CONFIG = {
+  // منبع داده‌ها
+  DATA_SOURCE:  'local',   // 'local' = docs/data/stats.json، 'api' = SWITCH_URL
+  DATA_FILE:    'data/stats.json',
 
-  // 🔴 جای خالی — بعد از خرید دامنه، این دو خط رو عوض کن:
-  //    مثال: https://switch.yourdomain.ir
+  // فقط اگه DATA_SOURCE='api' باشه استفاده می‌شه
   SWITCH_URL:   'https://horizon-switch.liara.run',
   BACKEND_URL:  'https://horizon-backend.liara.run',
-
-  // Demo mode: true = داده ماک (نمایشی)، false = API واقعی
-  DEMO_MODE:    true,
 
   // متادیتا
   SITE_NAME:    'Horizon Angel',
@@ -23,4 +20,4 @@ window.HORIZON_CONFIG = {
   CONTACT_PHONE: '+98-21-9100-0000'
 };
 
-console.log('⚙️ Horizon Config loaded | Demo:', window.HORIZON_CONFIG.DEMO_MODE);
+console.log('⚙️ Horizon Config | Source:', window.HORIZON_CONFIG.DATA_SOURCE);
