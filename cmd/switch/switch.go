@@ -683,8 +683,7 @@ func main() {
 	}
 
 	// Auto migrate
-	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}, &Customer{})
-	tenant.Init(db); err != nil {
+	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}, &Customer{}); err != nil {
 		log.Fatal("Migration failed:", err)
 	}
 	log.Println("SQLite database ready:", dbPath)

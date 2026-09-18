@@ -1,7 +1,9 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -9,13 +11,36 @@ import (
 	"horizon-core/internal/tenant"
 )
 
+// adminAuthMiddleware چک می‌کند هدر X-Admin-Token با ADMIN_TOKEN بخواند
+func adminAuthMiddleware() gin.HandlerFunc {
+	adminToken := os.Getenv("ADMIN_TOKEN")
+	return func(c *gin.Context) {
+		token := c.GetHeader("X-Admin-Token")
+		if adminToken == "" || token != adminToken {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "admin token required"})
+			return
+		}
+		c.Next()
+	}
+}
+
 func registerTenantRoutes(api *gin.RouterGroup) {
+	// اطمینان از ساخت جداول tenant و heartbeat
+	if err := tenant.Init(db); err != nil {
+		log.Printf("⚠️  tenant.Init failed: %v", err)
+	}
+
 	t := api.Group("/tenant")
+
+	// heartbeat: auth با agent token (خودِ handler چک می‌کند)
 	t.POST("/heartbeat", receiveHeartbeat)
-	t.GET("/list", listTenants)
-	t.POST("/create", createTenant)
-	t.GET("/:id", getTenant)
-	t.GET("/:id/heartbeats", listHeartbeats)
+
+	// بقیه: نیازمند admin token
+	admin := t.Group("", adminAuthMiddleware())
+	admin.GET("/list", listTenants)
+	admin.POST("/create", createTenant)
+	admin.GET("/:id", getTenant)
+	admin.GET("/:id/heartbeats", listHeartbeats)
 }
 
 func receiveHeartbeat(c *gin.Context) {
@@ -53,9 +78,8 @@ func receiveHeartbeat(c *gin.Context) {
 
 func listTenants(c *gin.Context) {
 	var items []tenant.Tenant
-	db.Find(&items)
+	db.Where("is_active = ?", true).Find(&items)
 
-	// اضافه کردن وضعیت heartbeat
 	type row struct {
 		tenant.Tenant
 		Online bool `json:"online"`
