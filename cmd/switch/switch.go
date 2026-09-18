@@ -683,7 +683,8 @@ func main() {
 	}
 
 	// Auto migrate
-	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}, &Customer{}); err != nil {
+	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}, &Customer{})
+	tenant.Init(db); err != nil {
 		log.Fatal("Migration failed:", err)
 	}
 	log.Println("SQLite database ready:", dbPath)
@@ -730,6 +731,8 @@ func main() {
 	api := r.Group("/api/v1")
 	{
 	registerIndustrialRoutes(api)
+
+	registerTenantRoutes(api)
 
 	startIndustrialBackgroundJobs()
 		api.GET("/health", healthHandler)
