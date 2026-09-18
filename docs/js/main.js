@@ -1,7 +1,6 @@
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  Horizon Core — Main JS
-//  در حالت دمو، داده‌های ماک استفاده می‌شود
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 
 const CFG = window.HORIZON_CONFIG;
 
@@ -45,7 +44,7 @@ setInterval(() => goSlide(current + 1), 6000);
 
 // ─── Animate numbers ───
 function animate(el, target) {
-  if (!el) return;
+  if (!el || target === undefined) return;
   const start = 0;
   const dur = 800;
   const t0 = performance.now();
@@ -60,29 +59,40 @@ function animate(el, target) {
 
 // ─── Load Stats ───
 async function loadStats() {
-  let data;
-  if (CFG.DEMO_MODE) {
-    data = await fetchDemoData('stats');
-  } else {
-    try {
-      const r = await fetch(CFG.SWITCH_URL + '/stats');
+  let data = null;
+  const statusEl = document.getElementById('net-status');
+
+  try {
+    if (CFG.DATA_SOURCE === 'api') {
+      const r = await fetch(CFG.SWITCH_URL + '/api/v1/stats');
       data = await r.json();
-    } catch (e) {
-      console.warn('API unavailable, fallback to demo');
-      data = await fetchDemoData('stats');
+    } else {
+      const r = await fetch(CFG.DATA_FILE + '?t=' + Date.now());
+      data = await r.json();
     }
+  } catch (e) {
+    console.warn('data unavailable:', e);
+    if (statusEl) statusEl.textContent = 'شبکه قطع';
+    return;
   }
-  animate(document.getElementById('stat-tps'), data.tps || 0);
-  animate(document.getElementById('stat-blocks'), data.chainLength || 0);
-  animate(document.getElementById('stat-sensors'), 24);
-  animate(document.getElementById('stat-readings'), 128493);
+
+  if (statusEl) statusEl.textContent = 'شبکه فعال';
+
+  const n = data.network || {};
+  animate(document.getElementById('stat-tps'), n.tps || 0);
+  animate(document.getElementById('stat-blocks'), n.chain_length || 0);
+  animate(document.getElementById('stat-sensors'), n.active_sensors || 0);
+  animate(document.getElementById('stat-readings'), n.total_readings || 0);
+
+  // اگه فیلدهای عددی روی صفحه با id مشخص هستن، اینجا هم می‌تونیم آپدیت کنیم
+  const ver = document.getElementById('ver');
+  if (ver) ver.textContent = CFG.SITE_VERSION;
 }
 
 // ─── Init ───
 document.addEventListener('DOMContentLoaded', () => {
   initCarousel();
   loadStats();
-  setInterval(loadStats, 15000);
-  const ver = document.getElementById('ver');
-  if (ver) ver.textContent = CFG.SITE_VERSION;
+  // هر ۶۰ ثانیه یه بار
+  setInterval(loadStats, 60000);
 });
