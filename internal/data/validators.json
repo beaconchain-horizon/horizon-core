@@ -1,4 +1,0 @@
-[
-  {"index": 1, "public_key": "0x123...", "current_balance": 32.5, "effective_balance": 32.0, "activation_date": "2025-01-01", "income_1d": 0.02, "income_7d": 0.15, "income_14d": 0.30, "income_30d": 0.60, "total_income": 1.2},
-  {"index": 2, "public_key": "0x456...", "current_balance": 30.0, "effective_balance": 30.0, "activation_date": "2025-02-01", "income_1d": 0.01, "income_7d": 0.10, "income_14d": 0.20, "income_30d": 0.40, "total_income": 0.8}
-]
