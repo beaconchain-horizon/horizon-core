@@ -1,0 +1,20 @@
+{
+  "template_id": "gas",
+  "template_name": "شرکت گاز",
+  "type": "gas",
+  "chain": {
+    "chain_id": "TENANT_PLACEHOLDER-gas",
+    "network_name": "TENANT_PLACEHOLDER Gas Network",
+    "air_gap_allowed": true
+  },
+  "default_sensors": [
+    {"sensor_id": "press-pipe", "type": "pressure", "unit": "bar", "min": 50, "max": 100},
+    {"sensor_id": "flow-gas", "type": "flow", "unit": "m3/s", "min": 0, "max": 500},
+    {"sensor_id": "leak-001", "type": "gas_leak", "unit": "ppm", "min": 0, "max": 100}
+  ],
+  "default_sites": [
+    {"site_id": "well-01", "name": "چاه ۱", "type": "gas"},
+    {"site_id": "compressor", "name": "ایستگاه تقویت فشار", "type": "gas"},
+    {"site_id": "city-gate", "name": "ایستگاه CGS", "type": "gas"}
+  ]
+}
