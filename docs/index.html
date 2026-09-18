@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon Angel · فروشگاه لایسنس</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="cont">
+
+    <!-- HEADER -->
+    <header class="hdr">
+        <div class="greeting">
+            <h1>Horizon <b>Angel</b> 🛡️</h1>
+            <p><span class="live-dot"></span> <span id="net-status">شبکه فعال · دمو</span></p>
+        </div>
+        <nav class="hdr-widgets">
+            <a href="index.html" class="widget active"><i class="fas fa-store"></i><div><div class="big">فروشگاه</div></div></a>
+            <a href="dashboard.html" class="widget"><i class="fas fa-chart-line"></i><div><div class="big">داشبورد</div></div></a>
+            <a href="sensors.html" class="widget"><i class="fas fa-satellite-dish"></i><div><div class="big">سنسورها</div></div></a>
+            <a href="blocks.html" class="widget"><i class="fas fa-cubes"></i><div><div class="big">بلاک‌ها</div></div></a>
+            <a href="admin.html" class="widget"><i class="fas fa-user-shield"></i><div><div class="big">ادمین</div></div></a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <h2>زیرساخت بلاکچین اختصاصی برای صنایع حساس</h2>
+        <p>امنیت داده، تسویه بین‌بانکی، پایش صنعتی — همه در یک پلتفرم air-gap ready</p>
+        <div class="hero-stats">
+            <div class="stat"><b id="stat-tps">—</b><span>TPS</span></div>
+            <div class="stat"><b id="stat-blocks">—</b><span>بلوک</span></div>
+            <div class="stat"><b id="stat-sensors">—</b><span>سنسور فعال</span></div>
+            <div class="stat"><b id="stat-readings">—</b><span>خوانش</span></div>
+        </div>
+    </section>
+
+    <!-- CAROUSEL لایسنس -->
+    <section class="carousel-wrap">
+        <div class="carousel" id="carousel">
+            <div class="slide active" data-badge="🥉 برنزی" data-title="شروع امنیت" data-desc="۱ میلیون تراکنش · ۱ سال اعتبار" data-price="۴۹۹,۰۰۰ تومان" data-color="#cd7f32"></div>
+            <div class="slide" data-badge="🥈 نقره‌ای" data-title="بانکداری حرفه‌ای" data-desc="۱۰ میلیون تراکنش · مناسب بانک‌های متوسط" data-price="۳,۹۰۰,۰۰۰ تومان" data-color="#c0c0c0"></div>
+            <div class="slide" data-badge="👑 طلایی" data-title="مقیاس‌پذیری صنعتی" data-desc="۵۰ میلیون تراکنش · ۱ سال" data-price="۱۹,۰۰۰,۰۰۰ تومان" data-color="#ffd700"></div>
+            <div class="slide" data-badge="💎 الماس" data-title="Enterprise" data-desc="۱۰۰ میلیون تراکنش · بانک مرکزی" data-price="۳۹,۰۰۰,۰۰۰ تومان" data-color="#00d4ff"></div>
+            <div class="slide" data-badge="🏭 صنعتی" data-title="اتصال صنعت به بلاکچین" data-desc="۱ میلیون سنسور · پایش صنعتی" data-price="۲,۹۰۰,۰۰۰ تومان" data-color="#c084fc"></div>
+            <div class="slide" data-badge="🏦 بانکی" data-title="اختصاصی بانک‌ها" data-desc="بالای ۵۰۰ میلیون تراکنش · پشتیبانی اختصاصی" data-price="توافقی" data-color="#facc15"></div>
+        </div>
+        <div class="carousel-nav">
+            <button onclick="goSlide(current-1)"><i class="fas fa-chevron-right"></i></button>
+            <div class="dots" id="dots"></div>
+            <button onclick="goSlide(current+1)"><i class="fas fa-chevron-left"></i></button>
+        </div>
+    </section>
+
+    <!-- قابلیت‌ها -->
+    <section class="features">
+        <h3><i class="fas fa-star"></i> قابلیت‌های کلیدی</h3>
+        <div class="features-grid">
+            <div class="feat-card"><i class="fas fa-shield-halved"></i><h4>امضای ECDSA</h4><p>هر خوانش با کلید اختصاصی امضا می‌شود</p></div>
+            <div class="feat-card"><i class="fas fa-clock-rotate-left"></i><h4>ضد Replay</h4><p>Nonce + Timestamp از تکرار جلوگیری می‌کند</p></div>
+            <div class="feat-card"><i class="fas fa-bell"></i><h4>هشدار خودکار</h4><p>Min/Max + نرخ تغییر + سکوت سنسور</p></div>
+            <div class="feat-card"><i class="fas fa-plug-circle-xmark"></i><h4>Air-Gap Ready</h4><p>کار در محیط ایزوله بدون اینترنت</p></div>
+            <div class="feat-card"><i class="fas fa-link"></i><h4>Merkle Chain</h4><p>زنجیره تغییرناپذیر بلاک‌ها</p></div>
+            <div class="feat-card"><i class="fas fa-gavel"></i><h4>Tamper Log</h4><p>تشخیص هر تلاش برای دستکاری</p></div>
+        </div>
+    </section>
+
+    <!-- مشتریان -->
+    <section class="companies">
+        <h3><i class="fas fa-building"></i> مشتریان و شرکا</h3>
+        <div class="companies-row">
+            <a href="https://www.cbi.ir" target="_blank" class="logo"><i class="fas fa-landmark"></i><span>بانک مرکزی</span></a>
+            <a href="https://www.bmi.ir" target="_blank" class="logo"><i class="fas fa-university"></i><span>بانک ملی</span></a>
+            <a href="https://www.bsi.ir" target="_blank" class="logo"><i class="fas fa-building-columns"></i><span>بانک صادرات</span></a>
+            <a href="https://www.bankmellat.ir" target="_blank" class="logo"><i class="fas fa-money-bill-trend-up"></i><span>بانک ملت</span></a>
+            <a href="https://www.niordc.ir" target="_blank" class="logo"><i class="fas fa-oil-well"></i><span>پالایش و پخش</span></a>
+            <a href="https://www.nigc.ir" target="_blank" class="logo"><i class="fas fa-fire"></i><span>ملی گاز</span></a>
+            <a href="https://www.igmc.ir" target="_blank" class="logo"><i class="fas fa-bolt"></i><span>شبکه برق</span></a>
+            <a href="https://www.nicico.com" target="_blank" class="logo"><i class="fas fa-gem"></i><span>صنایع مس</span></a>
+            <a href="https://www.msc.ir" target="_blank" class="logo"><i class="fas fa-hard-hat"></i><span>فولاد مبارکه</span></a>
+        </div>
+    </section>
+
+    <!-- بخش‌های نمایشی -->
+    <section class="preview-grid">
+        <a href="sensors.html" class="preview-card">
+            <i class="fas fa-satellite-dish"></i>
+            <h4>پنل سنسورهای صنعتی</h4>
+            <p>پایش لحظه‌ای، هشدار خودکار، کنترل از راه دور</p>
+        </a>
+        <a href="blocks.html" class="preview-card">
+            <i class="fas fa-cubes"></i>
+            <h4>کاوشگر بلاک‌چین</h4>
+            <p>مشاهده بلاک‌ها، تراکنش‌ها و Merkle Root</p>
+        </a>
+        <a href="dashboard.html" class="preview-card">
+            <i class="fas fa-chart-line"></i>
+            <h4>داشبورد زنده</h4>
+            <p>TPS، وضعیت شبکه، آمار لحظه‌ای</p>
+        </a>
+        <a href="license.html" class="preview-card">
+            <i class="fas fa-id-card"></i>
+            <h4>پنل مشتری</h4>
+            <p>مدیریت لایسنس، فاکتورها، تمدید</p>
+        </a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>© ۲۰۲۶ <b>Horizon Angel</b> · تمام حقوق محفوظ است</p>
+        <p class="muted">نسخه <span id="ver">3.0</span> · ساخته‌شده در ایران 🇮🇷</p>
+    </footer>
+
+</div>
+
+<script src="config.js"></script>
+<script src="js/demo-data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
