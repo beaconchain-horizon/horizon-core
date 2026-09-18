@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بلاک‌ها · Horizon</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="css/style.css"></head>
+<body><div class="cont">
+<header class="hdr"><div class="greeting"><h1>کاوشگر <b>بلاک‌چین</b></h1><p><span class="live-dot"></span> زنجیره فعال</p></div>
+<nav class="hdr-widgets"><a href="index.html" class="widget">فروشگاه</a><a href="dashboard.html" class="widget">داشبورد</a><a href="sensors.html" class="widget">سنسورها</a><a href="blocks.html" class="widget active">بلاک‌ها</a></nav></header>
+<section id="block-list" class="features-grid"></section>
+</div>
+<script src="config.js"></script><script src="js/demo-data.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const data = await fetchDemoData('stats');
+  const el = document.getElementById('block-list');
+  el.innerHTML = data.recentBlocks.map(b => `
+    <div class="feat-card">
+      <h4>بلوک #${b.num}</h4>
+      <p style="font-family:monospace;font-size:.7rem;color:#c084fc;word-break:break-all">${b.hash}</p>
+      <p style="margin-top:.5rem;font-size:.75rem">${b.tx} تراکنش · ${b.time}</p>
+    </div>`).join('');
+});
+</script>
+</body></html>
