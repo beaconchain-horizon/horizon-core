@@ -495,11 +495,7 @@ func main() {
 		}
 		c.JSON(200, v)
 	})
-	r.GET("/api/v1/validators", func(c *gin.Context) {
-		var v []map[string]any
-		if err := pgDB.Raw("SELECT 1 AS index, 'active' AS status").Scan(&v).Error; err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
+				return
 		}
 		c.JSON(200, v)
 	})
