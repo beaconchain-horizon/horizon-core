@@ -1,6 +1,7 @@
-version: '3.9'
-
 services:
+  # ═══════════════════════════════════════════════════════
+  #  PostgreSQL — فقط برای backend (cmd/api)
+  # ═══════════════════════════════════════════════════════
   postgres:
     image: postgres:16-alpine
     container_name: horizon-postgres
@@ -21,15 +22,15 @@ services:
       timeout: 5s
       retries: 5
 
+  # ═══════════════════════════════════════════════════════
+  #  Switch — SQLite محلی (بدون وابستگی به Postgres)
+  # ═══════════════════════════════════════════════════════
   switch:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: horizon-switch
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       GIN_MODE: release
       SWITCH_PORT: 8080
@@ -37,7 +38,6 @@ services:
       CHAIN_CONFIG: /root/data/chain.json
       CUSTOMERS_CONFIG: /root/data/customers.json
       ADMIN_TOKEN: ${ADMIN_TOKEN:-change-me}
-      DATABASE_URL: postgresql://horizon:${POSTGRES_PASSWORD:-horizon_secret}@postgres:5432/horizon
     volumes:
       - switch_data:/root/data
       - ./config:/root/config-seed:ro
@@ -46,6 +46,9 @@ services:
     networks:
       - horizon-net
 
+  # ═══════════════════════════════════════════════════════
+  #  Backend — Postgres + cmd/api
+  # ═══════════════════════════════════════════════════════
   backend:
     build:
       context: .
