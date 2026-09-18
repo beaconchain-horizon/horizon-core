@@ -495,10 +495,6 @@ func main() {
 		}
 		c.JSON(200, v)
 	})
-				return
-		}
-		c.JSON(200, v)
-	})
 
 	r.POST("/api/v1/packages", func(c *gin.Context) {
 		if !requireAdmin(c) {
