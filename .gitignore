@@ -49,3 +49,7 @@ npm-debug.log*
 # ─── Temp ───
 *.tmp
 /tmp/
+
+# ─── Local config (real values) ───
+config/customers.json
+config/chain.json
