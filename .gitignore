@@ -1,37 +1,51 @@
-.env
-.env.*
-!.env.example
-/main
-/api
-/switch
+# ─── Binaries ───
 *.exe
-*.db
-*.sqlite
-*.log
-*.tmp
-*.save
-*.backup
-.DS_Store
-Thumbs.db
-
-# Secrets
-.env
-
-# Backups
-*.bak
-*.bak*
 *.exe~
-*.exe
-*.log
+*.dll
+*.so
+*.dylib
+
+# ─── Databases ───
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3
+data/
+!data/.gitkeep
 
-# Backups and local configs
+# ─── Keys / Secrets ───
+keys/
+*.pem
+.env
+.env.local
+
+# ─── Backups ───
+*.bak
+*.bak-*
+*.bak[0-9]
+*.backup
 *.backup-*
-cmd/switch.backup-*/
-Dockerfile.broken-backup
-config/chain.json
+*.backup_*
+*.old
+.backups/
+Dockerfile.bak*
+*~
 
-# Customer configs (contains passwords)
-config/customers.json
+# ─── Logs ───
+*.log
+
+# ─── OS / IDE ───
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ─── Node ───
+node_modules/
+npm-debug.log*
+
+# ─── Temp ───
+*.tmp
+/tmp/
