@@ -1,7 +1,11 @@
 {
   "app": "horizon-switch",
+  "platform": "docker",
   "port": 8080,
-  "build": {
-    "location": "germany"
-  }
+  "disks": [
+    {
+      "name": "switch-data",
+      "mountTo": "/root/data"
+    }
+  ]
 }
