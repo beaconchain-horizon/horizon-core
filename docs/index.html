@@ -3,121 +3,632 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Horizon Angel · فروشگاه لایسنس</title>
+<title>Horizon Angel · Dashboard</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="css/style.css">
+<style>
+*{font-family:'Segoe UI',Tahoma,sans-serif;box-sizing:border-box;margin:0;padding:0}
+body{
+    background:linear-gradient(135deg,#0a1628 0%,#1a2942 50%,#0d1b2e 100%);
+    color:#eef2ff;min-height:100vh;padding:1.5rem;overflow-x:hidden;
+}
+.cont{max-width:1500px;margin:0 auto}
+
+/* ===== HEADER ===== */
+.hdr{
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;
+}
+.greeting h1{
+    font-size:2rem;font-weight:300;margin:0;
+}
+.greeting h1 b{font-weight:700}
+.greeting p{color:#8fa2dc;font-size:.85rem;margin-top:.2rem}
+.hdr-widgets{display:flex;gap:.8rem;flex-wrap:wrap}
+.widget{
+    background:rgba(30,45,70,.6);backdrop-filter:blur(20px);
+    border:1px solid rgba(79,158,255,.15);border-radius:1rem;
+    padding:.7rem 1.2rem;display:flex;align-items:center;gap:.8rem;
+    transition:.3s;
+}
+.widget:hover{border-color:rgba(79,158,255,.4);transform:translateY(-2px)}
+.widget .big{font-size:1.6rem;font-weight:700;color:#4f9eff}
+.widget .small{font-size:.7rem;color:#8fa2dc}
+.widget .tag{
+    background:linear-gradient(135deg,#4ade80,#22c55e);
+    color:#000;padding:.15rem .5rem;border-radius:20px;
+    font-size:.65rem;font-weight:700;
+}
+
+/* ===== MAIN GRID ===== */
+.main-grid{
+    display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;
+    margin-bottom:2rem;
+}
+@media (max-width:900px){.main-grid{grid-template-columns:1fr}}
+
+/* ===== CAROUSEL (PRODUCTS) ===== */
+.carousel-box{
+    background:rgba(20,32,55,.7);backdrop-filter:blur(20px);
+    border:1px solid rgba(79,158,255,.15);border-radius:1.8rem;
+    padding:1rem;position:relative;overflow:hidden;min-height:480px;
+}
+.carousel-slide{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    display:none;transition:opacity .5s;
+}
+.carousel-slide.active{display:block;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.slide-bg{
+    width:100%;height:100%;object-fit:cover;position:absolute;
+    top:0;left:0;border-radius:1.5rem;opacity:.5;
+}
+.slide-overlay{
+    position:relative;z-index:2;height:100%;padding:2rem;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    background:linear-gradient(to top,rgba(10,22,40,.95) 0%,rgba(10,22,40,.3) 60%,transparent 100%);
+    border-radius:1.5rem;
+}
+.slide-tag{
+    background:linear-gradient(135deg,#4f9eff,#c084fc);
+    color:#fff;padding:.3rem .8rem;border-radius:20px;
+    font-size:.7rem;font-weight:700;width:fit-content;margin-bottom:1rem;
+}
+.slide-title{font-size:2rem;font-weight:900;margin:0 0 .5rem}
+.slide-desc{color:#cbd5e1;font-size:.9rem;margin:0 0 1.5rem}
+.slide-price{
+    font-size:1.8rem;font-weight:900;color:#4ade80;
+    font-family:monospace;margin-bottom:1rem;
+}
+.slide-btn{
+    background:linear-gradient(135deg,#4f9eff,#c084fc);color:#fff;
+    padding:.7rem 1.8rem;border-radius:40px;text-decoration:none;
+    font-weight:700;width:fit-content;font-size:.85rem;transition:.3s;
+}
+.slide-btn:hover{transform:scale(1.05);box-shadow:0 10px 30px rgba(79,158,255,.5)}
+
+.carousel-arrows{
+    position:absolute;bottom:1.5rem;left:2rem;z-index:10;
+    display:flex;gap:.5rem;
+}
+.arrow-btn{
+    width:42px;height:42px;border-radius:50%;
+    background:rgba(30,45,70,.8);border:1px solid rgba(79,158,255,.3);
+    color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:.3s;font-size:.9rem;
+}
+.arrow-btn:hover{background:#4f9eff;transform:scale(1.1)}
+
+.carousel-dots{
+    position:absolute;bottom:1.8rem;right:2rem;z-index:10;
+    display:flex;gap:.4rem;
+}
+.dot{
+    width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);
+    cursor:pointer;transition:.3s;
+}
+.dot.active{background:#4f9eff;width:24px;border-radius:4px}
+
+/* ===== SIDE CARDS ===== */
+.side-col{display:flex;flex-direction:column;gap:1.2rem}
+.side-card{
+    background:rgba(20,32,55,.7);backdrop-filter:blur(20px);
+    border:1px solid rgba(79,158,255,.15);border-radius:1.8rem;
+    padding:1.5rem;flex:1;position:relative;overflow:hidden;
+    transition:.3s;
+}
+.side-card:hover{border-color:rgba(79,158,255,.4);transform:translateY(-3px)}
+.side-card h3{
+    font-size:.9rem;color:#8fa2dc;margin:0 0 1rem;
+    display:flex;align-items:center;gap:.5rem;
+}
+.side-card .value{
+    font-size:2.2rem;font-weight:900;font-family:monospace;
+    background:linear-gradient(135deg,#fff,#4f9eff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.side-card .lbl{font-size:.75rem;color:#8fa2dc;margin-top:.3rem}
+.side-card.purple .value{background:linear-gradient(135deg,#fff,#c084fc);-webkit-background-clip:text;background-clip:text}
+.side-card.gold .value{background:linear-gradient(135deg,#fff,#facc15);-webkit-background-clip:text;background-clip:text}
+.side-list{max-height:180px;overflow-y:auto;margin-top:.8rem}
+.side-item{
+    background:rgba(0,0,0,.25);border-radius:.7rem;
+    padding:.6rem .8rem;margin-bottom:.4rem;font-size:.72rem;
+    border-right:3px solid #4ade80;
+}
+.side-item .hash{color:#4ade80;font-family:monospace;font-size:.68rem}
+.side-item .time{color:#64748b;font-size:.65rem}
+
+/* ===== COMPANY LOGOS (BOTTOM) ===== */
+.companies-section{
+    margin-top:2rem;
+}
+.companies-section h2{
+    font-size:1.1rem;color:#8fa2dc;margin-bottom:1rem;
+    display:flex;align-items:center;gap:.5rem;
+}
+.companies-row{
+    display:flex;gap:1rem;overflow-x:auto;padding:.5rem 0 1rem;
+    scrollbar-width:thin;
+}
+.companies-row::-webkit-scrollbar{height:6px}
+.companies-row::-webkit-scrollbar-thumb{background:rgba(79,158,255,.3);border-radius:3px}
+.comp-logo{
+    flex-shrink:0;width:180px;height:110px;
+    background:rgba(20,32,55,.7);backdrop-filter:blur(10px);
+    border:1px solid rgba(79,158,255,.2);border-radius:1.3rem;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:.4rem;text-decoration:none;color:#eef2ff;
+    transition:.3s;position:relative;overflow:hidden;
+}
+.comp-logo:hover{
+    border-color:#4f9eff;transform:translateY(-6px) scale(1.03);
+    box-shadow:0 15px 40px rgba(79,158,255,.3);
+    background:rgba(30,45,70,.9);
+}
+.comp-logo::before{
+    content:'';position:absolute;top:-50%;left:-50%;
+    width:200%;height:200%;
+    background:radial-gradient(circle,rgba(79,158,255,.08),transparent 70%);
+    animation:rot 15s linear infinite;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+.comp-logo i{
+    font-size:2.2rem;color:#4f9eff;position:relative;z-index:1;
+    transition:.3s;
+}
+.comp-logo:hover i{color:#facc15;transform:scale(1.15)}
+.comp-logo .name{
+    font-size:.75rem;font-weight:700;position:relative;z-index:1;
+    text-align:center;padding:0 .5rem;
+}
+.comp-logo .type{
+    font-size:.62rem;color:#8fa2dc;position:relative;z-index:1;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+    text-align:center;padding:1.5rem;color:#64748b;
+    font-size:.75rem;margin-top:2rem;
+    border-top:1px solid rgba(79,158,255,.1);
+}
+
+/* ===== LIVE DOT ===== */
+.live-dot{
+    display:inline-block;width:8px;height:8px;background:#4ade80;
+    border-radius:50%;animation:pulse 1.5s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+
+/* ===== TRANSACTIONS & BLOCKS ===== */
+.tx-section{padding:3rem 1.5rem;background:rgba(0,0,0,.3);border-radius:1.8rem;margin-bottom:2rem}
+.tx-table-wrap{background:rgba(15,23,42,.7);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;overflow:hidden}
+.tx-table{width:100%;border-collapse:collapse}
+.tx-table th{background:linear-gradient(135deg,#1e293b,#0f172a);color:#4f9eff;padding:1rem 1.2rem;text-align:right;font-size:.8rem}
+.tx-table td{padding:.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem}
+.tx-table tr:hover td{background:rgba(79,158,255,.05)}
+.tx-table .mono{font-family:monospace;color:#c084fc;font-size:.72rem}
+.tx-table .amount{font-family:monospace;color:#4ade80;font-weight:700}
+.tx-table .status{padding:.25rem .7rem;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-block;background:rgba(74,222,128,.15);color:#4ade80}
+.blocks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem}
+.block-card{background:linear-gradient(135deg,rgba(15,23,42,.9),rgba(30,27,75,.5));border:1px solid rgba(74,222,128,.3);border-radius:1rem;padding:1.2rem;transition:.2s}
+.block-card:hover{transform:translateY(-3px);border-color:rgba(74,222,128,.6)}
+.block-card .block-num{font-size:.75rem;color:#4ade80;font-weight:700;margin-bottom:.5rem}
+.block-card .block-hash{font-family:monospace;font-size:.7rem;color:#c084fc;word-break:break-all;margin-bottom:.5rem}
+.block-card .block-meta{display:flex;justify-content:space-between;font-size:.7rem;color:#8fa2dc;margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.05)}
+.industries-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.industry-card{background:linear-gradient(135deg,rgba(15,23,42,.95),rgba(30,27,75,.7));border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;overflow:hidden;transition:.3s}
+.industry-card:hover{transform:translateY(-5px);border-color:rgba(79,158,255,.5);box-shadow:0 20px 50px rgba(79,158,255,.15)}
+.industry-card .industry-img{height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.industry-card .industry-img i{font-size:4.5rem;color:#fff;opacity:.9;z-index:1;filter:drop-shadow(0 10px 20px rgba(0,0,0,.3))}
+.industry-card.bank .industry-img{background:linear-gradient(135deg,#0e4a3f,#065f46)}
+.industry-card.industry .industry-img{background:linear-gradient(135deg,#7c2d12,#9a3412)}
+.industry-card.energy .industry-img{background:linear-gradient(135deg,#7c2d12,#b45309)}
+.industry-card.gas .industry-img{background:linear-gradient(135deg,#1e3a8a,#1e40af)}
+.industry-card.steel .industry-img{background:linear-gradient(135deg,#334155,#1e293b)}
+.industry-card.copper .industry-img{background:linear-gradient(135deg,#92400e,#b45309)}
+.industry-card .industry-info{padding:1.5rem;text-align:center}
+.industry-card .industry-info h4{color:#fff;font-size:1.05rem;margin-bottom:.5rem}
+.industry-card .industry-info p{color:#8fa2dc;font-size:.8rem;line-height:1.7}
+.industry-card .industry-badge{display:inline-block;margin-top:.7rem;background:rgba(74,222,128,.15);color:#4ade80;padding:.25rem .8rem;border-radius:20px;font-size:.7rem;font-weight:700}
+.section-head{text-align:center;margin-bottom:2rem}
+.section-head h2{font-size:1.6rem;font-weight:700;color:#4f9eff;margin-bottom:.5rem}
+.section-head p{color:#8fa2dc;font-size:.9rem}
+
+</style>
 </head>
 <body>
 
 <div class="cont">
 
     <!-- HEADER -->
-    <header class="hdr">
+    <div class="hdr">
         <div class="greeting">
-            <h1>Horizon <b>Angel</b> 🛡️</h1>
-            <p><span class="live-dot"></span> <span id="net-status">شبکه فعال</span></p>
+            <h1>Good evening, <b>Mahdi</b> 👋</h1>
+            <p><span class="live-dot"></span> شبکه Horizon Angel · آماده</p>
         </div>
-        <nav class="hdr-widgets">
-            <a href="index.html" class="widget active"><i class="fas fa-store"></i><div><div class="big">فروشگاه</div></div></a>
-            <a href="dashboard.html" class="widget"><i class="fas fa-chart-line"></i><div><div class="big">داشبورد</div></div></a>
-            <a href="sensors.html" class="widget"><i class="fas fa-satellite-dish"></i><div><div class="big">سنسورها</div></div></a>
-            <a href="blocks.html" class="widget"><i class="fas fa-cubes"></i><div><div class="big">بلاک‌ها</div></div></a>
-            <a href="admin.html" class="widget"><i class="fas fa-user-shield"></i><div><div class="big">ادمین</div></div></a>
-        </nav>
-    </header>
+        <div class="hdr-widgets">
+            <div class="widget">
+                <i class="fas fa-bolt" style="color:#facc15;font-size:1.2rem"></i>
+                <div>
+                    <div class="big" id="w-tps">—</div>
+                    <div class="small">TPS زنده</div>
+                </div>
+            </div>
+            <div class="widget">
+                <i class="fas fa-cubes" style="color:#c084fc;font-size:1.2rem"></i>
+                <div>
+                    <div class="big" id="w-blocks">—</div>
+                    <div class="small">بلوک‌ها</div>
+                </div>
+            </div>
+            <div class="widget">
+                <i class="fas fa-shield-halved" style="color:#4ade80;font-size:1.2rem"></i>
+                <div>
+                    <div class="big" id="w-status" style="font-size:1.1rem">—</div>
+                    <div class="small">وضعیت سرور</div>
+                </div>
+            </div>
+            <a href="admin.html" class="widget" style="text-decoration:none;color:inherit">
+                <i class="fas fa-user-shield" style="color:#facc15;font-size:1.2rem"></i>
+                <div>
+                    <div class="big" style="font-size:1rem">ادمین</div>
+                    <div class="small">ورود</div>
+                </div>
+            </a>
+        </div>
+    </div>
 
-    <!-- HERO -->
-    <section class="hero">
-        <h2>زیرساخت بلاکچین اختصاصی برای صنایع حساس</h2>
-        <p>امنیت داده، تسویه بین‌بانکی، پایش صنعتی — همه در یک پلتفرم air-gap ready</p>
-        <div class="hero-stats">
-            <div class="stat"><b id="stat-tps">—</b><span>TPS</span></div>
-            <div class="stat"><b id="stat-blocks">—</b><span>بلوک</span></div>
-            <div class="stat"><b id="stat-sensors">—</b><span>سنسور فعال</span></div>
-            <div class="stat"><b id="stat-readings">—</b><span>خوانش</span></div>
-        </div>
-    </section>
+    <!-- MAIN GRID -->
+    <div class="main-grid">
 
-    <!-- CAROUSEL لایسنس -->
-    <section class="carousel-wrap">
-        <div class="carousel" id="carousel">
-            <div class="slide active" data-badge="🥉 برنزی" data-title="شروع امنیت" data-desc="۱ میلیون تراکنش · ۱ سال اعتبار" data-price="۴۹۹,۰۰۰ تومان" data-color="#cd7f32"></div>
-            <div class="slide" data-badge="🥈 نقره‌ای" data-title="بانکداری حرفه‌ای" data-desc="۱۰ میلیون تراکنش · مناسب بانک‌های متوسط" data-price="۳,۹۰۰,۰۰۰ تومان" data-color="#c0c0c0"></div>
-            <div class="slide" data-badge="👑 طلایی" data-title="مقیاس‌پذیری صنعتی" data-desc="۵۰ میلیون تراکنش · ۱ سال" data-price="۱۹,۰۰۰,۰۰۰ تومان" data-color="#ffd700"></div>
-            <div class="slide" data-badge="💎 الماس" data-title="Enterprise" data-desc="۱۰۰ میلیون تراکنش · بانک مرکزی" data-price="۳۹,۰۰۰,۰۰۰ تومان" data-color="#00d4ff"></div>
-            <div class="slide" data-badge="🏭 صنعتی" data-title="اتصال صنعت به بلاکچین" data-desc="۱ میلیون سنسور · پایش صنعتی" data-price="۲,۹۰۰,۰۰۰ تومان" data-color="#c084fc"></div>
-            <div class="slide" data-badge="🏦 بانکی" data-title="اختصاصی بانک‌ها" data-desc="بالای ۵۰۰ میلیون تراکنش · پشتیبانی اختصاصی" data-price="توافقی" data-color="#facc15"></div>
-        </div>
-        <div class="carousel-nav">
-            <button onclick="goSlide(current-1)"><i class="fas fa-chevron-right"></i></button>
-            <div class="dots" id="dots"></div>
-            <button onclick="goSlide(current+1)"><i class="fas fa-chevron-left"></i></button>
-        </div>
-    </section>
+        <!-- CAROUSEL -->
+        <div class="carousel-box" id="carousel">
 
-    <!-- قابلیت‌ها -->
-    <section class="features">
-        <h3><i class="fas fa-star"></i> قابلیت‌های کلیدی</h3>
-        <div class="features-grid">
-            <div class="feat-card"><i class="fas fa-shield-halved"></i><h4>امضای ECDSA</h4><p>هر خوانش با کلید اختصاصی امضا می‌شود</p></div>
-            <div class="feat-card"><i class="fas fa-clock-rotate-left"></i><h4>ضد Replay</h4><p>Nonce + Timestamp از تکرار جلوگیری می‌کند</p></div>
-            <div class="feat-card"><i class="fas fa-bell"></i><h4>هشدار خودکار</h4><p>Min/Max + نرخ تغییر + سکوت سنسور</p></div>
-            <div class="feat-card"><i class="fas fa-plug-circle-xmark"></i><h4>Air-Gap Ready</h4><p>کار در محیط ایزوله بدون اینترنت</p></div>
-            <div class="feat-card"><i class="fas fa-link"></i><h4>Merkle Chain</h4><p>زنجیره تغییرناپذیر بلاک‌ها</p></div>
-            <div class="feat-card"><i class="fas fa-gavel"></i><h4>Tamper Log</h4><p>تشخیص هر تلاش برای دستکاری</p></div>
-        </div>
-    </section>
+            <div class="carousel-slide active">
+                <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1400&q=80" class="slide-bg" alt="">
+                <div class="slide-overlay">
+                    <div class="slide-tag">🥉 بسته برنزی</div>
+                    <h2 class="slide-title">شروع امنیت</h2>
+                    <p class="slide-desc">۱ میلیون تراکنش · ۱ سال اعتبار · مناسب بانک‌های کوچک</p>
+                    <div class="slide-price">۴۹۹,۰۰۰ تومان</div>
+                    <a href="license.html" class="slide-btn">خرید لایسنس</a>
+                </div>
+            </div>
 
-    <!-- مشتریان -->
-    <section class="companies">
-        <h3><i class="fas fa-building"></i> مشتریان و شرکا</h3>
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1400&q=80" class="slide-bg" alt="">
+                <div class="slide-overlay">
+                    <div class="slide-tag">🥈 بسته نقره‌ای</div>
+                    <h2 class="slide-title">بانکداری حرفه‌ای</h2>
+                    <p class="slide-desc">۱۰ میلیون تراکنش · ۱ سال اعتبار · مناسب بانک‌های متوسط</p>
+                    <div class="slide-price">۳,۹۰۰,۰۰۰ تومان</div>
+                    <a href="license.html" class="slide-btn">خرید لایسنس</a>
+                </div>
+            </div>
+
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1400&q=80" class="slide-bg" alt="">
+                <div class="slide-overlay">
+                    <div class="slide-tag">👑 بسته طلایی</div>
+                    <h2 class="slide-title">زیرساخت مقیاس‌پذیر</h2>
+                    <p class="slide-desc">۵۰ میلیون تراکنش · ۱ سال اعتبار · مناسب بانک‌های بزرگ</p>
+                    <div class="slide-price">۱۹,۰۰۰,۰۰۰ تومان</div>
+                    <a href="license.html" class="slide-btn">خرید لایسنس</a>
+                </div>
+            </div>
+
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=1400&q=80" class="slide-bg" alt="">
+                <div class="slide-overlay">
+                    <div class="slide-tag">💎 بسته الماس</div>
+                    <h2 class="slide-title">Enterprise</h2>
+                    <p class="slide-desc">۱۰۰ میلیون تراکنش · ۱ سال اعتبار · برای بانک مرکزی و صرافی‌ها</p>
+                    <div class="slide-price">۳۹,۰۰۰,۰۰۰ تومان</div>
+                    <a href="license.html" class="slide-btn">خرید لایسنس</a>
+                </div>
+            </div>
+
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=1400&q=80" class="slide-bg" alt="">
+                <div class="slide-overlay">
+                    <div class="slide-tag">🏦 بسته بانکی</div>
+                    <h2 class="slide-title">اختصاصی بانک‌ها</h2>
+                    <p class="slide-desc">بالای ۵۰۰ میلیون تراکنش · امضای ECDSA · پشتیبانی اختصاصی</p>
+                    <div class="slide-price" style="color:#facc15">توافقی</div>
+                    <a href="license.html" class="slide-btn" style="background:linear-gradient(135deg,#facc15,#f59e0b);color:#000">مشاوره</a>
+                </div>
+            </div>
+
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1400&q=80" class="slide-bg" alt="">
+                <div class="slide-overlay">
+                    <div class="slide-tag">🏭 بسته صنعتی</div>
+                    <h2 class="slide-title">اتصال صنعت به بلاکچین</h2>
+                    <p class="slide-desc">۱ میلیون سنسور · ۱ سال اعتبار · برای پالایشگاه‌ها و کارخانه‌ها</p>
+                    <div class="slide-price">۲,۹۰۰,۰۰۰ تومان</div>
+                    <a href="license.html" class="slide-btn" style="background:linear-gradient(135deg,#c084fc,#8b5cf6)">خرید لایسنس</a>
+                </div>
+            </div>
+
+            <div class="carousel-arrows">
+                <button class="arrow-btn" onclick="prevSlide()"><i class="fas fa-chevron-right"></i></button>
+                <button class="arrow-btn" onclick="nextSlide()"><i class="fas fa-chevron-left"></i></button>
+            </div>
+
+            <div class="carousel-dots" id="dots"></div>
+
+        </div>
+
+        <!-- SIDE CARDS -->
+        <div class="side-col">
+
+            <div class="side-card purple">
+                <h3><span class="live-dot"></span> آخرین بلوک‌های شبکه</h3>
+                <div id="blocks-list" style="max-height:200px;overflow-y:auto">
+                    <div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:1rem">⏳ در حال بارگذاری...</div>
+                </div>
+            </div>
+
+            <div class="side-card gold">
+                <h3><i class="fas fa-exchange-alt"></i> تراکنش‌های اخیر</h3>
+                <div id="tx-list" style="max-height:180px;overflow-y:auto">
+                    <div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:1rem">⏳ در حال بارگذاری...</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- COMPANIES LOGOS -->
+    <div class="companies-section">
+        <h2><i class="fas fa-building"></i> مشتریان و شرکای Horizon Angel</h2>
         <div class="companies-row">
-            <a href="https://www.cbi.ir" target="_blank" class="logo"><i class="fas fa-landmark"></i><span>بانک مرکزی</span></a>
-            <a href="https://www.bmi.ir" target="_blank" class="logo"><i class="fas fa-university"></i><span>بانک ملی</span></a>
-            <a href="https://www.bsi.ir" target="_blank" class="logo"><i class="fas fa-building-columns"></i><span>بانک صادرات</span></a>
-            <a href="https://www.bankmellat.ir" target="_blank" class="logo"><i class="fas fa-money-bill-trend-up"></i><span>بانک ملت</span></a>
-            <a href="https://www.niordc.ir" target="_blank" class="logo"><i class="fas fa-oil-well"></i><span>پالایش و پخش</span></a>
-            <a href="https://www.nigc.ir" target="_blank" class="logo"><i class="fas fa-fire"></i><span>ملی گاز</span></a>
-            <a href="https://www.igmc.ir" target="_blank" class="logo"><i class="fas fa-bolt"></i><span>شبکه برق</span></a>
-            <a href="https://www.nicico.com" target="_blank" class="logo"><i class="fas fa-gem"></i><span>صنایع مس</span></a>
-            <a href="https://www.msc.ir" target="_blank" class="logo"><i class="fas fa-hard-hat"></i><span>فولاد مبارکه</span></a>
+
+            <a href="https://www.nigc.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-fire"></i>
+                <div class="name">شرکت ملی گاز ایران</div>
+                <div class="type">صنعت گاز</div>
+            </a>
+
+            <a href="https://www.niordc.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-oil-well"></i>
+                <div class="name">پالایش و پخش</div>
+                <div class="type">صنعت نفت</div>
+            </a>
+
+            <a href="https://www.ikorc.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-industry"></i>
+                <div class="name">پالایشگاه امام خمینی</div>
+                <div class="type">پالایش نفت</div>
+            </a>
+
+            <a href="https://www.igmc.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-bolt"></i>
+                <div class="name">مدیریت شبکه برق</div>
+                <div class="type">صنعت برق</div>
+            </a>
+
+            <a href="https://www.nicico.com" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-gem"></i>
+                <div class="name">صنایع مس ایران</div>
+                <div class="type">معدن و مس</div>
+            </a>
+
+            <a href="https://www.msc.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-hard-hat"></i>
+                <div class="name">فولاد مبارکه</div>
+                <div class="type">صنعت فولاد</div>
+            </a>
+
+            <a href="https://www.cbi.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-landmark"></i>
+                <div class="name">بانک مرکزی</div>
+                <div class="type">بانکداری</div>
+            </a>
+
+            <a href="https://www.bmi.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-university"></i>
+                <div class="name">بانک ملی ایران</div>
+                <div class="type">بانکداری</div>
+            </a>
+
+            <a href="https://www.bsi.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-building-columns"></i>
+                <div class="name">بانک صادرات</div>
+                <div class="type">بانکداری</div>
+            </a>
+
+            <a href="https://www.bankmellat.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-money-bill-trend-up"></i>
+                <div class="name">بانک ملت</div>
+                <div class="type">بانکداری</div>
+            </a>
+
+            <a href="https://www.banksepah.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-coins"></i>
+                <div class="name">بانک سپه</div>
+                <div class="type">بانکداری</div>
+            </a>
+
+            <a href="https://www.bpi.ir" target="_blank" rel="noopener" class="comp-logo">
+                <i class="fas fa-hand-holding-dollar"></i>
+                <div class="name">بانک پاسارگاد</div>
+                <div class="type">بانکداری</div>
+            </a>
+
         </div>
-    </section>
+    </div>
 
-    <!-- بخش‌های نمایشی -->
-    <section class="preview-grid">
-        <a href="sensors.html" class="preview-card">
-            <i class="fas fa-satellite-dish"></i>
-            <h4>پنل سنسورهای صنعتی</h4>
-            <p>پایش لحظه‌ای، هشدار خودکار، کنترل از راه دور</p>
-        </a>
-        <a href="blocks.html" class="preview-card">
-            <i class="fas fa-cubes"></i>
-            <h4>کاوشگر بلاک‌چین</h4>
-            <p>مشاهده بلاک‌ها، تراکنش‌ها و Merkle Root</p>
-        </a>
-        <a href="dashboard.html" class="preview-card">
-            <i class="fas fa-chart-line"></i>
-            <h4>داشبورد زنده</h4>
-            <p>TPS، وضعیت شبکه، آمار لحظه‌ای</p>
-        </a>
-        <a href="license.html" class="preview-card">
-            <i class="fas fa-id-card"></i>
-            <h4>پنل مشتری</h4>
-            <p>مدیریت لایسنس، فاکتورها، تمدید</p>
-        </a>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <p>© ۲۰۲۶ <b>Horizon Angel</b> · تمام حقوق محفوظ است</p>
-        <p class="muted">نسخه <span id="ver">3.0</span> · ساخته‌شده در ایران 🇮🇷</p>
-    </footer>
+    <div class="footer">
+        © ۲۰۲۶ Horizon Angel · شبکه بلاکچین اختصاصی · مقاوم در برابر قطعی اینترنت
+    </div>
 
 </div>
 
-<script src="config.js"></script>
-<script src="js/demo-data.js"></script>
-<script src="js/main.js"></script>
+<script>
+var API = 'https://horizon-backend.liara.run';
+var SW = 'https://horizon-switch.liara.run';
+
+// ===== CAROUSEL =====
+var slides = document.querySelectorAll('.carousel-slide');
+var dots = document.getElementById('dots');
+var current = 0;
+
+slides.forEach(function(s, i){
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = function(){ goSlide(i); };
+    dots.appendChild(d);
+});
+
+function goSlide(n){
+    slides[current].classList.remove('active');
+    dots.children[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots.children[current].classList.add('active');
+}
+function nextSlide(){ goSlide(current + 1); }
+function prevSlide(){ goSlide(current - 1); }
+setInterval(nextSlide, 6000);
+
+// ===== NUMBER ANIMATION =====
+function anim(el, target, dur){
+    dur = dur || 600;
+    var start = parseInt(el.textContent.replace(/[^0-9]/g,'')) || 0;
+    if (start === target) return;
+    var t0 = performance.now();
+    function upd(now){
+        var p = Math.min((now - t0) / dur, 1);
+        var e = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(start + (target - start) * e).toLocaleString('fa-IR');
+        if (p < 1) requestAnimationFrame(upd);
+    }
+    requestAnimationFrame(upd);
+}
+
+// ===== LOAD STATS =====
+function loadStats(){
+    fetch(SW + '/benchmark').then(function(r){return r.ok?r.json():null}).then(function(d){
+        if (d && d.tps){
+            anim(document.getElementById('w-tps'), Math.round(d.tps));
+            document.getElementById('w-status').textContent = '✅ آنلاین';
+            document.getElementById('w-status').style.color = '#4ade80';
+        }
+    }).catch(function(){
+        document.getElementById('w-status').textContent = '❌ قطع';
+        document.getElementById('w-status').style.color = '#f87171';
+    });
+    fetch(SW + '/stats').then(function(r){return r.ok?r.json():null}).then(function(d){
+        if (d) anim(document.getElementById('w-blocks'), d.chainLength || 0);
+    }).catch(function(){});
+}
+
+// ===== LOAD BLOCKS =====
+function loadBlocks(){
+    var el = document.getElementById('blocks-list');
+    fetch(SW + '/stats').then(function(r){return r.ok?r.json():null}).then(function(d){
+        if (!d || !d.blocks || d.blocks.length === 0){
+            el.innerHTML = '<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:1rem">هنوز بلوکی نیست</div>';
+            return;
+        }
+        var bs = d.blocks.slice(-6).reverse();
+        el.innerHTML = bs.map(function(b){
+            return '<div class="side-item">'+
+                '<div style="display:flex;justify-content:space-between;margin-bottom:.3rem">'+
+                '<span style="color:#c084fc;font-weight:700">بلوک #'+b.index+'</span>'+
+                '<span style="color:#8fa2dc;font-size:.65rem">'+((b.transactions||[]).length)+' tx</span>'+
+                '</div>'+
+                '<div class="hash">'+(b.hash||'').slice(0,32)+'...</div>'+
+                '<div class="time">'+new Date(b.timestamp*1000).toLocaleTimeString('fa-IR')+'</div>'+
+            '</div>';
+        }).join('');
+    }).catch(function(){});
+}
+
+// ===== LOAD TRANSACTIONS =====
+function loadTx(){
+    var el = document.getElementById('tx-list');
+    fetch(SW + '/stats').then(function(r){return r.ok?r.json():null}).then(function(d){
+        var txs = [];
+        if (d && d.blocks){
+            d.blocks.slice(-3).forEach(function(b){
+                (b.transactions||[]).slice(0,3).forEach(function(t){
+                    txs.push({from:t.from,to:t.to,amount:t.amount});
+                });
+            });
+        }
+        if (txs.length === 0){
+            el.innerHTML = '<div style="color:#94a3b8;font-size:.75rem;text-align:center;padding:1rem">هنوز تراکنشی نیست</div>';
+            return;
+        }
+        el.innerHTML = txs.slice(-5).reverse().map(function(t){
+            return '<div class="side-item" style="border-right-color:#facc15">'+
+                '<div>'+t.from+' → '+t.to+'</div>'+
+                '<div style="color:#4ade80;font-family:monospace;font-size:.7rem;margin-top:.2rem">'+(t.amount||0).toLocaleString('fa-IR')+'</div>'+
+            '</div>';
+        }).join('');
+    }).catch(function(){});
+}
+
+function loadAll(){
+    loadStats();
+    loadBlocks();
+    loadTx();
+}
+loadAll();
+setInterval(loadAll, 15000);
+</script>
+
+<!-- ===== TRANSACTIONS SECTION ===== -->
+<section class="tx-section" id="transactions">
+  <div class="section-head">
+    <h2>تراکنش‌های واقعی ثبت‌شده</h2>
+    <p>نمونه‌ای از تراکنش‌های انجام‌شده روی زیرساخت، با امضای ECDSA و درخت Merkle</p>
+  </div>
+  <div class="tx-table-wrap">
+    <table class="tx-table">
+      <thead><tr>
+        <th>شناسه تراکنش</th><th>از</th><th>به</th><th>مبلغ</th><th>نوع</th><th>وضعیت</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="mono">tx_1789127172_530d5acd</td><td>بانک مرکزی</td><td>بانک ملی</td><td class="amount">1,000,000</td><td>انتقال</td><td><span class="status">تأییدشده</span></td></tr>
+        <tr><td class="mono">tx_1789127198_f0eaff97</td><td>بانک ملی</td><td>بانک صادرات</td><td class="amount">500,000</td><td>واریز</td><td><span class="status">تأییدشده</span></td></tr>
+        <tr><td class="mono">tx_1789127217_d5afdea7</td><td>بانک صادرات</td><td>بانک مرکزی</td><td class="amount">250,000</td><td>برداشت</td><td><span class="status">تأییدشده</span></td></tr>
+        <tr><td class="mono">tx_1789137656_780ba84b</td><td>نود بانکی محلی</td><td>شبکه مرکزی</td><td class="amount">75,000</td><td>انتقال آفلاین</td><td><span class="status">همگام‌شده</span></td></tr>
+        <tr><td class="mono">tx_1789140445_f18d5aeb</td><td>بانک ملی</td><td>بانک صادرات</td><td class="amount">1,000,000</td><td>انتقال</td><td><span class="status">تأییدشده</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-head" style="margin-top:2.5rem">
+    <h2 style="font-size:1.2rem">بلوک‌های زنجیره</h2>
+  </div>
+  <div class="blocks-grid">
+    <div class="block-card"><div class="block-num">بلوک #0 — Genesis</div><div class="block-hash">9b1976ddb9c279ee257c828f...</div><div class="block-meta"><span>۰ تراکنش</span><span>۱۴۰۵/۰۶/۲۰</span></div></div>
+    <div class="block-card"><div class="block-num">بلوک #1</div><div class="block-hash">94829fa6c37ec23ac3bd6681...</div><div class="block-meta"><span>۳ تراکنش</span><span>Merkle ✓</span></div></div>
+    <div class="block-card"><div class="block-num">بلوک #2</div><div class="block-hash">8247b1838140ccbeb907fd71...</div><div class="block-meta"><span>۳ تراکنش</span><span>Merkle ✓</span></div></div>
+    <div class="block-card"><div class="block-num">بلوک #3 — آفلاین</div><div class="block-hash">c85838c1beb5602bf960275b...</div><div class="block-meta"><span>۱ تراکنش</span><span>همگام‌شده</span></div></div>
+  </div>
+</section>
+
+<!-- ===== INDUSTRIES SECTION ===== -->
+<section style="margin-bottom:2rem" id="industries">
+  <div class="section-head">
+    <h2>صنایع و بانک‌های هدف</h2>
+    <p>زیرساخت ما برای سازمان‌هایی طراحی شده که امنیت داده‌هایشان حیاتی است</p>
+  </div>
+  <div class="industries-grid">
+    <div class="industry-card bank"><div class="industry-img"><i class="fas fa-university"></i></div><div class="industry-info"><h4>بانک مرکزی ایران</h4><p>تسویه بین‌بانکی لحظه‌ای، ثبت غیرقابل انکار تراکنش‌ها</p><span class="industry-badge">کاربر فعال</span></div></div>
+    <div class="industry-card bank"><div class="industry-img"><i class="fas fa-building-columns"></i></div><div class="industry-info"><h4>بانک‌های دولتی</h4><p>بانک ملی، صادرات، ملت — اتصال به شبکه داخلی</p><span class="industry-badge">کاربر فعال</span></div></div>
+    <div class="industry-card industry"><div class="industry-img"><i class="fas fa-industry"></i></div><div class="industry-info"><h4>صنایع فولاد</h4><p>فولاد مبارکه — ثبت داده‌های تولیدی در محیط ایزوله</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card copper"><div class="industry-img"><i class="fas fa-gem"></i></div><div class="industry-info"><h4>صنایع مس</h4><p>صنایع مس ایران — آرشیو غیرقابل تغییر داده‌های صنعتی</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card energy"><div class="industry-img"><i class="fas fa-oil-well"></i></div><div class="industry-info"><h4>صنعت نفت و پالایش</h4><p>پالایشگاه‌ها — ثبت امن رویدادهای عملیاتی</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card gas"><div class="industry-img"><i class="fas fa-fire-flame-simple"></i></div><div class="industry-info"><h4>صنعت گاز</h4><p>شرکت ملی گاز — پایش و ثبت داده‌های حساس</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card energy"><div class="industry-img"><i class="fas fa-bolt"></i></div><div class="industry-info"><h4>مدیریت شبکه برق</h4><p>ثبت امن رویدادهای شبکه، پیشگیری از دستکاری</p><span class="industry-badge">آماده PoC</span></div></div>
+    <div class="industry-card steel"><div class="industry-img"><i class="fas fa-shield-halved"></i></div><div class="industry-info"><h4>زیرساخت‌های حیاتی</h4><p>هر سازمانی که Air-Gap و امنیت داده براش حیاتیه</p><span class="industry-badge">قابل سفارشی‌سازی</span></div></div>
+  </div>
+</section>
+
 </body>
 </html>

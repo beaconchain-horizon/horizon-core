@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محصولات | Horizon Angel</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <header class="bg-gray-800 shadow-lg border-b border-gray-700">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-angel text-yellow-400 text-3xl"></i>
+                <span class="text-2xl font-bold text-blue-400">Horizon<span class="text-yellow-400">Angel</span></span>
+            </div>
+            <nav class="hidden md:flex gap-6 text-sm">
+                <a href="index.html" class="hover:text-yellow-400">خانه</a>
+                <a href="products.html" class="text-yellow-400">محصولات</a>
+                <a href="dashboard.html" class="hover:text-yellow-400">پنل کاربری</a>
+                <a href="admin.html" class="hover:text-yellow-400">مدیریت</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <a href="cart.html" class="relative">
+                    <i class="fas fa-shopping-cart text-xl hover:text-yellow-400"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-bold rounded-full px-2 py-0.5">0</span>
+                </a>
+                <a href="login.html" class="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">ورود</a>
+            </div>
+        </div>
+    </header>
+    <section class="container mx-auto px-4 py-16">
+        <h1 class="text-3xl font-bold mb-8">همه محصولات</h1>
+        <div id="all-products" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </section>
+    <footer class="bg-gray-800 py-6 text-center text-gray-400 border-t border-gray-700">
+        <p>© 2025 Horizon Angel. تمامی حقوق محفوظ است.</p>
+    </footer>
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllProducts();
+            updateCartBadge();
+        });
+        async function loadAllProducts() {
+            try {
+                const data = await apiGet('/api/v1/licenses');
+                const container = document.getElementById('all-products');
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-center col-span-4">هیچ محصولی یافت نشد</p>';
+                    return;
+                }
+                container.innerHTML = data.map(p => `
+                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-400 transition">
+                        <i class="fas fa-file-signature text-3xl text-blue-400 mb-3"></i>
+                        <h3 class="text-lg font-bold">${p.product_id || 'Horizon Core'}</h3>
+                        <p class="text-gray-400 text-sm">حجم: ${p.volume || 'نامشخص'}</p>
+                        <p class="text-yellow-400 font-bold mt-2">${p.price || 'تماس بگیرید'}</p>
+                        <button onclick="addToCart('${p.id}')" class="mt-3 bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-300 text-sm w-full">افزودن به سبد خرید</button>
+                    </div>
+                `).join('');
+            } catch(e) {
+                document.getElementById('all-products').innerHTML = '<p class="text-red-400 text-center col-span-4">خطا در بارگذاری محصولات</p>';
+            }
+        }
+    </script>
+<script src="offline-storage.js"></script>
+</body>
+</html>
