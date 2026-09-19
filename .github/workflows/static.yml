@@ -4,15 +4,16 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/static.yml'
   workflow_dispatch:
+  schedule:
+    # هر ۶ ساعت چک کن، اگه Pages غیرفعال شده بود، فعالش کن
+    - cron: '0 */6 * * *'
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write
 
 concurrency:
   group: "pages"
@@ -28,8 +29,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
+      - name: Setup Pages (auto-enable if disabled)
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
