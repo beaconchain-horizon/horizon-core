@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Neshan Check</title>
+<link rel="stylesheet" href="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.css" />
+<script src="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.umd.js"></script>
+<style>
+html,body{margin:0;height:100%;font-family:Tahoma}
+#map{position:absolute;inset:0}
+#status{position:absolute;top:10px;left:10px;right:10px;background:#000e;color:#0f0;padding:15px;font-family:monospace;font-size:13px;z-index:9999;direction:ltr;text-align:left;white-space:pre-wrap;border:2px solid #0f0;border-radius:8px;max-height:80vh;overflow:auto}
+.err{color:#f00}
+.ok{color:#0f0}
+.warn{color:#ff0}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="status"></div>
+<script>
+var S = document.getElementById('status');
+var startTime = Date.now();
+var map = null;
+function log(msg, cls){
+  var el = document.createElement('div');
+  if(cls) el.className = cls;
+  el.textContent = '[+' + (Date.now()-startTime) + 'ms] ' + msg;
+  S.appendChild(el);
+}
+window.addEventListener('error', function(ev){
+  log('WINDOW ERROR: ' + ev.message + ' @ ' + ev.filename + ':' + ev.lineno, 'err');
+});
+window.addEventListener('unhandledrejection', function(ev){
+  log('PROMISE REJECT: ' + ev.reason, 'err');
+});
+try {
+  log('typeof window.maplibregl = ' + typeof window.maplibregl);
+  var maplibregl = window.maplibregl && window.maplibregl.default;
+  log('typeof window.maplibregl.default = ' + typeof maplibregl);
+  if(!maplibregl) throw new Error('maplibregl.default is undefined');
+  log('constructing Map...');
+  map = new maplibregl.Map({
+    container: 'map',
+    style: 'https://static.neshan.org/sdk/maplibre/styles/light.json',
+    center: [51.389, 35.6892],
+    zoom: 12,
+    apiKey: 'web.1519757402364c8eaa8314c93c870903'
+  });
+  log('Map constructed OK', 'ok');
+  map.on('error', function(e){
+    log('MAP ERROR: ' + (e && e.error ? e.error.message : JSON.stringify(e)), 'err');
+  });
+  map.on('styledata', function(){ log('event: styledata'); });
+  map.on('sourcedata', function(){ log('event: sourcedata'); });
+  map.on('load', function(){ log('*** MAP LOADED OK ***', 'warn'); });
+} catch(err) {
+  log('CATCH: ' + err.message, 'err');
+}
+setTimeout(function(){
+  log('--- 10 second check ---', 'warn');
+  log('map exists: ' + (map ? 'yes' : 'no'));
+  if(map){ log('map.loaded() = ' + map.loaded()); }
+}, 10000);
+</script>
+</body>
+</html>
