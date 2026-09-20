@@ -38,7 +38,7 @@ func ValidateType(t string) bool {
 	return typeRegex.MatchString(t)
 }
 
-// ValidateAgentURL — نسخه امن
+// ValidateAgentURL — نسخه کامل امن
 func ValidateAgentURL(u string) bool {
 	if u == "" {
 		return true
@@ -60,24 +60,38 @@ func ValidateAgentURL(u string) bool {
 		return false
 	}
 
-	// چک پسوندهای داخلی
+	// چک ۱: suffix های داخلی
+	lower := strings.ToLower(host)
 	blockedSuffixes := []string{
-		"localhost", ".localhost", ".internal", ".local",
+		"localhost", ".localhost", ".localdomain", ".internal", ".local", ".home.arpa",
 		".nip.io", ".xip.io", ".sslip.io",
 	}
-	lower := strings.ToLower(host)
 	for _, b := range blockedSuffixes {
 		if lower == b || strings.HasSuffix(lower, b) {
 			return false
 		}
 	}
 
-	// اگه IP استاندارد بود
+	// چک ۲: hosts صریح
+	blockedHosts := []string{
+		"localhost.localdomain",
+		"ip6-localhost",
+		"ip6-loopback",
+		"broadcasthost",
+		"metadata.google.internal",
+	}
+	for _, b := range blockedHosts {
+		if lower == b {
+			return false
+		}
+	}
+
+	// چک ۳: IP استاندارد
 	if ip := net.ParseIP(host); ip != nil {
 		return !isPrivateIP(ip)
 	}
 
-	// اگه IP با فرمت weird بود (octal/hex/decimal/کوتاه)
+	// چک ۴: IP با فرمت عجیب
 	if ip := parseWeirdIP(host); ip != nil {
 		return !isPrivateIP(ip)
 	}
@@ -85,20 +99,11 @@ func ValidateAgentURL(u string) bool {
 	return true
 }
 
-// parseWeirdIP — پارس IP با فرمت‌های عجیب
-// پشتیبانی از:
-//   - 4-part dotted:  "127.0.0.1"
-//   - 4-part octal:   "0177.0.0.1"
-//   - 4-part hex:     "0x7f.0.0.1"
-//   - single decimal: "2130706433"  = 127.0.0.1
-//   - single hex:     "0x7F000001"  = 127.0.0.1
-//   - short dotted:   "127.1"       = 127.0.0.1
-//   - 2-part:         "127.1"       = 127.0.0.1
-//   - 3-part:         "127.0.0.1"   (covered)
+// parseWeirdIP — پارس octal/hex/decimal/short IP
 func parseWeirdIP(host string) net.IP {
 	parts := strings.Split(host, ".")
 
-	// ─── حالت تک‌عددی ───
+	// تک‌عددی
 	if len(parts) == 1 {
 		p := parts[0]
 		base := 10
@@ -114,7 +119,6 @@ func parseWeirdIP(host string) net.IP {
 		if err != nil || val < 0 || val > 0xFFFFFFFF {
 			return nil
 		}
-		// val رو به 4 بایت تبدیل کن
 		return net.IPv4(
 			byte(val>>24),
 			byte(val>>16),
@@ -123,8 +127,11 @@ func parseWeirdIP(host string) net.IP {
 		)
 	}
 
-	// ─── حالت 2 یا 3 یا 4 قسمتی ───
-	// تبدیل هر بخش به عدد
+	// 2، 3، 4 قسمتی
+	if len(parts) > 4 {
+		return nil
+	}
+
 	nums := make([]int64, len(parts))
 	for i, p := range parts {
 		base := 10
@@ -137,52 +144,33 @@ func parseWeirdIP(host string) net.IP {
 		}
 
 		val, err := strconv.ParseInt(p, base, 32)
-		if err != nil || val < 0 || val > 255 {
+		if err != nil || val < 0 {
 			return nil
 		}
 		nums[i] = val
 	}
 
-	// 4-part: مستقیم
-	if len(nums) == 4 {
+	switch len(nums) {
+	case 4:
+		if nums[0] > 255 || nums[1] > 255 || nums[2] > 255 || nums[3] > 255 {
+			return nil
+		}
 		return net.IPv4(byte(nums[0]), byte(nums[1]), byte(nums[2]), byte(nums[3]))
-	}
-
-	// 2-part: a.b → a.(b>>16).(b>>8).b
-	if len(nums) == 2 {
-		a := nums[0]
-		b := nums[1]
-		if a > 255 || b > 0xFFFFFF {
+	case 3:
+		if nums[0] > 255 || nums[1] > 255 || nums[2] > 0xFFFF {
 			return nil
 		}
-		return net.IPv4(
-			byte(a),
-			byte(b>>16),
-			byte(b>>8),
-			byte(b),
-		)
-	}
-
-	// 3-part: a.b.c → a.b.(c>>8).c
-	if len(nums) == 3 {
-		a := nums[0]
-		b := nums[1]
-		c := nums[2]
-		if a > 255 || b > 255 || c > 0xFFFF {
+		return net.IPv4(byte(nums[0]), byte(nums[1]), byte(nums[2]>>8), byte(nums[2]))
+	case 2:
+		if nums[0] > 255 || nums[1] > 0xFFFFFF {
 			return nil
 		}
-		return net.IPv4(
-			byte(a),
-			byte(b),
-			byte(c>>8),
-			byte(c),
-		)
+		return net.IPv4(byte(nums[0]), byte(nums[1]>>16), byte(nums[1]>>8), byte(nums[1]))
 	}
 
 	return nil
 }
 
-// isPrivateIP — چک IP خصوصی
 func isPrivateIP(ip net.IP) bool {
 	if ip == nil {
 		return true
