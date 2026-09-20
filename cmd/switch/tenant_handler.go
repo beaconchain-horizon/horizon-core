@@ -68,6 +68,14 @@ func receiveHeartbeat(c *gin.Context) {
 		return
 	}
 
+	// ✅ Sanitize ورودی‌ها
+	req.AgentURL = SanitizeString(req.AgentURL, 255)
+	req.Version = SanitizeString(req.Version, 32)
+	req.Status = SanitizeString(req.Status, 32)
+	if len(req.Payload) > 10000 {
+		req.Payload = req.Payload[:10000]
+	}
+
 	if err := tenant.RecordHeartbeat(db, tn.TenantID, req.AgentURL, req.Version, req.Status, req.Payload); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -94,26 +102,66 @@ func listTenants(c *gin.Context) {
 func createTenant(c *gin.Context) {
 	var t tenant.Tenant
 	if err := c.ShouldBindJSON(&t); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
 		return
 	}
-	if t.TenantID == "" || t.Name == "" || t.Type == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "tenant_id, name, type required"})
+
+	// ✅ Sanitize
+	t.TenantID = SanitizeString(t.TenantID, 64)
+	t.Name = SanitizeString(t.Name, 255)
+	t.Type = SanitizeString(t.Type, 32)
+	t.ContactEmail = SanitizeString(t.ContactEmail, 255)
+	t.ContactPhone = SanitizeString(t.ContactPhone, 64)
+	t.AgentURL = SanitizeString(t.AgentURL, 512)
+	t.DeploymentMode = SanitizeString(t.DeploymentMode, 32)
+
+	// ✅ Validation
+	if !ValidateTenantID(t.TenantID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "tenant_id must be 3-64 chars: a-z, A-Z, 0-9, -, _",
+		})
 		return
 	}
+
+	if t.Name == "" || len(t.Name) < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "name required (min 2 chars)"})
+		return
+	}
+
+	if !ValidateType(t.Type) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "type must be lowercase: bank, refinery, powerplant, gas, other",
+		})
+		return
+	}
+
+	if !ValidateAgentURL(t.AgentURL) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "agent_url must be http:// or https:// and not point to internal IPs",
+		})
+		return
+	}
+
 	if t.AgentToken == "" {
 		t.AgentToken = tenant.GenerateToken()
 	}
 	t.IsActive = true
+
 	if err := db.Create(&t).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
 		return
 	}
 	c.JSON(http.StatusCreated, t)
 }
 
 func getTenant(c *gin.Context) {
-	t, err := tenant.FindByID(db, c.Param("id"))
+	id := c.Param("id")
+	if !ValidateTenantID(id) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tenant_id"})
+		return
+	}
+
+	t, err := tenant.FindByID(db, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "tenant not found"})
 		return
@@ -122,7 +170,13 @@ func getTenant(c *gin.Context) {
 }
 
 func listHeartbeats(c *gin.Context) {
+	id := c.Param("id")
+	if !ValidateTenantID(id) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tenant_id"})
+		return
+	}
+
 	var items []tenant.Heartbeat
-	db.Where("tenant_id = ?", c.Param("id")).Order("received_at desc").Limit(50).Find(&items)
+	db.Where("tenant_id = ?", id).Order("received_at desc").Limit(50).Find(&items)
 	c.JSON(http.StatusOK, gin.H{"heartbeats": items, "total": len(items)})
 }
