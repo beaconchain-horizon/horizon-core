@@ -1,7 +1,7 @@
 // ============================================================
 // Horizon Brain – AI-Powered Management Panel
 // ============================================================
-const API_BASE = 'https://beaconchain-horizon.github.io';
+const API_BASE = 'https://horizon-backend.liara.run';
 
 console.log('🧠 Horizon Brain loaded.');
 
