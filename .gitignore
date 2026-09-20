@@ -53,3 +53,5 @@ npm-debug.log*
 # ─── Local config (real values) ───
 config/customers.json
 config/chain.json
+*.bak
+*.bak-*
