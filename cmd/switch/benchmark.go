@@ -123,14 +123,14 @@ func benchmarkHandler(c *gin.Context) {
 	tps := float64(totalOps.Load()) / wallSec
 
 	c.JSON(http.StatusOK, gin.H{
-		"iterations":   totalOps.Load(),
-		"concurrency":  concurrency,
-		"wall_sec":     fmt.Sprintf("%.4f", wallSec),
-		"tps":          fmt.Sprintf("%.2f", tps),
-		"cpu_cores":    runtime.NumCPU(),
-		"go_version":   runtime.Version(),
-		"sink_prefix":  benchmarkSink[:min(16, len(benchmarkSink))],
-		"note":         "real ECDSA P-256 + SHA-256 + Merkle hash",
+		"iterations":  totalOps.Load(),
+		"concurrency": concurrency,
+		"wall_sec":    fmt.Sprintf("%.4f", wallSec),
+		"tps":         fmt.Sprintf("%.2f", tps),
+		"cpu_cores":   runtime.NumCPU(),
+		"go_version":  runtime.Version(),
+		"sink_prefix": benchmarkSink[:min(16, len(benchmarkSink))],
+		"note":        "real ECDSA P-256 + SHA-256 + Merkle hash",
 	})
 }
 

@@ -210,7 +210,9 @@ func listIndustrialAlerts(c *gin.Context) {
 }
 
 func ackIndustrialAlert(c *gin.Context) {
-	var req struct{ ID uint `json:"id"` }
+	var req struct {
+		ID uint `json:"id"`
+	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

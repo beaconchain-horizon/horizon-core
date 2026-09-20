@@ -265,20 +265,20 @@ func validateLicense(license *License, now time.Time) error {
 	}
 
 	if err := verifyLicenseEnforcementSignature(license); err != nil {
-	// Hardware ID check (skipped for legacy licenses with empty HWID)
-	if license.HardwareID != "" {
-		currentHWID, hwErr := getHardwareID()
-		if hwErr != nil {
-			return fmt.Errorf("cannot compute hardware id: %w", hwErr)
+		// Hardware ID check (skipped for legacy licenses with empty HWID)
+		if license.HardwareID != "" {
+			currentHWID, hwErr := getHardwareID()
+			if hwErr != nil {
+				return fmt.Errorf("cannot compute hardware id: %w", hwErr)
+			}
+			if currentHWID != license.HardwareID {
+				return fmt.Errorf(
+					"hardware id mismatch: license bound to %s, current is %s",
+					license.HardwareID,
+					currentHWID,
+				)
+			}
 		}
-		if currentHWID != license.HardwareID {
-			return fmt.Errorf(
-				"hardware id mismatch: license bound to %s, current is %s",
-				license.HardwareID,
-				currentHWID,
-			)
-		}
-	}
 
 		return err
 	}

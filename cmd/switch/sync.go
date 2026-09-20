@@ -15,7 +15,7 @@ import (
 
 func syncPushHandler(c *gin.Context) {
 	var req struct {
-		BankID string `json:"bank_id" binding:"required"`
+		BankID       string `json:"bank_id" binding:"required"`
 		Transactions []struct {
 			TxID      string  `json:"tx_id" binding:"required"`
 			From      string  `json:"from" binding:"required"`

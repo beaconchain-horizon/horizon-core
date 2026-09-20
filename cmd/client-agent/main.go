@@ -1,11 +1,13 @@
 // ============================================================
-//  HORIZON CLIENT AGENT
-//  نسخه توکن‌محور — بدون URL hardcode
-//  
-//  منطق:
-//   ۱. با liara_api_token از api.liara.ir آدرس مرکز را می‌گیرد
-//   ۲. subdomain را استخراج می‌کند
-//   ۳. به https://<subdomain>.liara.run heartbeat می‌فرستد
+//
+//	HORIZON CLIENT AGENT
+//	نسخه توکن‌محور — بدون URL hardcode
+//
+//	منطق:
+//	 ۱. با liara_api_token از api.liara.ir آدرس مرکز را می‌گیرد
+//	 ۲. subdomain را استخراج می‌کند
+//	 ۳. به https://<subdomain>.liara.run heartbeat می‌فرستد
+//
 // ============================================================
 package main
 
@@ -121,7 +123,9 @@ func main() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  discoverCentralURL — از Liara API آدرس مرکز را می‌گیرد
+//
+//	discoverCentralURL — از Liara API آدرس مرکز را می‌گیرد
+//
 // ═══════════════════════════════════════════════════════════════
 func discoverCentralURL() error {
 	// ─── اول تلاش کن subdomain را فعال کن (idempotent) ───
@@ -210,7 +214,9 @@ func extractSubdomain(data map[string]interface{}) string {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  sendHeartbeat — ارسال ضربان به مرکز
+//
+//	sendHeartbeat — ارسال ضربان به مرکز
+//
 // ═══════════════════════════════════════════════════════════════
 func sendHeartbeat() {
 	if centralURL == "" {
