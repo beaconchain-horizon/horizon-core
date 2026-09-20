@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8">
+<title>تشخیص نقشه</title>
+<link rel="stylesheet" href="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.css">
+<script src="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.umd.js"></script>
+<style>html,body{margin:0;height:100%;font-family:Tahoma}#map{position:absolute;inset:0}
+#log{position:absolute;top:10px;right:10px;background:#000c;color:#0f0;padding:15px;border-radius:8px;font-size:13px;max-width:500px;z-index:9999;direction:ltr;text-align:left;white-space:pre-wrap;max-height:80vh;overflow:auto}</style>
+</head><body>
+<div id="map"></div><div id="log">شروع تست...\n</div>
+<script>
+var L=document.getElementById('log');
+function log(m){L.textContent+=m+'\n';}
+log('SDK loaded: '+(typeof window.maplibregl));
+log('default: '+(window.maplibregl&&window.maplibregl.default?'OK':'MISSING'));
+try{
+  var m=window.maplibregl.default;
+  var map=new m.Map({container:'map',style:'https://static.neshan.org/sdk/maplibre/styles/light.json',center:[51.389,35.6892],zoom:12,apiKey:'web.1519757402364c8eaa8314c93c870903'});
+  map.on('load',function(){log('MAP LOADED OK ✓');});
+  map.on('error',function(e){log('ERROR: '+(e&&e.error?e.error.message:JSON.stringify(e)));});
+}catch(err){log('CATCH: '+err.message);}
+</script></body></html>
