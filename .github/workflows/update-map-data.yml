@@ -1,0 +1,28 @@
+name: Update Map Data Weekly
+
+on:
+  schedule:
+    # هر شنبه ساعت ۳ صبح
+    - cron: '0 3 * * 6'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate map data
+        run: |
+          mkdir -p docs/data
+          cat > docs/data/map-data.json <<'JSONEOF'
+{"generated_at":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","source":"manual","version":"1.0"}
+JSONEOF
+
+      - name: Commit & Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/map-data.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update map data"
+          git push
