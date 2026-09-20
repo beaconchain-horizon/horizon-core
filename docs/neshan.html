@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Horizon Map | نقشه نشان</title>
-<link rel="stylesheet" href="https://static.neshan.org/sdk/maplibre/4.7.1/neshan-maplibre-sdk.css">
+<link rel="stylesheet" href="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Tahoma;background:#0a1628;color:#fff;height:100vh;overflow:hidden}
@@ -60,7 +60,7 @@ body{font-family:Tahoma;background:#0a1628;color:#fff;height:100vh;overflow:hidd
   <div class="st"><b id="s-bank">۰</b>شعبه بانک</div>
 </div>
 
-<script src="https://static.neshan.org/sdk/maplibre/4.7.1/neshan-maplibre-sdk.umd.js"></script>
+<script src="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.umd.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
 //  دریافت کلید از backend (امن)
@@ -95,10 +95,10 @@ async function init() {
   }
 
   // ─── راه‌اندازی نقشه ───
-  const map = new maplibregl.Map({
+  const map = new window.maplibregl.default.Map({
     container: 'map',
-    mapKey: 'web.1519757402364c8eaa8314c93c870903',
-    mapType: 'standard',
+    style: 'https://static.neshan.org/sdk/maplibre/styles/light.json',
+    apiKey: 'web.1519757402364c8eaa8314c93c870903',
     center: [53.68, 32.42],
     zoom: 5
   });
