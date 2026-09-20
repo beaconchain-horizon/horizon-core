@@ -36,11 +36,11 @@ type LocalTx struct {
 
 // LocalBalance: کش محلی از موجودی بانک ما
 type LocalBalance struct {
-	ID            uint    `gorm:"primaryKey" json:"id"`
-	BankID        string  `gorm:"uniqueIndex" json:"bank_id"`
-	ConfirmedBal  float64 `json:"confirmed_balance"`  // آخرین sync از مرکزی
-	ReservedBal   float64 `json:"reserved_balance"`   // مجموع تراکنش‌های pending
-	UpdatedAt     int64   `json:"updated_at"`
+	ID           uint    `gorm:"primaryKey" json:"id"`
+	BankID       string  `gorm:"uniqueIndex" json:"bank_id"`
+	ConfirmedBal float64 `json:"confirmed_balance"` // آخرین sync از مرکزی
+	ReservedBal  float64 `json:"reserved_balance"`  // مجموع تراکنش‌های pending
+	UpdatedAt    int64   `json:"updated_at"`
 }
 
 func (b *LocalBalance) Available() float64 {
@@ -258,10 +258,10 @@ func balanceHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"bank_id":   bankID,
-		"confirmed": bal.ConfirmedBal,
-		"reserved":  bal.ReservedBal,
-		"available": bal.Available(),
+		"bank_id":    bankID,
+		"confirmed":  bal.ConfirmedBal,
+		"reserved":   bal.ReservedBal,
+		"available":  bal.Available(),
 		"updated_at": bal.UpdatedAt,
 	})
 }

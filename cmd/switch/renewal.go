@@ -16,16 +16,16 @@ import (
 
 // Invoice represents a pending or paid renewal invoice.
 type Invoice struct {
-	ID          uint      `gorm:"primaryKey" json:"id"`
-	InvoiceID   string    `gorm:"uniqueIndex" json:"invoice_id"`
-	LicenseID   string    `gorm:"index" json:"license_id"`
-	UserID      string    `gorm:"index" json:"user_id"`
-	AmountIRR   int64     `json:"amount_irr"`
-	DurationH   int       `json:"duration_hours"`
-	Status      string    `json:"status"` // pending | paid | cancelled
-	PaymentRef  string    `json:"payment_ref"`
-	CreatedAt   time.Time `json:"created_at"`
-	PaidAt      int64     `json:"paid_at"`
+	ID         uint      `gorm:"primaryKey" json:"id"`
+	InvoiceID  string    `gorm:"uniqueIndex" json:"invoice_id"`
+	LicenseID  string    `gorm:"index" json:"license_id"`
+	UserID     string    `gorm:"index" json:"user_id"`
+	AmountIRR  int64     `json:"amount_irr"`
+	DurationH  int       `json:"duration_hours"`
+	Status     string    `json:"status"` // pending | paid | cancelled
+	PaymentRef string    `json:"payment_ref"`
+	CreatedAt  time.Time `json:"created_at"`
+	PaidAt     int64     `json:"paid_at"`
 }
 
 // ============================================================
@@ -306,18 +306,18 @@ func licenseStatusHandler(c *gin.Context) {
 	graceStatus := getGraceStatus(lic)
 
 	c.JSON(http.StatusOK, gin.H{
-		"has_license":     true,
-		"license_id":      lic.LicenseID,
-		"user_id":         lic.UserID,
-		"product_id":      lic.ProductID,
-		"volume":          lic.Volume,
-		"used":            lic.Used,
-		"issued_at":       lic.IssuedAt,
-		"expires_at":      lic.ExpiresAt,
-		"status":          lic.Status,
-		"hardware_id":     lic.HardwareID,
-		"days_remaining":  daysRemaining,
-		"grace":           graceStatus,
+		"has_license":    true,
+		"license_id":     lic.LicenseID,
+		"user_id":        lic.UserID,
+		"product_id":     lic.ProductID,
+		"volume":         lic.Volume,
+		"used":           lic.Used,
+		"issued_at":      lic.IssuedAt,
+		"expires_at":     lic.ExpiresAt,
+		"status":         lic.Status,
+		"hardware_id":    lic.HardwareID,
+		"days_remaining": daysRemaining,
+		"grace":          graceStatus,
 	})
 }
 
