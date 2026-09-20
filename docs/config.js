@@ -7,8 +7,8 @@ window.HORIZON_CONFIG = {
   DATA_FILE:    'data/stats.json',
 
   // فقط اگه DATA_SOURCE='api' باشه استفاده می‌شه
-  SWITCH_URL:   'https://horizon-switch.liara.run',
-  BACKEND_URL:  'https://horizon-backend.liara.run',
+  SWITCH_URL:   'https://beaconchain-horizon.github.io',
+  BACKEND_URL:  'https://beaconchain-horizon.github.io',
 
   // متادیتا
   SITE_NAME:    'Horizon Angel',

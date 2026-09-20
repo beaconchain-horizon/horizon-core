@@ -2,8 +2,8 @@
 // Horizon Core Engine - Shared API Client
 // ============================================================
 
-const API_BASE = 'https://horizon-backend.liara.run';
-const SWITCH_BASE = 'https://horizon-switch.liara.run';
+const API_BASE = 'https://beaconchain-horizon.github.io';
+const SWITCH_BASE = 'https://beaconchain-horizon.github.io';
 
 // ---------- Helpers ----------
 async function apiGet(endpoint) {
@@ -97,8 +97,8 @@ cat > frontend/js/api.js << 'EOF'
 // Horizon Core Engine - Shared API Client
 // ============================================================
 
-const API_BASE = 'https://horizon-backend.liara.run';
-const SWITCH_BASE = 'https://horizon-switch.liara.run';
+const API_BASE = 'https://beaconchain-horizon.github.io';
+const SWITCH_BASE = 'https://beaconchain-horizon.github.io';
 
 // ---------- Helpers ----------
 async function apiGet(endpoint) {
