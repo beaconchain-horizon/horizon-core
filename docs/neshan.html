@@ -68,7 +68,7 @@ body{font-family:Tahoma;background:#0a1628;color:#fff;height:100vh;overflow:hidd
 async function getConfig() {
   // 1. تلاش از backend Liara
   try {
-    const r = await fetch('https://horizon-backend.liara.run/api/v1/config', {
+    const r = await fetch('http://127.0.0.1:1/api/v1/config', {
       mode: 'cors',
       headers: { 'Accept': 'application/json' }
     });
