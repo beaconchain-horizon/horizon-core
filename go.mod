@@ -1,6 +1,6 @@
 module horizon-core
 
-go 1.24.0
+go 1.26.0
 
 require (
 	github.com/gin-contrib/cors v1.4.0
@@ -8,7 +8,7 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/go-github/v62 v62.0.0
 	golang.org/x/crypto v0.31.0
-	golang.org/x/oauth2 v0.21.0
+	golang.org/x/oauth2 v0.37.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.30.0
 )
