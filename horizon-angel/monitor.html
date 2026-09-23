@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Horizon Angel — Security Operations Center</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #05080d; color: #7ef2c4;
+    font-family: 'Consolas','Courier New',monospace;
+    height: 100vh; overflow: hidden;
+    display: grid;
+    grid-template-columns: 260px 1fr 360px;
+    grid-template-rows: 48px 1fr 220px;
+    grid-template-areas: "top top top" "left center right" "bottom bottom bottom";
+    gap: 1px; background-color: #0a1a1f;
+  }
+  .panel { background: #080f14; border: 1px solid #143b32; overflow: hidden; position: relative; }
+  .panel::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, #7ef2c4, transparent); opacity:.6;
+  }
+  #top { grid-area: top; display: flex; align-items: center; padding: 0 20px; gap: 26px; }
+  #left { grid-area: left; display:flex; flex-direction:column; }
+  #center { grid-area: center; position: relative; }
+  #right { grid-area: right; display: flex; flex-direction: column; }
+  #bottom { grid-area: bottom; display: flex; flex-direction: column; }
+
+  .logo { font-size: 15px; font-weight: bold; letter-spacing: 2px; }
+  .logo span { color: #ff3860; }
+  .stat { font-size: 11px; color: #4a8b7a; }
+  .stat b { color: #7ef2c4; font-weight: normal; }
+  .stat.warn b { color: #ffb700; }
+  .stat.danger b { color: #ff3860; }
+  .clock { margin-right: auto; font-size: 12px; color: #4a8b7a; }
+
+  .panel-title {
+    padding: 10px 14px; font-size: 11px; color: #4a8b7a;
+    letter-spacing: 2px; border-bottom: 1px solid #143b32;
+    background: #0a161c; flex-shrink:0;
+  }
+
+  /* LEFT — industries */
+  #industry-list { flex:1; overflow-y:auto; }
+  .ind-item {
+    padding: 9px 14px; font-size: 11px;
+    border-bottom: 1px solid #0d1f26;
+    display: flex; justify-content: space-between; cursor: pointer;
+  }
+  .ind-item:hover { background: #0d1f26; }
+  .ind-item .dot { width:8px; height:8px; border-radius:50%; align-self:center; }
+  .ind-item .dot.g { background:#7ef2c4; box-shadow:0 0 6px #7ef2c4; }
+  .ind-item .dot.y { background:#ffb700; box-shadow:0 0 6px #ffb700; }
+  .ind-item .dot.r { background:#ff3860; box-shadow:0 0 8px #ff3860; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .ind-item span.count { color:#4a8b7a; font-size:10px; }
+
+  /* CENTER — radar */
+  #radar-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #radar { width: min(88%, 640px); aspect-ratio: 1; position: relative; }
+  .radar-ring {
+    position: absolute; border: 1px solid #143b32; border-radius: 50%;
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+  }
+  .radar-ring:nth-child(1){width:100%;height:100%;}
+  .radar-ring:nth-child(2){width:78%;height:78%;}
+  .radar-ring:nth-child(3){width:56%;height:56%;}
+  .radar-ring:nth-child(4){width:34%;height:34%;}
+  .radar-ring:nth-child(5){width:14%;height:14%;}
+  .radar-cross-h,.radar-cross-v{ position:absolute; background:#143b32; }
+  .radar-cross-h{ top:50%; left:0; right:0; height:1px; }
+  .radar-cross-v{ left:50%; top:0; bottom:0; width:1px; }
+  .radar-sweep {
+    position: absolute; inset:0; border-radius:50%;
+    background: conic-gradient(from 0deg, transparent 0deg, transparent 340deg, rgba(126,242,196,.35) 360deg);
+    animation: spin 4s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .blip {
+    position: absolute; width: 7px; height: 7px; border-radius: 50%;
+    background: #7ef2c4; box-shadow: 0 0 8px #7ef2c4;
+    transform: translate(-50%,-50%); cursor: pointer; transition: all .3s;
+  }
+  .blip.y { background:#ffb700; box-shadow:0 0 9px #ffb700; }
+  .blip.r { background:#ff3860; box-shadow:0 0 14px #ff3860; animation: pulse 1s infinite; }
+  .blip:hover::after {
+    content: attr(data-label); position: absolute;
+    top: -22px; left: 12px; background: #0a161c;
+    border: 1px solid #7ef2c4; padding: 3px 8px;
+    font-size: 10px; white-space: nowrap; color: #7ef2c4; z-index: 10;
+  }
+  .radar-center {
+    position:absolute; top:50%; left:50%; width:14px; height:14px;
+    background:#ff3860; border-radius:50%; transform:translate(-50%,-50%);
+    box-shadow: 0 0 22px #ff3860;
+  }
+  .radar-center-label {
+    position:absolute; top:50%; left:50%;
+    transform: translate(-50%, 18px);
+    font-size: 10px; color: #ff3860; letter-spacing: 1px; white-space:nowrap;
+  }
+
+  /* RIGHT — chat + offline license */
+  #chat-log {
+    flex: 1; overflow-y: auto; padding: 12px;
+    font-size: 12px; line-height: 1.7;
+  }
+  .msg { margin-bottom: 12px; }
+  .msg.user { color: #7ef2c4; }
+  .msg.user::before { content: '> '; color: #ff3860; }
+  .msg.angel { color: #b8e0d2; }
+  .msg.angel::before { content: '◆ ANGEL: '; color: #ffb700; font-weight: bold; }
+  .msg.system { color: #4a8b7a; font-style: italic; font-size: 11px; }
+  #chat-input-wrap {
+    border-top: 1px solid #143b32; padding: 8px;
+    display: flex; gap: 6px; background: #0a161c; flex-shrink:0;
+  }
+  #chat-input {
+    flex: 1; background: #05080d; border: 1px solid #143b32;
+    color: #7ef2c4; padding: 8px 12px;
+    font-family: inherit; font-size: 12px; outline: none;
+  }
+  #chat-input:focus { border-color: #7ef2c4; }
+  #chat-send {
+    background: #143b32; color: #7ef2c4; border: none;
+    padding: 0 16px; cursor: pointer; font-family: inherit; font-size: 12px;
+  }
+  #chat-send:hover { background: #1a4d42; }
+
+  /* Bottom streams */
+  #streams { display: grid; grid-template-columns: repeat(4,1fr); gap:1px; flex:1; background:#0a1a1f; }
+  .stream { background:#080f14; padding:10px 14px; font-size:11px; overflow:hidden; position:relative; }
+  .stream-title { color:#4a8b7a; letter-spacing:1px; margin-bottom:6px; font-size:10px; }
+  .stream-line { color:#7ef2c4; line-height:1.6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .stream-line.danger { color:#ff3860; }
+  .stream-line.warn { color:#ffb700; }
+
+  /* Offline License mini-panel */
+  #offline-btn {
+    background:#0a161c; border:1px solid #143b32; color:#7ef2c4;
+    padding:8px 12px; margin:8px; font-family:inherit; font-size:11px;
+    cursor:pointer; letter-spacing:1px;
+  }
+  #offline-btn:hover { background:#143b32; }
+  #offline-panel {
+    display:none; position:fixed; inset:0;
+    background: rgba(5,8,13,.94); z-index:100;
+    padding: 60px; overflow-y:auto;
+  }
+  #offline-panel.open { display:block; }
+  #offline-panel h2 { color:#7ef2c4; font-size:14px; letter-spacing:2px; margin-bottom:20px; }
+  #offline-panel label { display:block; color:#4a8b7a; font-size:11px; margin: 10px 0 4px; }
+  #offline-panel input, #offline-panel select, #offline-panel textarea {
+    background:#05080d; border:1px solid #143b32; color:#7ef2c4;
+    padding:8px 12px; font-family:inherit; font-size:12px;
+    outline:none; width:100%; max-width:560px;
+  }
+  #offline-panel input:focus, #offline-panel select:focus { border-color:#7ef2c4; }
+  #offline-panel button {
+    background:#143b32; color:#7ef2c4; border:none;
+    padding:10px 20px; margin-top:16px; cursor:pointer;
+    font-family:inherit; font-size:12px; letter-spacing:1px;
+  }
+  #offline-panel button:hover { background:#1a4d42; }
+  #offline-panel .close {
+    position:absolute; top:20px; left:20px;
+    background:transparent; border:1px solid #ff3860; color:#ff3860;
+    padding:6px 14px; cursor:pointer; font-size:11px;
+  }
+  #offline-panel .close:hover { background:#ff3860; color:#05080d; }
+  #offline-panel .out {
+    margin-top:20px; padding:14px; border:1px solid #143b32;
+    background:#05080d; color:#7ef2c4; font-size:11px;
+    white-space:pre-wrap; max-width:560px; min-height:80px;
+  }
+</style>
+</head>
+<body>
+
+<div id="top" class="panel">
+  <div class="logo">◆ HORIZON <span>/</span> ANGEL AI</div>
+  <div class="stat">AGENTS <b id="agent-count">144</b></div>
+  <div class="stat">ACTIVE <b id="agent-active">37</b></div>
+  <div class="stat warn">ALERTS <b id="alert-count">3</b></div>
+  <div class="stat danger">THREATS <b id="threat-count">1</b></div>
+  <div class="stat">TPS <b id="tps">31,113</b></div>
+  <div class="stat">UPTIME <b>99.98%</b></div>
+  <div class="clock" id="clock">--:--:--</div>
+</div>
+
+<div id="left" class="panel">
+  <div class="panel-title">▸ TARGETS / صنایع و بانک‌ها</div>
+  <div id="industry-list"></div>
+  <button id="offline-btn">◆ پنل لایسنس آفلاین</button>
+</div>
+
+<div id="center" class="panel">
+  <div id="radar-wrap">
+    <div id="radar">
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-cross-h"></div>
+      <div class="radar-cross-v"></div>
+      <div class="radar-sweep"></div>
+      <div class="radar-center"></div>
+      <div class="radar-center-label">HORIZON CORE</div>
+      <div id="blips"></div>
+    </div>
+  </div>
+</div>
+
+<div id="right" class="panel">
+  <div class="panel-title">▸ ANGEL AI / DIRECT CHANNEL</div>
+  <div id="chat-log">
+    <div class="msg system">اتصال به 144 ایجنت برقرار شد...</div>
+    <div class="msg angel">سلام مهدی. من Angel AI هستم. 144 ایجنت زیر نظر من آماده‌ی فرمان تو هستن. چی بررسی کنم؟</div>
+  </div>
+  <div id="chat-input-wrap">
+    <input id="chat-input" placeholder="فرمان بده..." autocomplete="off">
+    <button id="chat-send">ارسال</button>
+  </div>
+</div>
+
+<div id="bottom" class="panel">
+  <div id="streams">
+    <div class="stream">
+      <div class="stream-title">▸ VALIDATORS</div>
+      <div id="stream-net"></div>
+    </div>
+    <div class="stream">
+      <div class="stream-title">▸ FM / RF SCAN</div>
+      <div id="stream-rf"></div>
+    </div>
+    <div class="stream">
+      <div class="stream-title">▸ SENSORS</div>
+      <div id="stream-sensor"></div>
+    </div>
+    <div class="stream">
+      <div class="stream-title">▸ THREAT FEED</div>
+      <div id="stream-threat"></div>
+    </div>
+  </div>
+</div>
+
+<!-- OFFLINE LICENSE PANEL -->
+<div id="offline-panel">
+  <button class="close" id="offline-close">× بستن</button>
+  <h2>◆ OFFLINE LICENSE — USB + ECDSA</h2>
+  <label>نام مشتری / بانک / صنعت</label>
+  <input id="lic-customer" placeholder="Bank Melli — شعبه مرکزی">
+  <label>شناسه لایسنس</label>
+  <input id="lic-id" placeholder="HZ-2026-XXXX">
+  <label>سطح لایسنس</label>
+  <select id="lic-tier">
+    <option>Standard</option>
+    <option>Professional</option>
+    <option>Enterprise</option>
+    <option>Sovereign</option>
+  </select>
+  <label>مدت (روز)</label>
+  <input id="lic-days" type="number" value="365">
+  <label>توکن USB (Private Key Stub)</label>
+  <input id="lic-usb" placeholder="USB://KEYSTORE" value="USB://KEYSTORE">
+  <button id="lic-issue">◆ تولید لایسنس و امضای ECDSA</button>
+  <div class="out" id="lic-out">آماده برای تولید لایسنس...</div>
+</div>
+
+<script>
+// TARGETS
+const industries = [
+  { name: 'نفت و گاز',  count: 42, status: 'r' },
+  { name: 'مس',         count: 18, status: 'g' },
+  { name: 'آلومینیوم',  count: 12, status: 'g' },
+  { name: 'سیمان',      count: 24, status: 'y' },
+  { name: 'خودروسازی',  count: 31, status: 'g' },
+  { name: 'پتروشیمی',   count: 27, status: 'g' },
+  { name: 'فولاد',      count: 19, status: 'y' },
+  { name: 'برق و نیروگاه', count: 56, status: 'g' },
+  { name: 'بانک ملی',   count: 1872, status: 'g' },
+  { name: 'بانک صادرات',count: 1450, status: 'y' },
+  { name: 'بانک ملت',   count: 1290, status: 'g' },
+  { name: 'بانک تجارت', count: 1080, status: 'g' },
+  { name: 'بانک سپه',   count: 940, status: 'r' },
+  { name: 'بانک پاسارگاد', count: 620, status: 'g' },
+  { name: 'بانک پارسیان',  count: 480, status: 'g' },
+  { name: 'بیمه ایران',    count: 320, status: 'g' },
+  { name: 'شرکت مخابرات',  count: 210, status: 'y' },
+  { name: 'راه‌آهن',       count: 180, status: 'g' },
+];
+
+const listEl = document.getElementById('industry-list');
+industries.forEach(i => {
+  const el = document.createElement('div');
+  el.className = 'ind-item';
+  el.innerHTML = `<span>${i.name} <span class="count">(${i.count})</span></span><span class="dot ${i.status}"></span>`;
+  el.onclick = () => {
+    document.getElementById('chat-input').value = `وضعیت ${i.name} رو بررسی کن`;
+    document.getElementById('chat-input').focus();
+  };
+  listEl.appendChild(el);
+});
+
+// RADAR BLIPS
+const blipTypes = [
+  { c:'',  l:'شعبه OK' },
+  { c:'',  l:'سنسور OK' },
+  { c:'',  l:'validator OK' },
+  { c:'y', l:'هشدار شبکه' },
+  { c:'y', l:'تأخیر سنسور' },
+  { c:'r', l:'نشتی گاز' },
+  { c:'r', l:'عدم تطابق لایسنس' },
+  { c:'r', l:'قطع ارتباط' },
+];
+const blipsEl = document.getElementById('blips');
+function addBlip() {
+  const a = Math.random() * Math.PI * 2;
+  const r = Math.sqrt(Math.random()) * 46;
+  const x = 50 + Math.cos(a) * r;
+  const y = 50 + Math.sin(a) * r;
+  const t = blipTypes[Math.floor(Math.random()*blipTypes.length)];
+  const b = document.createElement('div');
+  b.className = 'blip ' + t.c;
+  b.style.left = x + '%'; b.style.top = y + '%';
+  b.dataset.label = t.l + ' — ' + Math.floor(Math.random()*10000);
+  blipsEl.appendChild(b);
+}
+for (let i = 0; i < 60; i++) addBlip();
+
+// STREAMS
+function logLine(el, text, cls = '') {
+  const d = document.createElement('div');
+  d.className = 'stream-line ' + cls;
+  d.textContent = text;
+  el.appendChild(d);
+  if (el.children.length > 7) el.removeChild(el.firstChild);
+}
+const netS = document.getElementById('stream-net');
+const rfS  = document.getElementById('stream-rf');
+const senS = document.getElementById('stream-sensor');
+const thrS = document.getElementById('stream-threat');
+setInterval(()=>logLine(netS, `val #${Math.floor(Math.random()*9999)} → ${(Math.random()*100).toFixed(2)}ms`),900);
+setInterval(()=>logLine(rfS,  `FM ${(88+Math.random()*20).toFixed(1)} MHz — sig ${(Math.random()*100).toFixed(0)}%`),1200);
+setInterval(()=>{
+  const c = ['OK','OK','WARN','OK','OK','ERR'][Math.floor(Math.random()*6)];
+  logLine(senS, `sensor-${Math.floor(Math.random()*500)} → ${c}`,
+    c==='ERR'?'danger':c==='WARN'?'warn':'');
+},700);
+const threats = ['port scan','anomaly val-042','RF jamming 91.4','unusual API','Merkle mismatch','gas leak HZ-0192'];
+setInterval(()=>{
+  if (Math.random()<0.4) {
+    logLine(thrS, '⚠ '+threats[Math.floor(Math.random()*threats.length)], 'danger');
+  }
+},3000);
+
+// CLOCK
+setInterval(()=>{
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
+},1000);
+
+// TPS
+setInterval(()=>{
+  document.getElementById('tps').textContent = (31000+Math.floor(Math.random()*1200)).toLocaleString();
+},2000);
+
+// CHAT
+const chatLog = document.getElementById('chat-log');
+const chatInput = document.getElementById('chat-input');
+const responses = {
+  'map':   'نقشه بارگذاری شد. 60 نقطه فعال. 8 هشدار، 3 آلارم قرمز.',
+  'threat':'تهدید فعال: نشتی گاز در صنعت نفت — تیم emergency در حال بررسی.',
+  'agent': '144 ایجنت آنلاین. 37 در حال کار، بقیه آماده.',
+  'status':'همه سرویس‌ها فعال. TPS: 31,113. آپ‌تایم: 99.98%.',
+  'scan':  'اسکن آغاز شد... 18 صنعت، 16 بانک، 12,000+ شعبه.',
+  'help':  'فرمان‌ها: map, scan, threat, status, agent, help',
+  'بانک':  'وضعیت بانک‌ها: 16 بانک فعال، 2 هشدار، 1 آلارم قرمز (بانک سپه).',
+  'نفت':   'صنعت نفت: 42 سایت فعال، 1 نشتی گاز، 3 هشدار تأخیر سنسور.',
+};
+function reply(text) {
+  const t = text.toLowerCase();
+  let r = 'دستور ثبت شد. تیم مربوطه در حال اجراست.';
+  for (const k in responses) if (t.includes(k)) { r = responses[k]; break; }
+  setTimeout(()=>{
+    const d = document.createElement('div');
+    d.className = 'msg angel'; d.textContent = r;
+    chatLog.appendChild(d); chatLog.scrollTop = chatLog.scrollHeight;
+  }, 500);
+}
+function send() {
+  const v = chatInput.value.trim(); if (!v) return;
+  const u = document.createElement('div');
+  u.className = 'msg user'; u.textContent = v;
+  chatLog.appendChild(u); chatInput.value='';
+  chatLog.scrollTop = chatLog.scrollHeight;
+  reply(v);
+}
+document.getElementById('chat-send').onclick = send;
+chatInput.addEventListener('keydown', e => { if (e.key==='Enter') send(); });
+
+// OFFLINE LICENSE
+const offPanel = document.getElementById('offline-panel');
+document.getElementById('offline-btn').onclick = () => offPanel.classList.add('open');
+document.getElementById('offline-close').onclick = () => offPanel.classList.remove('open');
+document.getElementById('lic-issue').onclick = () => {
+  const cust = document.getElementById('lic-customer').value || 'UNKNOWN';
+  const id   = document.getElementById('lic-id').value || ('HZ-' + Date.now());
+  const tier = document.getElementById('lic-tier').value;
+  const days = document.getElementById('lic-days').value;
+  const usb  = document.getElementById('lic-usb').value;
+  const out  = document.getElementById('lic-out');
+  out.textContent = '◆ در حال خواندن کلید از ' + usb + ' ...\n';
+  setTimeout(()=>{
+    out.textContent += '◆ کلید خصوصی خوانده شد (stub — روی USB می‌مونه)\n';
+    out.textContent += '◆ محاسبه Merkle proof ...\n';
+    out.textContent += '◆ امضای ECDSA روی payload ...\n';
+    out.textContent += '◆ هش SHA-256 ...\n\n';
+    out.textContent += 'LICENSE GENERATED\n';
+    out.textContent += '─────────────────────────\n';
+    out.textContent += 'Customer : ' + cust + '\n';
+    out.textContent += 'License  : ' + id + '\n';
+    out.textContent += 'Tier     : ' + tier + '\n';
+    out.textContent += 'Days     : ' + days + '\n';
+    out.textContent += 'KeySrc   : ' + usb + '\n';
+    out.textContent += 'Sig      : 0x' + Array.from({length:32},()=>Math.floor(Math.random()*16).toString(16)).join('') + '\n';
+    out.textContent += 'Merkle   : 0x' + Array.from({length:32},()=>Math.floor(Math.random()*16).toString(16)).join('') + '\n';
+    out.textContent += '─────────────────────────\n';
+    out.textContent += '✓ آماده برای ذخیره روی USB';
+  }, 800);
+};
+</script>
+</body>
+</html>

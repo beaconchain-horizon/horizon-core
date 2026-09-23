@@ -1,47 +1,27 @@
-cat > README.md << 'EOF'
-# 🔷 Horizon Core
+# Horizon Core
 
-> **Offline‑first, API‑based blockchain validator and license manager.**  
-> Built with **Go**, **PostgreSQL (Core) + SQLite (Offline Cache)**, **Merkle trees**, and **ECDSA signatures**.
+Offline-First tamper-evident ledger for license management and industrial monitoring.
 
-Horizon is a sovereign, security‑hardened platform that powers a volume‑based prepaid API model using provable Merkle trees.  
-It operates fully **offline‑first**, meaning all transactions are cached locally and automatically synced to the core engine when connectivity is restored.
+## What It Is
+- Single-node append-only ledger
+- Merkle-root hash chain
+- ECDSA P-256 block signatures
+- SQLite WAL local store
+- Air-gap runtime + controlled transfer
 
----
+## What It Is NOT
+- Not distributed consensus (yet)
+- Not a public blockchain
+- Not a replacement for Fabric/Corda (yet)
 
-## 👤 Ownership
+## Docs
+- docs/review/CONSENSUS.md
+- docs/review/AIRGAP.md
+- docs/review/BENCHMARK-SPEC.md
+- docs/review/SECURITY-ROADMAP.md
+- docs/review/REVIEW-STATUS.md
 
-This project is **solely created, developed, and owned by Mahdi Amoli Moghaddam (مهدی آملی مقدم)**.  
-All rights, intellectual property, and future development decisions belong exclusively to him.
+## License
+Commercial — All Rights Reserved. See COMMERCIAL_LICENSE.md
 
----
-
-## 🚀 Features
-
-- 🔹 **Hybrid Database:** PostgreSQL (Core) + SQLite (Local/Offline Cache)
-- 🔹 **REST API** for branches, transactions, and licenses (`/api/v1/...`)
-- 🔹 **Prepaid license generation** using Merkle tree proofs
-- 🔹 **ECDSA digital signatures** for license integrity and transaction verification
-- 🔹 **Auto-Sync Engine:** Automatically synchronizes offline data to the core when the internet is available
-- 🔹 **Multi-Client Support:** Mobile, Video Recorder, and Bank Branch interfaces
-- 🔹 **Environment configuration** via `.env` file (supports Liara Cloud)
-- 🔹 **Security‑hardened** with CSP nonce, SHA‑256 signatures, and offline Merkle proofs
-
----
-
-## 🛠️ Quick Start
-
-### Prerequisites
-
-- 🟢 Go 1.24+
-- 🟢 PostgreSQL (for cloud deployment)
-- 🟢 SQLite (embedded, for offline fallback)
-
-### Installation
-
-```bash
-git clone https://github.com/Beaconcha-in/horizon-core.git
-cd horizon-core
-cp .env.example .env
-go mod tidy
-go run ./cmd/api
+© 2026 Horizon — Mahdi Amoli Moghaddam
