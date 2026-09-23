@@ -1,24 +1,11 @@
-# Horizon — Consensus Model
+# Horizon Consensus Model
 
-Status: Single-node tamper-evident ledger (not distributed consensus)
-
-## Current
-- Nodes: 1
-- Ledger: append-only hash chain
-- Integrity: Merkle root + ECDSA P-256 per block
-- Storage: SQLite WAL (local)
-- Distribution: none
-
-## Not Yet
-- Not distributed consensus
-- Not BFT/PBFT
-- Not multi-node replication
-
-## Terminology
-- Use: Tamper-evident ledger, Single-writer, Offline-first runtime
-- Avoid: Distributed blockchain, Consensus network, Offline consensus
+- Current: single-node tamper-evident ledger
+- Multi-node consensus: NOT implemented yet
+- Terms: Air-Gap Runtime, Offline Verification, Controlled Data Transfer, Deferred Synchronization
 
 ## Roadmap
-P0: hash chain + Merkle + ECDSA + SQLite (done)
-P1: ordering + finality + consensus + fork test (planned)
-P2: HSM + mTLS + audit log + rotation (planned)
+- P0: single-node ledger (done)
+- P1: multi-node (Raft/PBFT)
+- P2: HSM/PKCS#11, mTLS, audit log
+- P3: FIPS 140-3 alignment

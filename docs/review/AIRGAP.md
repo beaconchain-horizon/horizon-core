@@ -1,15 +1,9 @@
-# Horizon — Air-Gap Architecture
+# Air-Gap Architecture
 
-Air-Gap and Sync are two phases, not contradictory.
+## Two Phases
+1. Air-Gap Runtime (fully isolated)
+2. Controlled Data Transfer (signed export via USB)
 
-## Phase 1: Air-Gapped Runtime
-Sensor -> Switch -> SQLite (no internet)
-
-## Phase 2: Controlled Transfer
-SQLite -> Signed Export -> USB -> Gateway -> Deferred Sync
-
-## Terminology
-- Air-Gap Runtime
-- Offline Verification
-- Controlled Data Transfer
-- Deferred Synchronization
+## Terms
+- Use: Air-Gap Runtime, Offline Verification, Controlled Data Transfer, Deferred Synchronization
+- Avoid: offline blockchain, offline consensus, automatic sync, distributed ledger (when single-node)
