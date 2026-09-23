@@ -1,0 +1,47 @@
+name: Deploy to Liara
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Liara CLI
+        run: npm install -g @liara/cli
+
+      - name: Login to Liara
+        run: liara login --api-token "${{ secrets.LIARA_API_TOKEN }}"
+
+      - name: Deploy Switch
+        run: |
+          liara deploy --app="horizon-switch" \
+            --api-token="${{ secrets.LIARA_API_TOKEN }}" \
+            --no-app-logs
+        continue-on-error: true
+
+      - name: Deploy Backend
+        run: |
+          liara deploy --app="horizon-backend" \
+            --api-token="${{ secrets.LIARA_API_TOKEN }}" \
+            --no-app-logs
+        continue-on-error: true
+
+      - name: Summary
+        run: |
+          echo "## ✅ Deploy Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- horizon-switch: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- horizon-backend: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY

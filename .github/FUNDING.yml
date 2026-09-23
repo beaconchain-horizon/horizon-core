@@ -1,0 +1,47 @@
+# ================================================================
+# Horizon Angel – Funding Configuration
+# ================================================================
+# This file tells GitHub how to support this project financially.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+# ================================================================
+
+# GitHub Sponsors (up to 4 usernames)
+github: 
+  - beaconchain-horizon
+
+# Patreon
+patreon: # Replace with your Patreon username
+
+# Open Collective
+open_collective: # Replace with your Open Collective username
+
+# Ko-fi
+ko_fi: # Replace with your Ko-fi username
+
+# Tidelift (platform-name/package-name e.g., npm/babel)
+tidelift: # Replace with your Tidelift package
+
+# Community Bridge (project-name e.g., cloud-foundry)
+community_bridge: # Replace with your Community Bridge project
+
+# Liberapay
+liberapay: # Replace with your Liberapay username
+
+# IssueHunt
+issuehunt: # Replace with your IssueHunt username
+
+# LFX Crowdfunding (project-name e.g., cloud-foundry)
+lfx_crowdfunding: # Replace with your LFX Crowdfunding project
+
+# Polar
+polar: # Replace with your Polar username
+
+# Buy Me a Coffee
+buy_me_a_coffee: # Replace with your Buy Me a Coffee username
+
+# Thanks.dev
+thanks_dev: # Replace with your Thanks.dev username
+
+# Custom sponsorship URLs (up to 4)
+custom:
+  - https://etherscan.io/address/0x4E94F10F0a34a0DF229e68d5902644046258D678

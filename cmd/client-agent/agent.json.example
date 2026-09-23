@@ -1,0 +1,7 @@
+{
+  "tenant_id": "bank-melli",
+  "central_url": "https://horizon-backend.liara.run",
+  "agent_token": "CHANGE_ME_TO_REAL_TOKEN",
+  "switch_url": "http://localhost:8080",
+  "heartbeat_sec": 60
+}

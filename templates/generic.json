@@ -1,0 +1,12 @@
+{
+  "template_id": "generic",
+  "template_name": "عمومی",
+  "type": "other",
+  "chain": {
+    "chain_id": "TENANT_PLACEHOLDER-generic",
+    "network_name": "TENANT_PLACEHOLDER Network",
+    "air_gap_allowed": true
+  },
+  "default_sensors": [],
+  "default_sites": []
+}

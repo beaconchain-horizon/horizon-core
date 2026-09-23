@@ -1,0 +1,77 @@
+services:
+  # ═══════════════════════════════════════════════════════
+  #  PostgreSQL — فقط برای backend (cmd/api)
+  # ═══════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: horizon-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: horizon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-horizon_secret}
+      POSTGRES_DB: horizon
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - horizon-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U horizon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  #  Switch — SQLite محلی (بدون وابستگی به Postgres)
+  # ═══════════════════════════════════════════════════════
+  switch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horizon-switch
+    restart: always
+    environment:
+      GIN_MODE: release
+      SWITCH_PORT: 8080
+      SWITCH_DB: /root/data/horizon-switch.db
+      CHAIN_CONFIG: /root/data/chain.json
+      CUSTOMERS_CONFIG: /root/data/customers.json
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-change-me}
+    volumes:
+      - switch_data:/root/data
+      - ./config:/root/config-seed:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - horizon-net
+
+  # ═══════════════════════════════════════════════════════
+  #  Backend — Postgres + cmd/api
+  # ═══════════════════════════════════════════════════════
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: horizon-backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8080
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-change-me}
+      API_KEY: ${API_KEY:-change-me}
+      DATABASE_URL: postgresql://horizon:${POSTGRES_PASSWORD:-horizon_secret}@postgres:5432/horizon
+    ports:
+      - "8081:8080"
+    networks:
+      - horizon-net
+
+volumes:
+  postgres_data:
+  switch_data:
+
+networks:
+  horizon-net:
+    driver: bridge

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Horizon Map | نقشه نشان</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Tahoma;background:#0a1628;color:#fff;height:100vh;overflow:hidden}
+#map{position:absolute;inset:0}
+.header{position:absolute;top:0;left:0;right:0;z-index:100;background:rgba(10,22,40,.98);padding:12px 20px;display:flex;gap:15px;align-items:center;border-bottom:2px solid rgba(79,158,255,.4);flex-wrap:wrap}
+.header h1{font-size:1.1rem;color:#4f9eff}
+.header h1 b{color:#c084fc}
+.btn{padding:6px 14px;background:rgba(30,45,70,.9);border:1px solid rgba(79,158,255,.4);border-radius:25px;cursor:pointer;font-size:.8rem;color:#fff;font-family:Tahoma}
+.btn.active{background:linear-gradient(135deg,#4f9eff,#c084fc);border-color:transparent;font-weight:700}
+.legend{position:absolute;bottom:20px;right:20px;background:rgba(10,22,40,.98);padding:18px;border-radius:15px;border:1px solid rgba(79,158,255,.4);z-index:100;font-size:.8rem}
+.legend h3{color:#4f9eff;margin-bottom:10px;font-size:.95rem}
+.li{display:flex;align-items:center;gap:8px;margin:6px 0;color:#cbd5e1}
+.dot{width:12px;height:12px;border-radius:50%}
+.line{width:20px;height:3px}
+.stats{position:absolute;bottom:20px;left:20px;background:rgba(10,22,40,.98);padding:18px;border-radius:15px;border:1px solid rgba(79,158,255,.4);z-index:100}
+.stats h3{color:#4f9eff;margin-bottom:10px;font-size:.95rem}
+.st{margin:5px 0;font-size:.8rem;color:#8fa2dc}
+.st b{color:#4ade80;font-family:monospace;font-size:1rem;margin-right:6px}
+.loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:200;background:rgba(10,22,40,.98);padding:25px 35px;border-radius:15px;border:2px solid #4f9eff;font-size:1.1rem;color:#4f9eff}
+.loading.hide{display:none}
+</style>
+<link rel="stylesheet" href="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.css" />
+<script src="https://static.neshan.org/sdk/maplibre/5.24.3/neshan-maplibre-sdk.umd.js"></script>
+</head>
+<body>
+
+<div class="loading" id="loading">در حال بارگذاری نقشه...</div>
+<div id="map"></div>
+
+<div class="header">
+  <h1>Horizon Map | نقشه نشان</h1>
+  <div class="controls">
+    <button class="btn active" data-type="all">همه</button>
+    <button class="btn" data-type="gas">گاز</button>
+    <button class="btn" data-type="power">برق</button>
+    <button class="btn" data-type="oil">صنایع</button>
+    <button class="btn" data-type="bank">بانک</button>
+  </div>
+</div>
+
+<div class="legend">
+  <h3>راهنما</h3>
+  <div class="li"><div class="line" style="background:#ff6b6b"></div><span>خط لوله گاز</span></div>
+  <div class="li"><div class="line" style="background:#facc15"></div><span>شبکه برق</span></div>
+  <div class="li"><div class="dot" style="background:#c084fc"></div><span>صنایع</span></div>
+  <div class="li"><div class="dot" style="background:#4ade80"></div><span>شعبه بانک</span></div>
+</div>
+
+<div class="stats">
+  <h3>آمار</h3>
+  <div class="st"><b id="s-gas">0</b>خط گاز</div>
+  <div class="st"><b id="s-power">0</b>شبکه برق</div>
+  <div class="st"><b id="s-oil">0</b>صنایع</div>
+  <div class="st"><b id="s-bank">0</b>شعبه بانک</div>
+</div>
+
+<script>
+var KEY = 'web.1519757402364c8eaa8314c93c870903';
+var maplibregl = window.maplibregl.default;
+
+var map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://static.neshan.org/sdk/maplibre/styles/light.json',
+  center: [54.0, 32.0],
+  zoom: 5,
+  apiKey: KEY
+});
+
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
+map.addControl(new maplibregl.ScaleControl(), 'bottom-left');
+
+map.on('error', function(e){ console.error('MAP ERROR:', e); });
+
+var DATA = {
+  gas: [
+    { name:'IGAT-1', c:[[46.29,38.08],[48.67,31.32],[51.42,35.70]] },
+    { name:'IGAT-2', c:[[48.51,34.80],[51.66,32.65],[51.42,35.70]] },
+    { name:'IGAT-3', c:[[56.27,27.18],[52.58,29.59],[51.42,35.70]] },
+    { name:'IGAT-5', c:[[59.60,36.29],[51.42,35.70]] },
+    { name:'IGAT-8', c:[[45.07,37.55],[46.29,38.08],[51.42,35.70]] },
+    { name:'IGAT-10', c:[[49.69,34.09],[51.42,35.70]] }
+  ],
+  power: [
+    { name:'تهران-اصفهان', c:[[51.42,35.70],[51.66,32.65]] },
+    { name:'تهران-مشهد', c:[[51.42,35.70],[59.60,36.29]] },
+    { name:'تهران-تبریز', c:[[51.42,35.70],[46.29,38.08]] },
+    { name:'تهران-شیراز', c:[[51.42,35.70],[52.58,29.59]] },
+    { name:'اصفهان-شیراز', c:[[51.66,32.65],[52.58,29.59]] }
+  ],
+  oil: [
+    { name:'پالایشگاه آبادان', c:[48.29,30.34] },
+    { name:'پالایشگاه اصفهان', c:[51.66,32.65] },
+    { name:'پالایشگاه تهران', c:[51.42,35.55] },
+    { name:'پالایشگاه تبریز', c:[46.29,38.08] },
+    { name:'پالایشگاه شیراز', c:[52.58,29.59] },
+    { name:'پالایشگاه بندرعباس', c:[56.27,27.18] }
+  ],
+  bank: [
+    { name:'بانک مرکزی - تهران', c:[51.42,35.70] },
+    { name:'بانک ملی - مشهد', c:[59.60,36.29] },
+    { name:'بانک صادرات - اصفهان', c:[51.66,32.65] },
+    { name:'بانک ملت - تبریز', c:[46.29,38.08] },
+    { name:'بانک تجارت - شیراز', c:[52.58,29.59] }
+  ]
+};
+
+var layers = { gas:[], power:[], oil:[], bank:[] };
+
+map.on('load', function(){
+  document.getElementById('loading').classList.add('hide');
+
+  DATA.gas.forEach(function(item){
+    var id = 'gas-'+Math.random().toString(36).slice(2,9);
+    map.addSource(id, { type:'geojson', data:{ type:'Feature', geometry:{ type:'LineString', coordinates:item.c } } });
+    map.addLayer({ id:id, type:'line', source:id, paint:{ 'line-color':'#ff6b6b','line-width':3,'line-opacity':.85 } });
+    layers.gas.push(id);
+  });
+
+  DATA.power.forEach(function(item){
+    var id = 'power-'+Math.random().toString(36).slice(2,9);
+    map.addSource(id, { type:'geojson', data:{ type:'Feature', geometry:{ type:'LineString', coordinates:item.c } } });
+    map.addLayer({ id:id, type:'line', source:id, paint:{ 'line-color':'#facc15','line-width':2.5,'line-opacity':.9,'line-dasharray':[2,2] } });
+    layers.power.push(id);
+  });
+
+  DATA.oil.forEach(function(item){
+    var el = document.createElement('div');
+    el.style.cssText = 'width:16px;height:16px;background:#c084fc;border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px #c084fc;cursor:pointer';
+    var m = new maplibregl.Marker({ element:el }).setLngLat(item.c).addTo(map);
+    m.setPopup(new maplibregl.Popup({ offset:15 }).setHTML('<b style="color:#000">'+item.name+'</b>'));
+    layers.oil.push(m);
+  });
+
+  DATA.bank.forEach(function(item){
+    var el = document.createElement('div');
+    el.style.cssText = 'width:14px;height:14px;background:#4ade80;border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px #4ade80;cursor:pointer';
+    var m = new maplibregl.Marker({ element:el }).setLngLat(item.c).addTo(map);
+    m.setPopup(new maplibregl.Popup({ offset:15 }).setHTML('<b style="color:#000">'+item.name+'</b>'));
+    layers.bank.push(m);
+  });
+
+  document.getElementById('s-gas').textContent = DATA.gas.length;
+  document.getElementById('s-power').textContent = DATA.power.length;
+  document.getElementById('s-oil').textContent = DATA.oil.length;
+  document.getElementById('s-bank').textContent = DATA.bank.length;
+
+  document.querySelectorAll('.btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var t = btn.dataset.type;
+      ['gas','power','oil','bank'].forEach(function(k){
+        var show = (t === 'all' || t === k);
+        layers[k].forEach(function(l){
+          if (typeof l === 'string') {
+            if (map.getLayer(l)) map.setLayoutProperty(l,'visibility',show?'visible':'none');
+          } else {
+            l.getElement().style.display = show ? 'block' : 'none';
+          }
+        });
+      });
+    });
+  });
+
+  console.log('MAP LOADED OK');
+});
+</script>
+</body>
+</html>
