@@ -55,3 +55,6 @@ config/customers.json
 config/chain.json
 *.bak
 *.bak-*
+.admin_pass
+run-switch.sh
+make-hash.js
