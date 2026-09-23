@@ -1,17 +1,20 @@
-# Horizon — Response to Red-Team Review
+# Response to Red-Team Review
 
-Date: 2026-09-23
+| Claim | Response | Status |
+|---|---|---|
+| Consensus needed | See CONSENSUS.md | addressed |
+| Air-Gap/Sync ambiguity | See AIRGAP.md | addressed |
+| TPS needs spec | See BENCHMARK-SPEC.md | addressed |
+| Go 1.27 not released | Invalid — released 2026-08-19 | dismissed |
+| SQLite cannot do TPS | Overstated — depends on config | partial |
+| HSM for banking | See SECURITY-ROADMAP.md | addressed |
+| FIPS 140-2 L3 mandatory | Invalid — FIPS 140-3 current | dismissed |
+| 270 Agents not security | Valid | accepted |
+| Needs security testing | Valid | accepted |
+| Score 3/10 | No rubric → not actionable | dismissed |
 
-Claims:
-- Consensus undefined: addressed (CONSENSUS.md)
-- Air-Gap/Sync ambiguous: addressed (AIRGAP.md)
-- TPS needs spec: addressed (BENCHMARK-SPEC.md)
-- Go 1.27 not released: reviewer error (released 2026-08-19)
-- SQLite low TPS: overstated (config-dependent)
-- HSM important: addressed (SECURITY-ROADMAP.md)
-- FIPS 140-2 L3 mandatory: incorrect (FIPS 140-3 current)
-- 270 agents not security: valid
-- Needs security testing: valid
-- Score 3/10: no rubric, dismissed
-
-P0: fix tpsbench invalid_signature + unify canonical JSON/SHA256/ECDSA
+## P0 (open)
+- [ ] Fix tpsbench invalid_signature
+- [ ] Unify SignableReading
+- [ ] Unify canonical JSON
+- [ ] Unify ECDSA encoding
