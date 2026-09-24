@@ -1,5 +1,9 @@
+# ============================================================
+# Dependabot — Horizon Core
+# ============================================================
 version: 2
 updates:
+  # ─── Go modules ───
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
@@ -12,8 +16,14 @@ updates:
       - "dependencies"
       - "go"
     reviewers:
-      - "Beaconcha-in"
+      - "beaconchain-horizon"
+    assignees:
+      - "beaconchain-horizon"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
 
+  # ─── GitHub Actions ───
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -25,3 +35,30 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    reviewers:
+      - "beaconchain-horizon"
+    assignees:
+      - "beaconchain-horizon"
+    commit-message:
+      prefix: "chore(actions)"
+      include: "scope"
+
+  # ─── Docker ───
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Asia/Tehran"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docker"
+    reviewers:
+      - "beaconchain-horizon"
+    assignees:
+      - "beaconchain-horizon"
+    commit-message:
+      prefix: "chore(docker)"
+      include: "scope"
