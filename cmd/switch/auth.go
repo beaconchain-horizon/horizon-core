@@ -11,6 +11,12 @@ import (
 func adminAuth(c *gin.Context) {
 	p := c.Request.URL.Path
 
+	// OPTIONS requests (CORS preflight) — always allow
+	if c.Request.Method == "OPTIONS" {
+		c.Next()
+		return
+	}
+
 	// Public paths — no auth required
 	if p == "/api/v1/health" ||
 		p == "/api/v1/industrial/panel" ||
