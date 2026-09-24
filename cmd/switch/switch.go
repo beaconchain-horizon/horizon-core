@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/beaconchain-horizon/horizon-core/internal/merkle"
+	"horizon-core/internal/merkle"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdsa"
