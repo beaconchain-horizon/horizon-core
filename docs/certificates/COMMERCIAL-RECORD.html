@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<title>Certificate of Commercial Record — Horizon</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: #0a0e1a;
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  
+  .certificate {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fefefe;
+    position: relative;
+    box-shadow: 
+      0 0 80px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(212, 175, 55, 0.3),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+    overflow: hidden;
+  }
+  
+  /* Hologram border effect */
+  .certificate::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 8px;
+    background: linear-gradient(135deg,
+      #d4af37 0%, #f4d03f 10%, #d4af37 20%,
+      #b8860b 30%, #d4af37 40%, #f9e79f 50%,
+      #d4af37 60%, #b8860b 70%, #d4af37 80%,
+      #f4d03f 90%, #d4af37 100%);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  /* Hologram shimmer */
+  .certificate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      transparent 0%,
+      rgba(212, 175, 55, 0.08) 25%,
+      rgba(126, 242, 196, 0.05) 50%,
+      rgba(192, 132, 252, 0.08) 75%,
+      transparent 100%);
+    background-size: 200% 200%;
+    animation: shimmer 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+  }
+  
+  /* Watermark */
+  .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 200px;
+    font-weight: 900;
+    color: rgba(212, 175, 55, 0.04);
+    font-family: 'Playfair Display', serif;
+    pointer-events: none;
+    z-index: 0;
+    letter-spacing: 20px;
+  }
+  
+  .cert-inner {
+    position: relative;
+    z-index: 2;
+    padding: 60px 70px;
+  }
+  
+  /* Header */
+  .header {
+    text-align: center;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #d4af37;
+    position: relative;
+  }
+  
+  .header::after {
+    content: '◆ ◆ ◆';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fefefe;
+    padding: 0 15px;
+    color: #d4af37;
+    font-size: 11px;
+    letter-spacing: 8px;
+  }
+  
+  .emblem {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #1a3d34, #0a1a1f);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+      0 4px 20px rgba(10, 26, 31, 0.4),
+      inset 0 2px 0 rgba(212, 175, 55, 0.3);
+    border: 3px solid #d4af37;
+    position: relative;
+  }
+  
+  .emblem::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px dashed rgba(212, 175, 55, 0.4);
+  }
+  
+  .emblem-inner {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #d4af37;
+    letter-spacing: -2px;
+  }
+  
+  .institution {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: #0a1a1f;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .institution-sub {
+    font-size: 12px;
+    color: #666;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  
+  /* Title */
+  .title-section {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+  
+  .doc-type {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: 8px;
+    color: #d4af37;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  
+  .doc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 44px;
+    font-weight: 900;
+    color: #0a1a1f;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  
+  .doc-subtitle {
+    font-size: 15px;
+    color: #555;
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .gold-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 30px 0;
+  }
+  
+  .gold-divider::before,
+  .gold-divider::after {
+    content: '';
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    flex: 1;
+    max-width: 200px;
+  }
+  
+  .gold-divider-icon {
+    color: #d4af37;
+    font-size: 14px;
+    letter-spacing: 4px;
+  }
+  
+  /* Body */
+  .section {
+    margin-bottom: 32px;
+  }
+  
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #d4af37;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  }
+  
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0a1a1f;
+    margin-bottom: 14px;
+  }
+  
+  .section p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  
+  /* Details Grid */
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 40px;
+    margin: 20px 0;
+  }
+  
+  .detail-item {
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .detail-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  
+  .detail-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0a1a1f;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .detail-value.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #1a3d34;
+  }
+  
+  /* Verification Badge */
+  .verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #1a3d34, #0a1a1f);
+    color: #d4af37;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  
+  .verified-badge::before {
+    content: '✓';
+    font-weight: 900;
+  }
+  
+  /* Signature Block */
+  .signature-block {
+    margin-top: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, #faf8f3, #f5f0e6);
+    border: 1px solid #d4af37;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .signature-block::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: repeating-linear-gradient(45deg,
+      transparent,
+      transparent 10px,
+      rgba(212, 175, 55, 0.03) 10px,
+      rgba(212, 175, 55, 0.03) 20px);
+    pointer-events: none;
+  }
+  
+  .sig-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .sig-party {
+    text-align: center;
+  }
+  
+  .sig-party-role {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #d4af37;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  
+  .sig-party-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0a1a1f;
+    margin-bottom: 4px;
+  }
+  
+  .sig-party-title {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+  
+  .sig-line {
+    border-top: 1px solid #0a1a1f;
+    margin: 40px 30px 8px;
+    padding-top: 8px;
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  
+  /* Document IDs */
+  .doc-id-block {
+    margin-top: 30px;
+    padding: 20px;
+    background: #0a1a1f;
+    color: #7ef2c4;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  
+  .doc-id-block strong {
+    color: #d4af37;
+    font-weight: 600;
+  }
+  
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #d4af37;
+    text-align: center;
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+  }
+  
+  .footer::before {
+    content: '◆';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fefefe;
+    padding: 0 12px;
+    color: #d4af37;
+    font-size: 10px;
+  }
+  
+  /* Holographic Seal */
+  .holo-seal {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #d4af37, #f4d03f, #7ef2c4, #c084fc, #d4af37,
+      #f4d03f, #7ef2c4, #c084fc, #d4af37
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+      0 0 30px rgba(212, 175, 55, 0.4),
+      inset 0 0 20px rgba(255, 255, 255, 0.5);
+    z-index: 5;
+    animation: holoPulse 4s ease-in-out infinite;
+  }
+  
+  @keyframes holoPulse {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+    50% { transform: scale(1.03) rotate(5deg); filter: hue-rotate(30deg); }
+  }
+  
+  .holo-seal-inner {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: #fefefe;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #d4af37;
+  }
+  
+  .holo-seal-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 9px;
+    font-weight: 900;
+    color: #0a1a1f;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.3;
+  }
+  
+  .holo-seal-year {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: #d4af37;
+    margin: 3px 0;
+  }
+  
+  /* Print styles */
+  @media print {
+    body { background: white; padding: 0; }
+    .certificate { box-shadow: none; }
+    .holo-seal { animation: none; }
+  }
+  
+  @media (max-width: 700px) {
+    .cert-inner { padding: 40px 30px; }
+    .doc-title { font-size: 30px; }
+    .details-grid, .sig-grid { grid-template-columns: 1fr; }
+    .holo-seal { width: 70px; height: 70px; top: 20px; right: 20px; }
+    .holo-seal-inner { width: 54px; height: 54px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="certificate">
+  
+  <div class="watermark">HORIZON</div>
+  
+  <!-- Holographic Seal -->
+  <div class="holo-seal">
+    <div class="holo-seal-inner">
+      <div class="holo-seal-text">CERTIFIED</div>
+      <div class="holo-seal-year">2020</div>
+      <div class="holo-seal-text">VERIFIED</div>
+    </div>
+  </div>
+  
+  <div class="cert-inner">
+    
+    <!-- Header -->
+    <div class="header">
+      <div class="emblem">
+        <div class="emblem-inner">H</div>
+      </div>
+      <div class="institution">HORIZON</div>
+      <div class="institution-sub">Global Blockchain Protocol</div>
+    </div>
+    
+    <!-- Title -->
+    <div class="title-section">
+      <div class="doc-type">Certificate of Commercial Record</div>
+      <div class="doc-title">Verified Commercial History</div>
+      <div class="doc-subtitle">A documented record of international business engagement</div>
+    </div>
+    
+    <div class="gold-divider">
+      <span class="gold-divider-icon">◆ ◆ ◆</span>
+    </div>
+    
+    <!-- Section 1: Counterparty -->
+    <div class="section">
+      <div class="section-label">Section I — Verified Counterparty</div>
+      <div class="section-title">GB Group Plc (GBG)</div>
+      <p>
+        GB Group Plc is a publicly traded identity verification and fraud
+        prevention company listed on the London Stock Exchange (LSE: GBG).
+        The company provides identity data intelligence to organizations
+        worldwide, with operations spanning the United Kingdom, Europe,
+        North America, Latin America, and Asia-Pacific.
+      </p>
+      
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="detail-label">Legal Entity</div>
+          <div class="detail-value">GB Group Plc</div>
+          <span class="verified-badge">London Stock Exchange</span>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Registered Address</div>
+          <div class="detail-value">The Foundation, Herons Way, Chester Business Park, Chester, UK CH4 9GB</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Head of Legal</div>
+          <div class="detail-value">Natasha Maddock</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Industry</div>
+          <div class="detail-value">Identity Verification · KYC · AML · Fraud Prevention</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Section 2: Client -->
+    <div class="section">
+      <div class="section-label">Section II — Client Entity</div>
+      <div class="section-title">Euro</div>
+      <p>
+        The commercial relationship was entered into by <strong>Euro</strong>,
+        a German-registered entity located in Gladbeck, Germany, acting as
+        the Client (Data Exporter / Controller) under the applicable
+        agreement with GB Group Plc.
+      </p>
+      
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="detail-label">Registered Name</div>
+          <div class="detail-value">Euro</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Registered Address</div>
+          <div class="detail-value">Postfach 404, 24784, 755954, Gladbeck 45954, Germany</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Authorized Signatory</div>
+          <div class="detail-value">Mahdi Amolimoghadam</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Legal Role</div>
+          <div class="detail-value">Data Exporter / Controller</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Section 3: Agreement -->
+    <div class="section">
+      <div class="section-label">Section III — Executed Agreement</div>
+      <div class="section-title">Standard Contractual Clauses Data Transfer Agreement</div>
+      <p>
+        A binding Data Transfer Agreement was executed under the European
+        Commission Decision C(2010)593 — Standard Contractual Clauses
+        (processors) — for the transfer of personal data from the European
+        Economic Area (EEA) to the United Kingdom, in compliance with
+        Article 26(2) of Directive 95/46/EC and Article 44 of the EU
+        General Data Protection Regulation (GDPR 2016/679).
+      </p>
+      <p>
+        This agreement constitutes a legally binding international contract
+        and serves as documented evidence of commercial engagement between
+        the two parties.
+      </p>
+      
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="detail-label">Framework</div>
+          <div class="detail-value">EU Commission Decision C(2010)593</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Regulation</div>
+          <div class="detail-value">GDPR (EU) 2016/679 — Article 44</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Date Signed by GBG</div>
+          <div class="detail-value">2 November 2020</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Date Signed by Client</div>
+          <div class="detail-value">21 November 2020 · 00:58:21 GMT</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Section 4: Signatures -->
+    <div class="section">
+      <div class="section-label">Section IV — Authorized Signatures</div>
+      <div class="section-title">Executed By</div>
+      
+      <div class="signature-block">
+        <div class="sig-grid">
+          <div class="sig-party">
+            <div class="sig-party-role">On Behalf of the Client</div>
+            <div class="sig-party-name">Mahdi Amolimoghadam</div>
+            <div class="sig-party-title">Euro · Gladbeck, Germany</div>
+            <div class="sig-line">Signature</div>
+          </div>
+          <div class="sig-party">
+            <div class="sig-party-role">On Behalf of GBG</div>
+            <div class="sig-party-name">Natasha Maddock</div>
+            <div class="sig-party-title">Head of Legal · GB Group Plc</div>
+            <div class="sig-line">Signature</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Section 5: Document Reference -->
+    <div class="section">
+      <div class="section-label">Section V — Document Reference</div>
+      <div class="section-title">Verification Identifiers</div>
+      
+      <div class="doc-id-block">
+        <strong>Document Envelope ID:</strong> 05127A86-8218-4D85-A0C0-BC75CF009C6F<br>
+        <strong>DocuSign Signature Ref:</strong> 2809E62C914344D...<br>
+        <strong>Counterparty Ticket Ref:</strong> 5B70150D5A404391AFC6536470EFFE13<br>
+        <strong>Signing Platform:</strong> DocuSign (Enterprise)<br>
+        <strong>Signature Type:</strong> Digital Certificate Signature<br>
+        <strong>Status:</strong> Executed &amp; Binding
+      </div>
+    </div>
+    
+    <!-- Section 6: Verified Sources -->
+    <div class="section">
+      <div class="section-label">Section VI — Independent Verification</div>
+      <div class="section-title">Public Sources</div>
+      
+      <p>The counterparty's identity and status can be independently verified through:</p>
+      
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="detail-label">Stock Exchange Listing</div>
+          <div class="detail-value mono">LSE: GBG</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Companies House (UK)</div>
+          <div class="detail-value mono">GB Group Plc</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Official Website</div>
+          <div class="detail-value mono">gbgplc.com</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Industry Classification</div>
+          <div class="detail-value">Identity Verification &amp; Fraud Prevention</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      This document constitutes a summary of a legally binding agreement.<br>
+      Original contract is available for inspection upon request.<br>
+      <span style="display: inline-block; margin-top: 10px; color: #d4af37;">◆</span>
+    </div>
+    
+  </div>
+</div>
+
+</body>
+</html>
