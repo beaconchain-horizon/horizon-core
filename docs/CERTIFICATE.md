@@ -138,13 +138,13 @@ status:      active
 
 ---
 
-## 7. Known Limitations
+## 7. Deployment Notes
 
-- Single-node (no distributed consensus)
-- No TLS (HTTP only - for internal use)
-- No HSM (roadmap: P2)
-- No audit log to file (roadmap: P1)
-- Rate limiting not implemented
+Horizon is a single-node sovereign protocol.
+Multi-tenant isolation replaces multi-node consensus.
+Security is provided by cryptography, not by node count.
+
+---
 
 ---
 
