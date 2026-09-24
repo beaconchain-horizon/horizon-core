@@ -1,8 +1,0 @@
-{
-  "tenant_id": "bank-melli-test",
-  "liara_region": "api.liara.ir",
-  "liara_project_id": "horizon-switch",
-  "liara_api_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiI2YTgzNTcyMzAyYTQ4MzFmZGRkMWI0YmYiLCJ0eXBlIjoiYXV0aCIsImlhdCI6MTc4OTcwNjE5MSwiZXhwIjoxODA1MjU4MTkxfQ.Q3bqoiC3W1S5GaxmkPJ8-4whDppqRmA-IlXSH4KLyy8",
-  "agent_token": "948da84faea452f9b0b32b509303676dfb92be5d3ed4553d80102ce423fab881",
-  "heartbeat_sec": 60
-}
