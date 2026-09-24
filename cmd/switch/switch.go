@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/beaconchain-horizon/horizon-core/internal/merkle"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdsa"
@@ -198,18 +199,7 @@ func simpleMerkleRoot(txIDs []string) string {
 	for i, id := range txIDs {
 		hashes[i] = hashData([]byte(id))
 	}
-	for len(hashes) > 1 {
-		if len(hashes)%2 != 0 {
-			hashes = append(hashes, hashes[len(hashes)-1])
-		}
-		next := []string{}
-		for i := 0; i < len(hashes); i += 2 {
-			combined := hashes[i] + hashes[i+1]
-			next = append(next, hashData([]byte(combined)))
-		}
-		hashes = next
-	}
-	return hashes[0]
+	return merkle.RootFromHashes(hashes)
 }
 
 // ============================================================
