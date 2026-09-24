@@ -1,60 +1,56 @@
-# ─── Binaries ───
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+# HORIZON CORE — gitignore
 
-# ─── Databases ───
-*.db
-*.db-shm
-*.db-wal
-*.sqlite
-*.sqlite3
-data/
-!data/.gitkeep
-
-# ─── Keys / Secrets ───
 keys/
 *.pem
+*.key
 .env
-.env.local
+.env.*
+!.env.example
+*/.env
 
-# ─── Backups ───
-*.bak
-*.bak-*
-*.bak[0-9]
-*.backup
-*.backup-*
-*.backup_*
-*.old
 .backups/
-Dockerfile.bak*
+.hz-fix-backup-*/
+.merkle-v2-backup-*/
+*.bak
+*.bak.*
+*.bak-*
+*.backup-*
+*.broken-*
+*.pre-*
 *~
 
-# ─── Logs ───
+config/chain.json
+config/customers.json
+deliveries/
+templates/
+
+*.exe
+*.exe~
 *.log
 
-# ─── OS / IDE ───
-.DS_Store
+data/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+docs/data/
+
+start.sh
+start-switch.sh
+run-switch.bat
+run.js
+prepare-horizon.sh
+horizon-bank-proof.sh
+merkle-v2-upgrade.sh
+fix-hash.js
+hash.txt
+
+node_modules/
+package-lock.json
+
 Thumbs.db
+.DS_Store
+desktop.ini
+
 .vscode/
 .idea/
 *.swp
-
-# ─── Node ───
-node_modules/
-npm-debug.log*
-
-# ─── Temp ───
-*.tmp
-/tmp/
-
-# ─── Local config (real values) ───
-config/customers.json
-config/chain.json
-*.bak
-*.bak-*
-.admin_pass
-run-switch.sh
-make-hash.js
