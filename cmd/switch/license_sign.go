@@ -8,7 +8,10 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"strconv"
 	"time"
+
+	"horizon-core/internal/merkle"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,6 +35,21 @@ type licenseSigningPayload struct {
 	IssuedAt   int64  `json:"issued_at"`
 	ExpiresAt  int64  `json:"expires_at"`
 	HardwareID string `json:"hardware_id,omitempty"`
+}
+
+// licenseMerkleRoot — RFC 6962 root for license fields
+func licenseMerkleRoot(lic *License) string {
+	leaves := [][]byte{
+		[]byte("license_id=" + lic.LicenseID),
+		[]byte("user_id=" + lic.UserID),
+		[]byte("product_id=" + lic.ProductID),
+		[]byte("volume=" + strconv.Itoa(lic.Volume)),
+		[]byte("duration=" + strconv.Itoa(lic.Duration)),
+		[]byte("issued_at=" + strconv.FormatInt(lic.IssuedAt, 10)),
+		[]byte("expires_at=" + strconv.FormatInt(lic.ExpiresAt, 10)),
+		[]byte("hardware_id=" + lic.HardwareID),
+	}
+	return merkle.RootFromData(leaves)
 }
 
 // licenseCanonicalMessage returns the canonical JSON payload

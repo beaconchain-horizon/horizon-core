@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"horizon-core/internal/merkle"
 	"io"
 	"log"
 	"math/big"
@@ -34,6 +35,7 @@ type Block struct {
 	PrevHash   string    `json:"prev_hash"`
 	Hash       string    `gorm:"index" json:"hash"`
 	MerkleRoot string    `json:"merkle_root"`
+	MerkleAlgo string    `json:"merkle_algo"`
 	TxCount    int       `json:"tx_count"`
 	CreatedAt  time.Time `json:"created_at"`
 }
@@ -190,26 +192,22 @@ func hashData(data []byte) string {
 	return hex.EncodeToString(h[:])
 }
 
-func simpleMerkleRoot(txIDs []string) string {
+func simpleMerkleRoot(txIDs []string, algo string) string {
 	if len(txIDs) == 0 {
 		return hashData([]byte("empty"))
+	}
+	if algo == "v2" {
+		data := make([][]byte, len(txIDs))
+		for i, id := range txIDs {
+			data[i] = []byte(id)
+		}
+		return merkle.RootFromData(data)
 	}
 	hashes := make([]string, len(txIDs))
 	for i, id := range txIDs {
 		hashes[i] = hashData([]byte(id))
 	}
-	for len(hashes) > 1 {
-		if len(hashes)%2 != 0 {
-			hashes = append(hashes, hashes[len(hashes)-1])
-		}
-		next := []string{}
-		for i := 0; i < len(hashes); i += 2 {
-			combined := hashes[i] + hashes[i+1]
-			next = append(next, hashData([]byte(combined)))
-		}
-		hashes = next
-	}
-	return hashes[0]
+	return merkle.LegacyRootFromHashes(hashes)
 }
 
 // ============================================================
@@ -227,6 +225,7 @@ func getLastBlock() (*Block, error) {
 				PrevHash:   "genesis",
 				Hash:       hashData([]byte("genesis-block")),
 				MerkleRoot: hashData([]byte("genesis")),
+				MerkleAlgo: "v1",
 				TxCount:    0,
 			}
 			db.Create(genesis)
@@ -254,7 +253,11 @@ func mineBlock() (*Block, error) {
 	for _, tx := range pending {
 		txIDs = append(txIDs, tx.TxID)
 	}
-	merkleRoot := simpleMerkleRoot(txIDs)
+	merkleAlgo := "v1"
+	if last.BlockNum+1 >= 4 {
+		merkleAlgo = "v2"
+	}
+	merkleRoot := simpleMerkleRoot(txIDs, merkleAlgo)
 
 	newIndex := last.BlockNum + 1
 	timestamp := time.Now().Unix()
@@ -267,6 +270,7 @@ func mineBlock() (*Block, error) {
 		PrevHash:   last.Hash,
 		Hash:       blockHash,
 		MerkleRoot: merkleRoot,
+		MerkleAlgo: merkleAlgo,
 		TxCount:    len(pending),
 	}
 
@@ -545,9 +549,13 @@ func saveLicenseHandler(c *gin.Context) {
 		Duration:   req.Duration,
 		MerkleRoot: req.MerkleRoot,
 		IssuedAt:   now,
-		ExpiresAt:  now + int64(req.Duration*3600),
+		ExpiresAt:  now + int64(req.Duration*86400),
 		Status:     "active",
 		HardwareID: getHardwareIDOrEmpty(),
+	}
+
+	if lic.MerkleRoot == "" {
+		lic.MerkleRoot = licenseMerkleRoot(lic)
 	}
 
 	msg := licenseCanonicalMessage(lic)
@@ -723,7 +731,7 @@ func main() {
 	r.Use(SecurityHeadersMiddleware())
 	r.Use(RateLimitMiddleware(rl))
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://beaconchain-horizon.github.io", "https://horizon-backend.liara.run", "https://horizon-switch.liara.run", "http://localhost:8080", "http://localhost:3000", "http://127.0.0.1:8080"},
+		AllowOrigins:     []string{"https://beaconchain-horizon.github.io", "https://horizon-backend.liara.run", "https://horizon-switch.liara.run", "http://localhost:8080", "http://localhost:8000", "http://localhost:3000", "http://127.0.0.1:8080"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Customer-Token", "X-Admin-Token"},
 		AllowCredentials: false,

@@ -1,0 +1,32 @@
+package main
+
+import (
+	"net/http"
+	"os"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+)
+
+func adminAuth(c *gin.Context) {
+	p := c.Request.URL.Path
+
+	// Public paths — no auth required
+	if p == "/api/v1/health" ||
+		p == "/api/v1/industrial/panel" ||
+		p == "/api/v1/industrial/reading" ||
+		p == "/api/v1/industrial/reading/batch" ||
+		p == "/api/v1/admin/login" ||
+		p == "/api/v1/admin/logout" ||
+		strings.HasPrefix(p, "/api/v1/customer/login") {
+		c.Next()
+		return
+	}
+
+	token := c.GetHeader("X-Admin-Token")
+	if token == "" || token != os.Getenv("ADMIN_TOKEN") {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	c.Next()
+}

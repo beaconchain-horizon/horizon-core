@@ -243,8 +243,12 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		Duration:   req.Duration,
 		MerkleRoot: req.MerkleRoot,
 		IssuedAt:   now,
-		ExpiresAt:  now + int64(req.Duration*3600),
+		ExpiresAt:  now + int64(req.Duration*86400),
 		Status:     "active",
+	}
+
+	if lic.MerkleRoot == "" {
+		lic.MerkleRoot = licenseMerkleRoot(lic)
 	}
 
 	msg := licenseCanonicalMessage(lic)
