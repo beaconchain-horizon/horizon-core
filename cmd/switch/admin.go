@@ -247,6 +247,10 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		Status:     "active",
 	}
 
+	if lic.MerkleRoot == "" {
+		lic.MerkleRoot = licenseMerkleRoot(lic)
+	}
+
 	msg := licenseCanonicalMessage(lic)
 	sig, err := signData(key, []byte(msg))
 	if err != nil {
