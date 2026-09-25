@@ -123,7 +123,7 @@ echo
 echo "frontend/package.json : OK"
 echo "Next.js               : OK"
 echo "npm install           : PASS"
-echo "npm run lint          : PASS"
+echo "npx tsc --noEmit      : PASS"
 echo "npm run build         : PASS"
 echo
 echo "NO COMMIT"
