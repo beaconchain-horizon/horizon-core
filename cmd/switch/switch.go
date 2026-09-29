@@ -709,6 +709,7 @@ func main() {
 	CheckKeyRotation()
 	startAutoLock(30)
 	initDualControl()
+	initSigningSessions()
 
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
@@ -785,6 +786,7 @@ func main() {
 		api.POST("/dual/request", requestApprovalHandler)
 		api.POST("/dual/approve", approveHandler)
 		api.GET("/dual/pending", listPendingHandler)
+		api.POST("/signing/session", requestSigningSessionHandler)
 
 		// Transactions
 		api.POST("/tx", createTxHandler)
