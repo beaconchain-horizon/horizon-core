@@ -13,12 +13,14 @@ import (
 	"io"
 	"log"
 	"math/big"
+	"net"
 	"net/http"
 	"os"
 	"sync"
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"golang.org/x/net/netutil"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
@@ -700,6 +702,7 @@ func main() {
 	licenseStopCh := make(chan struct{})
 	go startLicenseChecker(licenseStopCh)
 	log.Println("License enforcement started")
+	CheckKeyRotation()
 
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
@@ -722,8 +725,6 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(adminAuth)
-	r.Use(adminAuth)
-	r.Use(corsMiddleware())
 	r.Use(airgapMiddleware())
 	r.Use(chainIDMiddleware())
 	r.Use(auditMiddleware())
@@ -731,7 +732,7 @@ func main() {
 	r.Use(SecurityHeadersMiddleware())
 	r.Use(RateLimitMiddleware(rl))
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://beaconchain-horizon.github.io", "https://horizon-backend.liara.run", "https://horizon-switch.liara.run", "http://localhost:8080", "http://localhost:8000", "http://localhost:3000", "http://127.0.0.1:8080"},
+		AllowOrigins:     []string{"https://horizon-backend.liara.run", "https://horizon-switch.liara.run", "http://localhost:8080", "http://localhost:8000", "http://localhost:3000", "http://127.0.0.1:8080"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Customer-Token", "X-Admin-Token"},
 		AllowCredentials: false,
@@ -856,7 +857,21 @@ func main() {
 	log.Printf("Horizon Switch v3.0 running on port %s", port)
 	log.Printf("Database: %s", dbPath)
 
-	if err := r.Run(":" + port); err != nil {
+	srv := &http.Server{
+		Addr:           ":" + port,
+		Handler:        r,
+		ReadTimeout:    30 * time.Second,
+		WriteTimeout:   30 * time.Second,
+		IdleTimeout:    60 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+	log.Printf("Starting server with connection limit (500)...")
+	listener, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		log.Fatal("Listen failed:", err)
+	}
+	limitedListener := netutil.LimitListener(listener, 500)
+	if err := srv.Serve(limitedListener); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
 }
