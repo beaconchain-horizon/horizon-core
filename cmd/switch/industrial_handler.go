@@ -55,6 +55,14 @@ func createIndustrialSite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if !ValidateTenantID(s.SiteID) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid site_id"})
+		return
+	}
+	if !ValidateType(s.Type) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid type"})
+		return
+	}
 	if s.SiteID == "" || s.Name == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "site_id and name required"})
 		return
@@ -81,6 +89,10 @@ func createIndustrialSensor(c *gin.Context) {
 	var s industrial.Sensor
 	if err := c.ShouldBindJSON(&s); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if !ValidateTenantID(s.SensorID) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid sensor_id"})
 		return
 	}
 	if s.SensorID == "" || s.PublicKey == "" {
