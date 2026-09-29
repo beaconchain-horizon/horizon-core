@@ -13,12 +13,14 @@ import (
 	"io"
 	"log"
 	"math/big"
+	"net"
 	"net/http"
 	"os"
 	"sync"
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"golang.org/x/net/netutil"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
@@ -862,8 +864,13 @@ func main() {
 		IdleTimeout:    60 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Printf("Starting server with timeout protection...")
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	log.Printf("Starting server with connection limit (500)...")
+	listener, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		log.Fatal("Listen failed:", err)
+	}
+	limitedListener := netutil.LimitListener(listener, 500)
+	if err := srv.Serve(limitedListener); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
 }
