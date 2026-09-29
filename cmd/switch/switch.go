@@ -97,6 +97,7 @@ type BankAccount struct {
 var (
 	db           *gorm.DB
 	unlockedKey  *ecdsa.PrivateKey
+	unlockedAt   time.Time
 	unlockedAddr string
 	stateMutex   sync.RWMutex
 	ledger       *Ledger
@@ -377,6 +378,7 @@ func unlockKeyHandler(c *gin.Context) {
 
 	stateMutex.Lock()
 	unlockedKey = priv
+		unlockedAt = time.Now()
 	unlockedAddr = vault.PublicAddr
 	stateMutex.Unlock()
 
@@ -703,6 +705,7 @@ func main() {
 	go startLicenseChecker(licenseStopCh)
 	log.Println("License enforcement started")
 	CheckKeyRotation()
+	startAutoLock(30)
 
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
@@ -775,6 +778,7 @@ func main() {
 		api.POST("/key/setup", setupKeyHandler)
 		api.POST("/key/unlock", unlockKeyHandler)
 		api.GET("/key/status", keyStatusHandler)
+		api.POST("/key/lock", lockKeyHandler)
 
 		// Transactions
 		api.POST("/tx", createTxHandler)
@@ -874,4 +878,39 @@ func main() {
 	if err := srv.Serve(limitedListener); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
+}
+
+// startAutoLock runs a goroutine that locks the key after inactivity
+func startAutoLock(timeoutMinutes int) {
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+		for range ticker.C {
+			stateMutex.Lock()
+			if unlockedKey != nil && !unlockedAt.IsZero() {
+				if time.Since(unlockedAt).Minutes() > float64(timeoutMinutes) {
+					unlockedKey = nil
+					unlockedAddr = ""
+					unlockedAt = time.Time{}
+					log.Printf("[AUTO-LOCK] Key locked due to %d min inactivity", timeoutMinutes)
+				}
+			}
+			stateMutex.Unlock()
+		}
+	}()
+}
+
+// lockKeyHandler locks the key manually
+func lockKeyHandler(c *gin.Context) {
+	stateMutex.Lock()
+	wasUnlocked := unlockedKey != nil
+	unlockedKey = nil
+	unlockedAddr = ""
+	unlockedAt = time.Time{}
+	stateMutex.Unlock()
+
+	if wasUnlocked {
+		log.Printf("[MANUAL-LOCK] Key locked by admin")
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "locked"})
 }
