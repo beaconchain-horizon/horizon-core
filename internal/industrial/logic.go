@@ -30,6 +30,7 @@ type Sensor struct {
 	Unit      string    `json:"unit"`
 	MinValue  float64   `json:"min_value"`
 	MaxValue  float64   `json:"max_value"`
+	AgentURL  string    `json:"agent_url"`
 	PublicKey string    `gorm:"type:text" json:"public_key"`
 	IsActive  bool      `json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`
