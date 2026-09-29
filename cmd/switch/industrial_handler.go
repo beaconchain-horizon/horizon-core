@@ -123,6 +123,10 @@ func ingestReading(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if req.SensorID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "sensor_id required"})
+		return
+	}
 	var sensor industrial.Sensor
 	if err := db.Where("sensor_id = ?", req.SensorID).First(&sensor).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "sensor not found"})
