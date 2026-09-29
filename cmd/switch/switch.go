@@ -187,6 +187,8 @@ func signData(priv *ecdsa.PrivateKey, data []byte) (string, error) {
 	sig := make([]byte, 64)
 	r.FillBytes(sig[:32])
 	s.FillBytes(sig[32:])
+	// Audit log for every signature (without IP)
+	addAudit("SIGN", hex.EncodeToString(hash[:8]), "ecdsa_p256", "")
 	return hex.EncodeToString(sig), nil
 }
 
