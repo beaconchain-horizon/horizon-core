@@ -267,10 +267,7 @@ func validateLicense(license *License, now time.Time) error {
 	if err := verifyLicenseEnforcementSignature(license); err != nil {
 		// Hardware ID check (skipped for legacy licenses with empty HWID)
 		if license.HardwareID != "" {
-			currentHWID, hwErr := getHardwareID()
-			if hwErr != nil {
-				return fmt.Errorf("cannot compute hardware id: %w", hwErr)
-			}
+			currentHWID := getHardwareIDOrEmpty()
 			if currentHWID != license.HardwareID {
 				return fmt.Errorf(
 					"hardware id mismatch: license bound to %s, current is %s",
@@ -411,16 +408,3 @@ func buildLicenseBlockedResponse() licenseExpiredResponse {
 	}
 }
 
-// getHardwareIDOrEmpty returns the current hardware ID,
-// or an empty string if it cannot be determined.
-//
-// This is used by saveLicenseHandler so that license
-// issuance never fails due to hardware detection issues.
-func getHardwareIDOrEmpty() string {
-	id, err := getHardwareID()
-	if err != nil {
-		log.Printf("[HARDWARE] cannot compute id: %v", err)
-		return ""
-	}
-	return id
-}

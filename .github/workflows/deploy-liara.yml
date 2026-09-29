@@ -29,14 +29,16 @@ jobs:
         run: |
           liara deploy --app="horizon-switch" \
             --api-token="${{ secrets.LIARA_API_TOKEN }}" \
-            --no-app-logs
+            --no-app-logs \
+            --dockerfile="Dockerfile"
         continue-on-error: true
 
       - name: Deploy Backend
         run: |
           liara deploy --app="horizon-backend" \
             --api-token="${{ secrets.LIARA_API_TOKEN }}" \
-            --no-app-logs
+            --no-app-logs \
+            --dockerfile="Dockerfile.backend"
         continue-on-error: true
 
       - name: Summary
