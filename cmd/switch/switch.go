@@ -702,6 +702,7 @@ func main() {
 	licenseStopCh := make(chan struct{})
 	go startLicenseChecker(licenseStopCh)
 	log.Println("License enforcement started")
+	CheckKeyRotation()
 
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
