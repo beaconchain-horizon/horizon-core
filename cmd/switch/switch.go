@@ -722,7 +722,6 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(adminAuth)
-	r.Use(adminAuth)
 	r.Use(corsMiddleware())
 	r.Use(airgapMiddleware())
 	r.Use(chainIDMiddleware())
@@ -856,7 +855,16 @@ func main() {
 	log.Printf("Horizon Switch v3.0 running on port %s", port)
 	log.Printf("Database: %s", dbPath)
 
-	if err := r.Run(":" + port); err != nil {
+	srv := &http.Server{
+		Addr:           ":" + port,
+		Handler:        r,
+		ReadTimeout:    30 * time.Second,
+		WriteTimeout:   30 * time.Second,
+		IdleTimeout:    60 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+	log.Printf("Starting server with timeout protection...")
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
 }
