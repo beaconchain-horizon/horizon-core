@@ -95,6 +95,10 @@ func createIndustrialSensor(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid sensor_id"})
 		return
 	}
+	if s.AgentURL != "" && !ValidateAgentURL(s.AgentURL) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid agent_url"})
+		return
+	}
 	if s.SensorID == "" || s.PublicKey == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "sensor_id and public_key required"})
 		return
@@ -165,6 +169,14 @@ func ingestReadingBatch(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&reqs); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if len(reqs) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "empty batch"})
+		return
+	}
+	if len(reqs) > 1000 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "batch too large (max 1000)"})
 		return
 	}
 	sensorCache := make(map[string]industrial.Sensor)
