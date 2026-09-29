@@ -708,6 +708,7 @@ func main() {
 	log.Println("License enforcement started")
 	CheckKeyRotation()
 	startAutoLock(30)
+	initDualControl()
 
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
@@ -781,6 +782,9 @@ func main() {
 		api.POST("/key/unlock", unlockKeyHandler)
 		api.GET("/key/status", keyStatusHandler)
 		api.POST("/key/lock", lockKeyHandler)
+		api.POST("/dual/request", requestApprovalHandler)
+		api.POST("/dual/approve", approveHandler)
+		api.GET("/dual/pending", listPendingHandler)
 
 		// Transactions
 		api.POST("/tx", createTxHandler)
