@@ -62,3 +62,5 @@ require (
 )
 
 replace golang.org/x/net => golang.org/x/net v0.33.0
+
+replace github.com/quic-go/quic-go => github.com/quic-go/quic-go v0.59.1
