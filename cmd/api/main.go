@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"bytes"
 	"crypto/ecdsa"
 	"encoding/hex"
@@ -160,6 +161,10 @@ func requireAdmin(c *gin.Context) bool {
 func connectPostgres() error {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
+		log.Println("ENV CHECK — DATABASE_URL set:", os.Getenv("DATABASE_URL") != "")
+		log.Println("ENV CHECK — DATABASE_URL value:", os.Getenv("DATABASE_URL"))
+		log.Println("ENV CHECK — PORT:", os.Getenv("PORT"))
+		log.Println("ENV CHECK — SERVER_PORT:", os.Getenv("SERVER_PORT"))
 		return errors.New("DATABASE_URL is required")
 	}
 	var err error
