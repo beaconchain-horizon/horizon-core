@@ -6,13 +6,13 @@ taskkill //F //IM switch.exe 2>/dev/null
 sleep 2
 
 # 2. ساخت hash با $2a$
-node -e "const b=require('bcryptjs');const h=b.hashSync('admin123',10).replace(/^\\\$2b\\\$/, '\\\$2a\\\$');require('fs').writeFileSync('hash.txt',h);console.log('Hash:',h)"
+node -e "const b=require('bcryptjs');const h=b.hashSync('REPLACE_WITH_SECURE_PASSWORD',10).replace(/^\\\$2b\\\$/, '\\\$2a\\\$');require('fs').writeFileSync('hash.txt',h);console.log('Hash:',h)"
 
 # 3. تست
-node -e "const b=require('bcryptjs');const h=require('fs').readFileSync('hash.txt','utf8').trim();console.log('Match:',b.compareSync('admin123',h))"
+node -e "const b=require('bcryptjs');const h=require('fs').readFileSync('hash.txt','utf8').trim();console.log('Match:',b.compareSync('REPLACE_WITH_SECURE_PASSWORD',h))"
 
 # 4. اجرای switch
-export ADMIN_TOKEN="1a3c9f06f4db55c8847d86bf9af20b583712fc54666d87a01c64fb84eadf9e19"
+export ADMIN_TOKEN="REPLACE_WITH_ADMIN_TOKEN"
 export ADMIN_PASSWORD_HASH="$(cat hash.txt)"
 export SWITCH_PORT=8080
 export SWITCH_DB="$(pwd)/data/horizon-switch.db"

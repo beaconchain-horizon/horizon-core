@@ -10,7 +10,7 @@ console.log('Length:', hash.length);
 console.log('');
 
 const env = Object.assign({}, process.env, {
-    ADMIN_TOKEN: '1a3c9f06f4db55c8847d86bf9af20b583712fc54666d87a01c64fb84eadf9e19',
+    ADMIN_TOKEN: 'REPLACE_WITH_ADMIN_TOKEN',
     ADMIN_PASSWORD_HASH: hash,
     SWITCH_PORT: '8080',
     SWITCH_DB: path.join(cwd, 'data', 'horizon-switch.db'),

@@ -54,3 +54,10 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+config.local.js
+*.local.js
+test-keys/
+*.db
+*.db-shm
+*.db-wal
+customers.json
