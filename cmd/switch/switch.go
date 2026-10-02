@@ -40,6 +40,8 @@ type Block struct {
 	MerkleAlgo string    `json:"merkle_algo"`
 	TxCount    int       `json:"tx_count"`
 	CreatedAt  time.Time `json:"created_at"`
+	Signature  string    `json:"signature,omitempty"`
+	SignerAddr string    `json:"signer_addr,omitempty"`
 }
 
 type Transaction struct {
@@ -561,7 +563,6 @@ func createTxHandler(c *gin.Context) {
 		},
 	})
 }
-
 
 func listTxHandler(c *gin.Context) {
 	var txs []Transaction
