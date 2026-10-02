@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdsa"
@@ -16,7 +17,9 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -849,10 +852,18 @@ func main() {
 
 	// init license chain (blockchain registry)
 	if err := initLicenseChain(db); err != nil {
+
 		log.Printf("⚠️  license chain init: %v", err)
 	}
 	initChainConfig()
 	initCustomers()
+
+	// init adaptive chain batcher (async batching)
+	InitBatcher(db, BatcherConfig{
+		MaxSize:       5000,
+		FlushInterval: 50 * time.Millisecond,
+		SignWorkers:   8,
+	})
 	initAuditMiddleware()
 	if err := loadLedgerFromDB(ledger); err != nil {
 		log.Printf("ledger load warning: %v", err)
@@ -892,6 +903,21 @@ func main() {
 		startIndustrialBackgroundJobs()
 		api.GET("/health", healthHandler)
 		api.GET("/chain/info", chainInfoHandler)
+		api.GET("/chain/stats", func(c *gin.Context) {
+			api.POST("/chain/flush", func(c *gin.Context) {
+				if b := GetBatcher(); b != nil {
+					b.Flush()
+					c.JSON(http.StatusOK, gin.H{"status": "flushed"})
+					return
+				}
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "batcher not initialized"})
+			})
+			if b := GetBatcher(); b != nil {
+				c.JSON(200, b.Stats())
+				return
+			}
+			c.JSON(200, gin.H{"error": "batcher not initialized"})
+		})
 		api.GET("/stats", statsHandler)
 
 		// License enforcement status
@@ -1021,6 +1047,19 @@ func main() {
 		log.Fatal("Listen failed:", err)
 	}
 	limitedListener := netutil.LimitListener(listener, 500)
+	// graceful shutdown with chain flush
+	go func() {
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+		<-sigCh
+		log.Println("⏹  shutdown signal received, flushing batcher...")
+		if b := GetBatcher(); b != nil {
+			b.Flush()
+			b.Stop()
+		}
+		srv.Shutdown(context.Background())
+	}()
+
 	if err := srv.Serve(limitedListener); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
@@ -1095,8 +1134,8 @@ func createTxBatchHandler(c *gin.Context) {
 		return
 	}
 
-	if len(req.Txs) == 0 || len(req.Txs) > 10000 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "txs must be 1..10000"})
+	if len(req.Txs) == 0 || len(req.Txs) > 100000 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "txs must be 1..100000"})
 		return
 	}
 
@@ -1136,23 +1175,16 @@ func createTxBatchHandler(c *gin.Context) {
 
 	chainInfo := "offline"
 	if key != nil && len(processed) > 0 {
-		batch := make([]map[string]interface{}, 0, len(processed))
-		for _, tx := range processed {
-			batch = append(batch, map[string]interface{}{
-				"tx_id":  tx.TxID,
-				"from":   tx.From,
-				"to":     tx.To,
-				"amount": tx.Amount,
-			})
-		}
-		payload := map[string]interface{}{
-			"count": len(processed),
-			"txs":   batch,
-		}
-		if chTx, _, err := appendChainTx(db, key, TxBatch, payload); err != nil {
-			log.Printf("⚠️  chain batch append: %v", err)
-		} else {
-			chainInfo = fmt.Sprintf("block #%d", chTx.BlockNum)
+		if b := GetBatcher(); b != nil {
+			for _, tx := range processed {
+				b.Submit(TxBatch, map[string]interface{}{
+					"tx_id":  tx.TxID,
+					"from":   tx.From,
+					"to":     tx.To,
+					"amount": tx.Amount,
+				})
+			}
+			chainInfo = fmt.Sprintf("batched:%d", len(processed))
 		}
 	}
 
