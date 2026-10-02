@@ -59,8 +59,8 @@ without the coordination overhead.
 
 | Component | Algorithm | Standard |
 |---|---|---|
-| Block signature | ECDSA P-256 | FIPS 186-4 |
-| Reading signature | ECDSA P-256 | FIPS 186-4 |
+| Block signature | ECDSA P-256 | FIPS 186-5 |
+| Reading signature | ECDSA P-256 | FIPS 186-5 |
 | Hash | SHA-256 | FIPS 180-4 |
 | Merkle Tree | RFC 6962 | IETF CT |
 | Encoding | ASN.1 DER | X.690 |
@@ -456,7 +456,7 @@ It provides:
 - Global reach without jurisdiction dependency
 
 Built on open standards:
-- ECDSA P-256 (FIPS 186-4)
+- ECDSA P-256 (FIPS 186-5)
 - SHA-256 (FIPS 180-4)
 - RFC 6962 Merkle Tree
 - ASN.1 DER (X.690)

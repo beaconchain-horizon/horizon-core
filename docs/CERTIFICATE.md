@@ -16,8 +16,8 @@ Horizon Core is an air-gapped blockchain platform for industrial telemetry and i
 
 | Component | Algorithm | Standard |
 |---|---|---|
-| Block signature | ECDSA P-256 | FIPS 186-4 |
-| Reading signature | ECDSA P-256 | FIPS 186-4 |
+| Block signature | ECDSA P-256 | FIPS 186-5 |
+| Reading signature | ECDSA P-256 | FIPS 186-5 |
 | Hash | SHA-256 | FIPS 180-4 |
 | Merkle Tree | RFC 6962 | IETF CT |
 | Encoding | ASN.1 DER | X.690 |
