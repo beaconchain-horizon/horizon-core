@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -102,16 +103,29 @@ func addAudit(action, target, details, ip string) {
 // ============================================================
 
 func adminAuthRequired() gin.HandlerFunc {
+	envToken := os.Getenv("ADMIN_TOKEN")
 	return func(c *gin.Context) {
 		tok := c.GetHeader("X-Admin-Token")
 		if tok == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "no token"})
 			return
 		}
-		if !validateAdminSession(tok) {
+
+		// Check 1: env ADMIN_TOKEN (master token)
+		isValid := false
+		if envToken != "" && tok == envToken {
+			isValid = true
+		}
+		// Check 2: session token (from adminLoginHandler)
+		if !isValid && validateAdminSession(tok) {
+			isValid = true
+		}
+
+		if !isValid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
 			return
 		}
+
 		stateMutex.RLock()
 		key := unlockedKey
 		stateMutex.RUnlock()
@@ -264,7 +278,18 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		return
 	}
 
+	// append license to blockchain chain
+	if chainTx, _, err := appendChainTx(db, key, TxLicenseIssue, lic); err != nil {
+		log.Printf("⚠️  chain: license append failed: %v", err)
+	} else {
+		log.Printf("⛓  license %s appended in block #%d", lic.LicenseID, chainTx.BlockNum)
+	}
+
 	addAudit("issue_license", lic.LicenseID, "for user "+lic.UserID, c.ClientIP())
+
+	// refresh license state in memory (so isLicenseValid becomes true)
+	checkLicenseNow()
+
 	c.JSON(http.StatusCreated, lic)
 }
 
@@ -287,6 +312,22 @@ func revokeLicenseHandler(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "license not found"})
 		return
 	}
+	// append revoke to blockchain chain
+	stateMutex.RLock()
+	revokeKey := unlockedKey
+	stateMutex.RUnlock()
+	if revokeKey != nil {
+		revokePayload := map[string]interface{}{
+			"license_id": req.LicenseID,
+			"action":     "revoke",
+		}
+		if chainTx, _, err := appendChainTx(db, revokeKey, TxLicenseRevoke, revokePayload); err != nil {
+			log.Printf("⚠️  chain: revoke append failed: %v", err)
+		} else {
+			log.Printf("⛓  revoke appended in block #%d", chainTx.BlockNum)
+		}
+	}
+
 	addAudit("revoke_license", req.LicenseID, "license revoked", c.ClientIP())
 	c.JSON(http.StatusOK, gin.H{
 		"status":     "revoked",
