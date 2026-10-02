@@ -398,6 +398,11 @@ func unlockKeyHandler(c *gin.Context) {
 	unlockedAddr = vault.PublicAddr
 	stateMutex.Unlock()
 
+	// init blockchain chain on first unlock
+	if err := ensureChainGenesis(db, priv); err != nil {
+		log.Printf("⚠️  chain genesis: %v", err)
+	}
+
 	log.Printf("Key unlocked: %s", vault.PublicAddr)
 
 	checkLicenseNow()
@@ -561,6 +566,25 @@ func createTxHandler(c *gin.Context) {
 		Synced:     false,
 	}
 	queueTransaction(tx)
+
+	// append transaction batch to blockchain chain
+	stateMutex.RLock()
+	chainTxKey := unlockedKey
+	stateMutex.RUnlock()
+	if chainTxKey != nil {
+		batchPayload := map[string]interface{}{
+			"tx_id":  txID,
+			"from":   req.From,
+			"to":     req.To,
+			"amount": req.Amount,
+			"type":   req.Type,
+		}
+		if chTx, _, err := appendChainTx(db, chainTxKey, TxBatch, batchPayload); err != nil {
+			log.Printf("⚠️  chain: tx append failed: %v", err)
+		} else {
+			log.Printf("⛓  tx %s appended in block #%d", txID, chTx.BlockNum)
+		}
+	}
 
 	addAudit("TX_CREATED", txID, fmt.Sprintf("from=%s to=%s amount=%.2f", req.From, req.To, req.Amount), c.ClientIP())
 
@@ -822,6 +846,11 @@ func main() {
 	// === In-Memory Ledger ===
 	ledger = NewLedger()
 	initAirGap()
+
+	// init license chain (blockchain registry)
+	if err := initLicenseChain(db); err != nil {
+		log.Printf("⚠️  license chain init: %v", err)
+	}
 	initChainConfig()
 	initCustomers()
 	initAuditMiddleware()
