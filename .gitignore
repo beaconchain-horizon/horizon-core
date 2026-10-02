@@ -62,3 +62,5 @@ test-keys/
 *.db-wal
 customers.json
 *.bak2.*
+*.old
+*.tmp

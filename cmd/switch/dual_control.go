@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -123,5 +122,3 @@ func listPendingHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"pending": out, "threshold": dualThreshold})
 }
-
-func _dualUnused() { _ = fmt.Sprintf("%v", dualThreshold) }

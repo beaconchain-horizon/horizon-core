@@ -14,9 +14,9 @@ import (
 // This provides an extra layer of protection beyond key unlock.
 
 var (
-	sessionMutex   sync.Mutex
-	signingSession = make(map[string]time.Time)
-	signingSessionTTL     = 5 * time.Minute
+	sessionMutex      sync.Mutex
+	signingSession    = make(map[string]time.Time)
+	signingSessionTTL = 5 * time.Minute
 )
 
 func generateSessionToken() string {
