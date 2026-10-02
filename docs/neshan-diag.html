@@ -13,7 +13,7 @@ log('SDK loaded: '+(typeof window.maplibregl));
 log('default: '+(window.maplibregl&&window.maplibregl.default?'OK':'MISSING'));
 try{
   var m=window.maplibregl.default;
-  var map=new m.Map({container:'map',style:'https://static.neshan.org/sdk/maplibre/styles/light.json',center:[51.389,35.6892],zoom:12,apiKey:'web.1519757402364c8eaa8314c93c870903'});
+  var map=new m.Map({container:'map',style:'https://static.neshan.org/sdk/maplibre/styles/light.json',center:[51.389,35.6892],zoom:12,apiKey:'REPLACE_WITH_NESHAN_API_KEY'});
   map.on('load',function(){log('MAP LOADED OK ✓');});
   map.on('error',function(e){log('ERROR: '+(e&&e.error?e.error.message:JSON.stringify(e)));});
 }catch(err){log('CATCH: '+err.message);}

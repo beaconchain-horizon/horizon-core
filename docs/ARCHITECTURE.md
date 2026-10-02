@@ -411,7 +411,7 @@ go build -o switch.exe ./cmd/switch
 curl http://localhost:8080/api/v1/health
 curl -X POST http://localhost:8080/api/v1/admin/login \
   -H "Content-Type: application/json" \
-  -d '{"password":"admin123"}'
+  -d '{"password":"REPLACE_WITH_SECURE_PASSWORD"}'
 ```
 
 ### 13.3 Attack Test
