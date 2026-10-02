@@ -452,6 +452,84 @@ func createTxHandler(c *gin.Context) {
 		req.Type = "transfer"
 	}
 
+	// ═══════════════════════════════════════════════════════════════════
+	// P1.3 FIX: Enforce one-time signing session token.
+	// The client MUST first call POST /signing/session to obtain a token,
+	// then send it in the X-Session-Token header of this request.
+	// Without a valid, unconsumed, non-expired token, the transaction is rejected.
+	// ═══════════════════════════════════════════════════════════════════
+	sessionTok := c.GetHeader("X-Session-Token")
+	if sessionTok == "" {
+		addAudit("TX_DENIED", "no-session", "reason=missing_session_token", c.ClientIP())
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "missing X-Session-Token header",
+			"hint":  "call POST /api/v1/signing/session first",
+		})
+		return
+	}
+	if !ConsumeSessionToken(sessionTok) {
+		addAudit("TX_DENIED", sessionTok[:min(16, len(sessionTok))], "reason=invalid_or_expired_session", c.ClientIP())
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "invalid or expired signing session token",
+			"hint":  "session tokens are single-use and expire after 5 minutes",
+		})
+		return
+	}
+
+	// ═══════════════════════════════════════════════════════════════════
+	// P1.2 FIX: Enforce Dual Control for high-value transactions.
+	// If amount >= dualThreshold, the client must have already obtained
+	// approval via POST /dual/request and POST /dual/approve by a second
+	// admin. The approval ID must be sent in the X-Dual-Approval header.
+	// ═══════════════════════════════════════════════════════════════════
+	if RequiresDualControl(req.Amount) {
+		approvalID := c.GetHeader("X-Dual-Approval")
+		if approvalID == "" {
+			addAudit("TX_DENIED", "no-dual", fmt.Sprintf("amount=%.2f requires dual control", req.Amount), c.ClientIP())
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":     "dual control required for high-value transaction",
+				"threshold": dualThreshold,
+				"amount":    req.Amount,
+				"hint":      "call POST /api/v1/dual/request then POST /api/v1/dual/approve, then retry with X-Dual-Approval header",
+			})
+			return
+		}
+
+		dualMutex.Lock()
+		approval, ok := dualPending[approvalID]
+		dualMutex.Unlock()
+
+		if !ok {
+			addAudit("TX_DENIED", approvalID, "reason=dual_approval_not_found", c.ClientIP())
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "dual approval ID not found or expired",
+			})
+			return
+		}
+		if approval.Status != "approved" {
+			addAudit("TX_DENIED", approvalID, "reason=dual_not_yet_approved", c.ClientIP())
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":  "dual approval not yet granted",
+				"status": approval.Status,
+			})
+			return
+		}
+		if approval.ApprovedBy == approval.RequestedBy {
+			addAudit("TX_DENIED", approvalID, "reason=dual_same_approver", c.ClientIP())
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "dual approval must be granted by a different admin",
+			})
+			return
+		}
+
+		// Consume the approval — one-time use
+		dualMutex.Lock()
+		delete(dualPending, approvalID)
+		dualMutex.Unlock()
+		addAudit("DUAL_CONSUMED", approvalID, fmt.Sprintf("amount=%.2f", req.Amount), c.ClientIP())
+	}
+
+	// ═══ Actual transaction ═══
 	if err := ledger.Transfer(req.From, req.To, req.Amount); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -470,6 +548,8 @@ func createTxHandler(c *gin.Context) {
 	}
 	queueTransaction(tx)
 
+	addAudit("TX_CREATED", txID, fmt.Sprintf("from=%s to=%s amount=%.2f", req.From, req.To, req.Amount), c.ClientIP())
+
 	newFrom := ledger.GetBalance(req.From)
 	newTo := ledger.GetBalance(req.To)
 
@@ -481,6 +561,7 @@ func createTxHandler(c *gin.Context) {
 		},
 	})
 }
+
 
 func listTxHandler(c *gin.Context) {
 	var txs []Transaction
