@@ -861,7 +861,7 @@ func main() {
 	// init adaptive chain batcher (async batching)
 	InitBatcher(db, BatcherConfig{
 		MaxSize:       5000,
-		FlushInterval: 50 * time.Millisecond,
+		FlushInterval: 200 * time.Millisecond,
 		SignWorkers:   8,
 	})
 	initAuditMiddleware()
@@ -904,19 +904,20 @@ func main() {
 		api.GET("/health", healthHandler)
 		api.GET("/chain/info", chainInfoHandler)
 		api.GET("/chain/stats", func(c *gin.Context) {
-			api.POST("/chain/flush", func(c *gin.Context) {
-				if b := GetBatcher(); b != nil {
-					b.Flush()
-					c.JSON(http.StatusOK, gin.H{"status": "flushed"})
-					return
-				}
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "batcher not initialized"})
-			})
 			if b := GetBatcher(); b != nil {
 				c.JSON(200, b.Stats())
 				return
 			}
 			c.JSON(200, gin.H{"error": "batcher not initialized"})
+		})
+
+		api.POST("/chain/flush", func(c *gin.Context) {
+			if b := GetBatcher(); b != nil {
+				b.Flush()
+				c.JSON(http.StatusOK, gin.H{"status": "flushed"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "batcher not initialized"})
 		})
 		api.GET("/stats", statsHandler)
 

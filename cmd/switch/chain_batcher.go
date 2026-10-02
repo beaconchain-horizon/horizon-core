@@ -145,9 +145,16 @@ func (b *ChainBatcher) Flush() {
 	log.Printf("⛓  batcher: %d txs → block #%d", len(txs), block.BlockNum)
 }
 
-// signParallel distributes signing across N workers
+// signParallel — OPTIMIZED: no per-tx ECDSA.
+// The block signature (in addChainBlock) covers all txs via merkle root.
+// Per-tx signature would be redundant (10x-100x slower).
+// Standard blockchain model: block signature is authoritative.
 func (b *ChainBatcher) signParallel(key *ecdsa.PrivateKey, pending []PendingTx) []ChainTx {
 	n := len(pending)
+	result := make([]ChainTx, n)
+	var wg sync.WaitGroup
+	var idx int64
+	var mu sync.Mutex
 	workers := b.cfg.SignWorkers
 	if workers > n {
 		workers = n
@@ -155,11 +162,6 @@ func (b *ChainBatcher) signParallel(key *ecdsa.PrivateKey, pending []PendingTx) 
 	if workers < 1 {
 		workers = 1
 	}
-
-	result := make([]ChainTx, n)
-	var wg sync.WaitGroup
-	var idx int64
-	var mu sync.Mutex
 
 	for w := 0; w < workers; w++ {
 		wg.Add(1)
@@ -181,16 +183,12 @@ func (b *ChainBatcher) signParallel(key *ecdsa.PrivateKey, pending []PendingTx) 
 				payloadStr := string(payloadBytes)
 				txID := fmt.Sprintf("tx_%d_%d_%s", p.Timestamp, i, randomHex(4))
 				txHash := computeTxHash(p.TxType, payloadStr, p.Timestamp)
-				sig, err := signData(key, []byte(canonicalTxMessage(p.TxType, txID, payloadStr, p.Timestamp)))
-				if err != nil {
-					continue
-				}
 				result[i] = ChainTx{
 					TxID:      txID,
 					TxType:    p.TxType,
 					Payload:   payloadStr,
 					TxHash:    txHash,
-					Signature: sig,
+					Signature: "",
 					Timestamp: p.Timestamp,
 				}
 			}
@@ -198,7 +196,6 @@ func (b *ChainBatcher) signParallel(key *ecdsa.PrivateKey, pending []PendingTx) 
 	}
 	wg.Wait()
 
-	// drop empties
 	out := make([]ChainTx, 0, n)
 	for _, t := range result {
 		if t.TxID != "" {
