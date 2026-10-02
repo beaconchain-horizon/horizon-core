@@ -265,19 +265,24 @@ func validateLicense(license *License, now time.Time) error {
 	}
 
 	if err := verifyLicenseEnforcementSignature(license); err != nil {
-		// Hardware ID check (skipped for legacy licenses with empty HWID)
-		if license.HardwareID != "" {
-			currentHWID := getHardwareIDOrEmpty()
-			if currentHWID != license.HardwareID {
-				return fmt.Errorf(
-					"hardware id mismatch: license bound to %s, current is %s",
-					license.HardwareID,
-					currentHWID,
-				)
-			}
-		}
-
 		return err
+	}
+
+	// P0.3 FIX: Hardware ID enforcement is independent of signature check.
+	// Before: HWID was only checked inside the signature-error branch,
+	// meaning any valid signature bypassed hardware binding entirely.
+	if license.HardwareID != "" {
+		currentHWID := getHardwareIDOrEmpty()
+		if currentHWID == "" {
+			return fmt.Errorf("hardware id: cannot read current hardware")
+		}
+		if currentHWID != license.HardwareID {
+			return fmt.Errorf(
+				"hardware id mismatch: license bound to %s, current is %s",
+				license.HardwareID,
+				currentHWID,
+			)
+		}
 	}
 
 	// Grace period: allow up to gracePeriodDays after expiry
@@ -407,4 +412,3 @@ func buildLicenseBlockedResponse() licenseExpiredResponse {
 		DaysLeft:  daysLeft,
 	}
 }
-
