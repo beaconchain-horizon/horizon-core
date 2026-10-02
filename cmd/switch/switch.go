@@ -281,6 +281,18 @@ func mineBlock() (*Block, error) {
 		TxCount:    len(pending),
 	}
 
+	// P1.6: sign block hash with unlocked ECDSA key (if available)
+	stateMutex.RLock()
+	signingKey := unlockedKey
+	signerAddr := unlockedAddr
+	stateMutex.RUnlock()
+	if signingKey != nil {
+		if sig, err := signData(signingKey, []byte(block.Hash)); err == nil {
+			block.Signature = sig
+			block.SignerAddr = signerAddr
+		}
+	}
+
 	if err := db.Create(block).Error; err != nil {
 		return nil, err
 	}
