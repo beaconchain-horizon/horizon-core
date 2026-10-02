@@ -1,13 +1,13 @@
 package main
 
 import (
-	"log"
 	"bytes"
 	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -215,6 +215,20 @@ func callSwitch(path string, payload any) (map[string]any, int, error) {
 func mustReadFile(path string) []byte { b, _ := os.ReadFile(path); return b }
 
 func main() {
+	// ─── P0.4 FAIL-CLOSED: refuse to start without required secrets ───
+	adminToken := os.Getenv("ADMIN_TOKEN")
+	if adminToken == "" {
+		adminToken = os.Getenv("API_KEY")
+	}
+	if adminToken == "" {
+		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN (or API_KEY) must be set. Refusing to start with open auth.")
+	}
+	if len(adminToken) < 32 {
+		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN must be at least 32 characters.")
+	}
+	log.Printf("P0.4: auth enabled (token length=%d)", len(adminToken))
+	// ──────────────────────────────────────────────────────────────
+
 	if err := db.InitDB(); err != nil {
 		panic(err)
 	}

@@ -20,9 +20,9 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
-	"golang.org/x/net/netutil"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
+	"golang.org/x/net/netutil"
 	"gorm.io/gorm"
 )
 
@@ -380,7 +380,7 @@ func unlockKeyHandler(c *gin.Context) {
 
 	stateMutex.Lock()
 	unlockedKey = priv
-		unlockedAt = time.Now()
+	unlockedAt = time.Now()
 	unlockedAddr = vault.PublicAddr
 	stateMutex.Unlock()
 
@@ -681,6 +681,20 @@ func statsHandler(c *gin.Context) {
 // ============ MAIN ============
 
 func main() {
+	// ─── P0.4 FAIL-CLOSED: refuse to start without required secrets ───
+	adminToken := os.Getenv("ADMIN_TOKEN")
+	if adminToken == "" {
+		adminToken = os.Getenv("API_KEY")
+	}
+	if adminToken == "" {
+		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN (or API_KEY) must be set. Refusing to start with open auth.")
+	}
+	if len(adminToken) < 32 {
+		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN must be at least 32 characters.")
+	}
+	log.Printf("P0.4: auth enabled (token length=%d)", len(adminToken))
+	// ──────────────────────────────────────────────────────────────
+
 	// Init SQLite
 	var err error
 	dbPath := os.Getenv("SWITCH_DB")
