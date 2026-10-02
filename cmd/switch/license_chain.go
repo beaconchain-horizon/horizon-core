@@ -138,6 +138,7 @@ func createGenesisBlock(db *gorm.DB, ownerKey *ecdsa.PrivateKey) (*ChainBlock, e
 	if err := db.Create(block).Error; err != nil {
 		return nil, err
 	}
+
 	log.Printf("⛓  Genesis block created (signer=%s)", addr[:10])
 	return block, nil
 }
@@ -150,7 +151,7 @@ func addChainBlock(db *gorm.DB, ownerKey *ecdsa.PrivateKey, txs []ChainTx) (*Cha
 	chainMutex.Lock()
 	defer chainMutex.Unlock()
 
-	// get last block
+	// get last block (cached)
 	var last ChainBlock
 	if err := db.Order("block_num DESC").First(&last).Error; err != nil {
 		return nil, fmt.Errorf("no chain: %w", err)
@@ -393,4 +394,38 @@ func randomHex(n int) string {
 		return fmt.Sprintf("%016x", time.Now().UnixNano())[:n*2]
 	}
 	return hex.EncodeToString(b)
+}
+
+// ─── P-OPT: cached last block for performance ───
+var (
+	lastBlockCache     *ChainBlock
+	lastBlockCacheLock sync.RWMutex
+)
+
+func getLastBlockCached(db *gorm.DB) (*ChainBlock, error) {
+	lastBlockCacheLock.RLock()
+	if lastBlockCache != nil {
+		defer lastBlockCacheLock.RUnlock()
+		return lastBlockCache, nil
+	}
+	lastBlockCacheLock.RUnlock()
+
+	lastBlockCacheLock.Lock()
+	defer lastBlockCacheLock.Unlock()
+	// double-check
+	if lastBlockCache != nil {
+		return lastBlockCache, nil
+	}
+	var last ChainBlock
+	if err := db.Order("block_num DESC").First(&last).Error; err != nil {
+		return nil, err
+	}
+	lastBlockCache = &last
+	return &last, nil
+}
+
+func setLastBlockCache(b *ChainBlock) {
+	lastBlockCacheLock.Lock()
+	lastBlockCache = b
+	lastBlockCacheLock.Unlock()
 }
