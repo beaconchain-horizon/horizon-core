@@ -78,7 +78,7 @@ func (l *Ledger) Transfer(from, to string, amount float64) error {
 			return fmt.Errorf("sender account not found: %s", from)
 		}
 		if _, ok := l.shards[iFrom][to]; !ok {
-			return fmt.Errorf("receiver account not found: %s", to)
+			l.shards[iFrom][to] = 0
 		}
 		if bal < amount {
 			return fmt.Errorf("insufficient balance: %.2f < %.2f", bal, amount)
@@ -100,7 +100,7 @@ func (l *Ledger) Transfer(from, to string, amount float64) error {
 			return fmt.Errorf("sender account not found: %s", from)
 		}
 		if _, ok := l.shards[iTo][to]; !ok {
-			return fmt.Errorf("receiver account not found: %s", to)
+			l.shards[iTo][to] = 0
 		}
 		if bal < amount {
 			return fmt.Errorf("insufficient balance: %.2f < %.2f", bal, amount)
