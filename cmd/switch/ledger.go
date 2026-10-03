@@ -8,8 +8,31 @@ import (
 
 const numShards = 16
 
+// ═══════════════════════════════════════════════════════════════════
+// Money Precision Layer
+//
+// Internal storage: int64 minor units
+// External API: float64 (backward compatible)
+//
+// MoneyScale = 1  → integer Rial (bank standard)
+// For cents: change to 100
+// ═══════════════════════════════════════════════════════════════════
+
+const MoneyScale = 1
+
+func toMinor(amount float64) int64 {
+	if amount >= 0 {
+		return int64(amount*float64(MoneyScale) + 0.5)
+	}
+	return int64(amount*float64(MoneyScale) - 0.5)
+}
+
+func fromMinor(minor int64) float64 {
+	return float64(minor) / float64(MoneyScale)
+}
+
 type Ledger struct {
-	shards [numShards]map[string]float64
+	shards [numShards]map[string]int64
 	mu     [numShards]sync.RWMutex
 	ops    atomic.Int64
 }
@@ -17,7 +40,7 @@ type Ledger struct {
 func NewLedger() *Ledger {
 	l := &Ledger{}
 	for i := 0; i < numShards; i++ {
-		l.shards[i] = make(map[string]float64)
+		l.shards[i] = make(map[string]int64)
 	}
 	return l
 }
@@ -35,7 +58,7 @@ func (l *Ledger) GetBalance(bankID string) float64 {
 	i := shardIdx(bankID)
 	l.mu[i].RLock()
 	defer l.mu[i].RUnlock()
-	return l.shards[i][bankID]
+	return fromMinor(l.shards[i][bankID])
 }
 
 func (l *Ledger) HasAccount(bankID string) bool {
@@ -49,19 +72,20 @@ func (l *Ledger) HasAccount(bankID string) bool {
 func (l *Ledger) SetBalance(bankID string, amount float64) {
 	i := shardIdx(bankID)
 	l.mu[i].Lock()
-	l.shards[i][bankID] = amount
+	l.shards[i][bankID] = toMinor(amount)
 	l.mu[i].Unlock()
 }
 
 func (l *Ledger) AddBalance(bankID string, amount float64) {
 	i := shardIdx(bankID)
 	l.mu[i].Lock()
-	l.shards[i][bankID] += amount
+	l.shards[i][bankID] += toMinor(amount)
 	l.mu[i].Unlock()
 }
 
 func (l *Ledger) Transfer(from, to string, amount float64) error {
-	if amount <= 0 {
+	minorAmount := toMinor(amount)
+	if minorAmount <= 0 {
 		return fmt.Errorf("amount must be positive")
 	}
 	if from == to {
@@ -80,11 +104,11 @@ func (l *Ledger) Transfer(from, to string, amount float64) error {
 		if _, ok := l.shards[iFrom][to]; !ok {
 			l.shards[iFrom][to] = 0
 		}
-		if bal < amount {
-			return fmt.Errorf("insufficient balance: %.2f < %.2f", bal, amount)
+		if bal < minorAmount {
+			return fmt.Errorf("insufficient balance: %d < %d", bal, minorAmount)
 		}
-		l.shards[iFrom][from] = bal - amount
-		l.shards[iFrom][to] += amount
+		l.shards[iFrom][from] = bal - minorAmount
+		l.shards[iFrom][to] += minorAmount
 	} else {
 		first, second := iFrom, iTo
 		if first > second {
@@ -102,11 +126,11 @@ func (l *Ledger) Transfer(from, to string, amount float64) error {
 		if _, ok := l.shards[iTo][to]; !ok {
 			l.shards[iTo][to] = 0
 		}
-		if bal < amount {
-			return fmt.Errorf("insufficient balance: %.2f < %.2f", bal, amount)
+		if bal < minorAmount {
+			return fmt.Errorf("insufficient balance: %d < %d", bal, minorAmount)
 		}
-		l.shards[iFrom][from] = bal - amount
-		l.shards[iTo][to] += amount
+		l.shards[iFrom][from] = bal - minorAmount
+		l.shards[iTo][to] += minorAmount
 	}
 	l.ops.Add(1)
 	return nil
@@ -117,7 +141,7 @@ func (l *Ledger) Snapshot() map[string]float64 {
 	for i := 0; i < numShards; i++ {
 		l.mu[i].RLock()
 		for k, v := range l.shards[i] {
-			out[k] = v
+			out[k] = fromMinor(v)
 		}
 		l.mu[i].RUnlock()
 	}
@@ -127,13 +151,13 @@ func (l *Ledger) Snapshot() map[string]float64 {
 func (l *Ledger) LoadSnapshot(data map[string]float64) {
 	for i := 0; i < numShards; i++ {
 		l.mu[i].Lock()
-		l.shards[i] = make(map[string]float64)
+		l.shards[i] = make(map[string]int64)
 		l.mu[i].Unlock()
 	}
 	for k, v := range data {
 		i := shardIdx(k)
 		l.mu[i].Lock()
-		l.shards[i][k] = v
+		l.shards[i][k] = toMinor(v)
 		l.mu[i].Unlock()
 	}
 }
