@@ -105,7 +105,6 @@ func (b *ChainBatcher) Submit(txType string, payload interface{}) string {
 
 func (b *ChainBatcher) Flush() {
 	// DEBUG
-	log.Printf("[FLUSH] called, queue=%d", len(b.queue))
 	stateMutex.RLock()
 	key := unlockedKey
 	stateMutex.RUnlock()
