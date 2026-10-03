@@ -860,9 +860,8 @@ func main() {
 
 	// init adaptive chain batcher (async batching)
 	InitBatcher(db, BatcherConfig{
-		MaxSize:       5000,
+		MaxSize:       50000,
 		FlushInterval: 200 * time.Millisecond,
-		SignWorkers:   8,
 	})
 	initAuditMiddleware()
 	if err := loadLedgerFromDB(ledger); err != nil {
