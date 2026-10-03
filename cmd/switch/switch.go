@@ -863,6 +863,9 @@ func main() {
 		MaxSize:       50000,
 		FlushInterval: 200 * time.Millisecond,
 	})
+
+	// start industrial anchor worker
+	startIndustrialAnchorWorker()
 	initAuditMiddleware()
 	if err := loadLedgerFromDB(ledger); err != nil {
 		log.Printf("ledger load warning: %v", err)

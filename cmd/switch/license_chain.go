@@ -24,14 +24,15 @@ import (
 
 // ─── Tx Types ───
 const (
-	TxUserRegister   = "user.register"
-	TxLicenseIssue   = "license.issue"
-	TxLicenseRenew   = "license.renew"
-	TxLicenseRevoke  = "license.revoke"
-	TxBranchRegister = "branch.register"
-	TxBatch          = "tx.batch"
-	TxKeyRotate      = "key.rotate"
-	TxAudit          = "audit.event"
+	TxUserRegister     = "user.register"
+	TxLicenseIssue     = "license.issue"
+	TxLicenseRenew     = "license.renew"
+	TxLicenseRevoke    = "license.revoke"
+	TxBranchRegister   = "branch.register"
+	TxBatch            = "tx.batch"
+	TxKeyRotate        = "key.rotate"
+	TxAudit            = "audit.event"
+	TxIndustrialAnchor = "industrial.anchor"
 )
 
 // ─── Chain Block ───
