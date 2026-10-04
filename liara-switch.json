@@ -1,0 +1,11 @@
+{
+  "app": "horizon-switch",
+  "platform": "docker",
+  "port": 8080,
+  "disks": [
+    {
+      "name": "switch-data",
+      "mountTo": "/root/data"
+    }
+  ]
+}
