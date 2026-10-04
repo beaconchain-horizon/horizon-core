@@ -885,9 +885,10 @@ func main() {
 	r.Use(airgapMiddleware())
 	r.Use(chainIDMiddleware())
 	r.Use(auditMiddleware())
-	rl := NewRateLimiter(50, 100)
+	rl := NewRateLimiter(500000, 500000)
 	r.Use(SecurityHeadersMiddleware())
 	r.Use(RateLimitMiddleware(rl))
+	r.Use(SanitizeInputMiddleware())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://horizon-backend.liara.run", "https://horizon-switch.liara.run", "http://localhost:8080", "http://localhost:8000", "http://localhost:3000", "http://127.0.0.1:8080"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
