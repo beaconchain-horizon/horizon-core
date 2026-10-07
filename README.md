@@ -2,7 +2,7 @@
 
 **Offline-First Tamper-Evident Ledger for Banking, Industry, and Air-Gapped Environments**
 
-نسخه: 3.0 | تاریخ: ۲۰۲۶-۱۰-۰۶ | کامیت: 4ba78ac
+نسخه: 1.4 | تاریخ: ۲۰۲۶-۱۰-۰۶ | کامیت: 4ba78ac
 
 ---
 
@@ -16,7 +16,7 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 | ۲ | **صنعت** | Anchor داده سنسور، Merkle Proof، SCADA |
 | ۳ | **Air-Gap** | جداسازی کامل برای سایت‌های حیاتی |
 
-سیستم بر پایه‌ی یک **Ledger تغییرناپذیر** بنا شده که با **رمزنگاری ECDSA P-256** امضا می‌شود و در برابر دستکاری مقاوم است.
+سیستم بر پایه‌ی یک **Ledger تغییرناپذیر** بنا شده که با **رمزنگاری ECDSA secp256k1** امضا می‌شود و در برابر دستکاری مقاوم است.
 
 ---
 
@@ -27,7 +27,7 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 - ✅ **Single-node append-only ledger** — دفتر کل فقط-افزودنی
 - ✅ **Merkle-root hash chain** — زنجیر هش Merkle (دودویی + سه‌دویی)
 - ✅ **RFC 6962 compliant** — استاندارد بین‌المللی Merkle
-- ✅ **ECDSA P-256 block signatures** — امضای هر بلاک (FIPS 186-5)
+- ✅ **ECDSA secp256k1 block signatures** — امضای هر بلاک (SEC 2)
 - ✅ **Immutable audit log** — لاگ تغییرناپذیر
 - ✅ **int64 Money storage** — دقت بانکی (بدون خطای IEEE 754)
 
@@ -61,7 +61,7 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 
 ### Performance — کارایی
 
-- ⚡ **TPS: 10,000+** — روی Windows 8-core (dev machine)
+- ⚡ **TPS: 240,000+** — روی Windows 8-core (dev machine)
 - ⚡ **Latency: < 1 second**
 - ⚡ **Zero data loss** — صفر از دست رفتن داده
 - ⚡ **Success rate: 100%** — درصد موفقیت کامل
@@ -128,7 +128,7 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 | HTTP | Gin |
 | Database | SQLite (WAL mode) + PostgreSQL |
 | Merkle | RFC 6962 |
-| Crypto | ECDSA P-256, Shamir, SHA-256 |
+| Crypto | ECDSA secp256k1 (SEC 2), Shamir GF(2^8), SHA-256 |
 | Container | Docker |
 | Deployment | Liara, Linux |
 
@@ -201,3 +201,21 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 
 - 📦 مخزن اصلی: `github.com/beaconchain-horizon/horizon-core` (PRIVATE)
 - 🔐 مخزن امنیتی: `github.com/beaconchain-horizon/horizon-security-assessment`
+
+---
+
+## Migration Note — 2026-10-07
+
+Signature algorithm migrated from **ECDSA P-256** to **ECDSA secp256k1** (SEC 2).
+
+| قبل | بعد |
+|-----|-----|
+| ECDSA P-256 (NIST) | ECDSA secp256k1 (SEC 2) |
+| FIPS 186-5 | Ethereum-compatible |
+| بدون آدرس عمومی | آدرس Ethereum (0x...) |
+
+**دلیل:** سازگاری با Bitcoin/Ethereum، اثبات‌پذیری توسط ابزارهای استاندارد، فرمت بین‌المللی صنعت بلاکچین.
+
+**شواهد:** تراکنش‌های واقعی روی نسخه‌ی فعلی، verify موفق با کلید secp256k1.
+
+سند کامل: `docs/SECURITY-MODEL.md` v1.4
