@@ -1,6 +1,6 @@
 # Horizon Core — Security Model
 
-Version: v1.1
+Version: v1.4
 Date: 2026-10-07
 Owner: Mahdi Amoli Moghaddam
 
