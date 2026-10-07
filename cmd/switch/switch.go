@@ -1028,6 +1028,7 @@ func main() {
 	r.GET("/stats", statsHandler)
 	r.GET("/benchmark", benchmarkHandler)
 	r.GET("/payment/mock", mockPaymentPageHandler)
+	r.POST("/api/v1/bnpl/anchor", adminAuthRequired(), bnplAnchorHandler)
 
 	port := os.Getenv("SWITCH_PORT")
 	if port == "" {
