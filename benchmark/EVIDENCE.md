@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-22
 **System:** Windows 11 + Git Bash
-**Version:** Horizon Switch v3.0
+**Version:** Horizon Switch v1.4
 
 ---
 
@@ -29,7 +29,7 @@ $ ./bin/switch --db=./test.db --listen=127.0.0.1:8080 &
 2026/09/22 04:31:18 Chain: horizon-test | AirGapAllowed: true
 2026/09/22 04:31:19 Ledger initialized (in-memory + async persist)
 2026/09/22 04:31:19 [INDUSTRIAL] heartbeat monitor started
-2026/09/22 04:31:19 Horizon Switch v3.0 running on port 8080
+2026/09/22 04:31:19 Horizon Switch v1.4 running on port 8080
 2026/09/22 04:31:19 Database: ./test.db
 ```
 

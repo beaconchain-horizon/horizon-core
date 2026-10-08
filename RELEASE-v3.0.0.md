@@ -1,4 +1,4 @@
-# 🌟 Horizon Angel Core v3.0.0
+# 🌟 Horizon Angel Core v1.4.0
 
 پس از سال‌ها توسعه، تست میدانی و بازخورد واقعی از صنایع و بانک‌ها، **نسخه سوم Horizon Angel** منتشر شد.
 
@@ -56,4 +56,4 @@
 
 ---
 
-**Full Changelog**: https://github.com/beaconchain-horizon/horizon-core/compare/v2.0.0...v3.0.0
+**Full Changelog**: https://github.com/beaconchain-horizon/horizon-core/compare/v2.0.0...v1.4.0

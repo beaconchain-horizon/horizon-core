@@ -837,6 +837,9 @@ func main() {
 	}
 	log.Println("SQLite database ready:", dbPath)
 
+	// Auto-setup key from env if present
+	autoSetupKeyFromEnv()
+
 	// === License Enforcement ===
 	licenseStopCh := make(chan struct{})
 	go startLicenseChecker(licenseStopCh)
@@ -1035,7 +1038,7 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Horizon Switch v3.0 running on port %s", port)
+	log.Printf("Horizon Switch v1.4 running on port %s", port)
 	log.Printf("Database: %s", dbPath)
 
 	srv := &http.Server{

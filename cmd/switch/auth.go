@@ -18,7 +18,8 @@ func adminAuth(c *gin.Context) {
 	}
 
 	// Public paths — no auth required
-	if p == "/api/v1/health" ||
+	if p == "/health" ||
+		p == "/api/v1/health" ||
 		p == "/api/v1/industrial/panel" ||
 		p == "/api/v1/industrial/reading" ||
 		p == "/api/v1/industrial/reading/batch" ||
