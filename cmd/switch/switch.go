@@ -316,7 +316,7 @@ func healthHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "online",
 		"service": "horizon-switch",
-		"version": "3.0",
+		"version": "1.4",
 		"time":    time.Now().Format(time.RFC3339),
 	})
 }
