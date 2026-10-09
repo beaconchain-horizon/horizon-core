@@ -1,28 +1,55 @@
 version: 2
+
 updates:
+  # Go dependencies
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
+      interval: "daily"
+      time: "03:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
     labels:
       - "dependencies"
       - "security"
+    groups:
+      go-security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
 
+  # Docker base images and Dockerfile dependencies
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 3
+      interval: "daily"
+      time: "03:15"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "docker"
+      - "security"
+    groups:
+      docker-security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
 
+  # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 3
+      interval: "daily"
+      time: "03:30"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "ci"
+      - "security"
+    groups:
+      actions-security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
