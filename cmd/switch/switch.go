@@ -5,7 +5,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -13,7 +12,6 @@ import (
 	"horizon-core/internal/merkle"
 	"io"
 	"log"
-	"math/big"
 	"net"
 	"net/http"
 	"os"
@@ -27,6 +25,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"golang.org/x/net/netutil"
 	"gorm.io/gorm"
+	"horizon-core/internal/crypto"
 )
 
 // ============================================================
@@ -162,38 +161,23 @@ func decryptPrivateKey(encryptedHex, ivHex, password string) (string, error) {
 }
 
 func hexToECDSA(hexKey string) (*ecdsa.PrivateKey, error) {
-	key := hexKey
-	if len(key) > 2 && key[:2] == "0x" {
-		key = key[2:]
-	}
-	bytes, err := hex.DecodeString(key)
-	if err != nil {
-		return nil, err
-	}
-	priv := new(ecdsa.PrivateKey)
-	priv.PublicKey.Curve = elliptic.P256()
-	priv.D = new(big.Int).SetBytes(bytes)
-	priv.PublicKey.X, priv.PublicKey.Y = priv.PublicKey.Curve.ScalarBaseMult(bytes)
-	return priv, nil
+	return crypto.Secp256k1PrivateKeyFromHex(hexKey)
 }
 
 func publicAddressFromKey(priv *ecdsa.PrivateKey) string {
-	pubBytes := elliptic.MarshalCompressed(priv.PublicKey.Curve, priv.PublicKey.X, priv.PublicKey.Y)
-	hash := sha256.Sum256(pubBytes)
-	return "0x" + hex.EncodeToString(hash[:20])
+	return crypto.PublicAddressFromKey(priv)
 }
 
 func signData(priv *ecdsa.PrivateKey, data []byte) (string, error) {
 	hash := sha256.Sum256(data)
-	r, s, err := ecdsa.Sign(rand.Reader, priv, hash[:])
+
+	sig, err := crypto.SignHashRS(priv, hash[:])
 	if err != nil {
 		return "", err
 	}
-	sig := make([]byte, 64)
-	r.FillBytes(sig[:32])
-	s.FillBytes(sig[32:])
-	// Audit log for every signature (without IP)
-	addAudit("SIGN", hex.EncodeToString(hash[:8]), "ecdsa_p256", "")
+
+	addAudit("SIGN", hex.EncodeToString(hash[:8]), "ecdsa_secp256k1", "")
+
 	return hex.EncodeToString(sig), nil
 }
 

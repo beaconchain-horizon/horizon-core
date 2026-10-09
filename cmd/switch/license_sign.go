@@ -2,11 +2,8 @@ package main
 
 import (
 	"crypto/ecdsa"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,6 +11,7 @@ import (
 	"horizon-core/internal/merkle"
 
 	"github.com/gin-gonic/gin"
+	"horizon-core/internal/crypto"
 )
 
 // licenseSigningPayload contains ONLY immutable license fields.
@@ -94,35 +92,11 @@ func verifySignature(
 	data []byte,
 	sigHex string,
 ) (bool, error) {
-	sigHex = normalizeHex(sigHex)
-
-	sig, err := hex.DecodeString(sigHex)
-	if err != nil {
-		return false, fmt.Errorf("bad signature hex: %w", err)
-	}
-
-	if len(sig) != 64 {
-		return false, fmt.Errorf(
-			"bad signature length: got %d, want 64",
-			len(sig),
-		)
-	}
-
 	if pub == nil {
 		return false, fmt.Errorf("public key is nil")
 	}
 
-	hash := sha256.Sum256(data)
-
-	r := new(big.Int).SetBytes(sig[:32])
-	s := new(big.Int).SetBytes(sig[32:])
-
-	return ecdsa.Verify(
-		pub,
-		hash[:],
-		r,
-		s,
-	), nil
+	return crypto.VerifyData(pub, data, sigHex)
 }
 
 // normalizeHex removes an optional 0x/0X prefix.

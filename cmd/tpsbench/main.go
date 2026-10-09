@@ -2,26 +2,19 @@ package main
 
 import (
 	"bytes"
-	"crypto/ecdsa"
 	"crypto/rand"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/asn1"
 	"encoding/hex"
 	"encoding/json"
-	"encoding/pem"
 	"flag"
 	"fmt"
+	hcrypto "horizon-core/internal/crypto"
 	"io"
-	"math/big"
 	"net/http"
 	"os"
 	"sync"
 	"sync/atomic"
 	"time"
 )
-
-type sigASN struct{ R, S *big.Int }
 
 type SignableReading struct {
 	SensorID  string  `json:"sensor_id"`
@@ -48,9 +41,20 @@ func main() {
 	dbg := flag.Bool("debug", false, "")
 	flag.Parse()
 
-	pb, _ := os.ReadFile(*kp)
-	b, _ := pem.Decode(pb)
-	pk, _ := x509.ParseECPrivateKey(b.Bytes)
+	if *kp == "" {
+		fmt.Fprintln(os.Stderr, "missing --key")
+		os.Exit(2)
+	}
+	pb, readErr := os.ReadFile(*kp)
+	if readErr != nil {
+		fmt.Fprintln(os.Stderr, "read key:", readErr)
+		os.Exit(1)
+	}
+	pk, keyErr := hcrypto.PEMToPrivateKey(string(pb))
+	if keyErr != nil {
+		fmt.Fprintln(os.Stderr, "parse key:", keyErr)
+		os.Exit(1)
+	}
 
 	batches := (*n + *bs - 1) / *bs
 	payloads := make([][]byte, batches)
@@ -66,17 +70,23 @@ func main() {
 				Nonce:     hex.EncodeToString(randB(16)),
 				Timestamp: time.Now().Unix(),
 			}
-			canonical, _ := json.Marshal(sr)
-			h := sha256.Sum256(canonical)
-			rr, ss, _ := ecdsa.Sign(rand.Reader, pk, h[:])
-			d, _ := asn1.Marshal(sigASN{rr, ss})
+			canonical, marshalErr := json.Marshal(sr)
+			if marshalErr != nil {
+				fmt.Fprintln(os.Stderr, "marshal canonical reading:", marshalErr)
+				os.Exit(1)
+			}
+			signatureHex, signErr := hcrypto.SignData(canonical, pk)
+			if signErr != nil {
+				fmt.Fprintln(os.Stderr, "sign reading:", signErr)
+				os.Exit(1)
+			}
 
 			if *dbg && i == 0 && j == 0 {
 				fmt.Printf("\n[DEBUG — first payload]\n")
 				fmt.Printf("canonical JSON: %s\n", string(canonical))
 				fmt.Printf("canonical hex:  %s\n", hex.EncodeToString(canonical))
-				fmt.Printf("sha256 hex:     %s\n", hex.EncodeToString(h[:]))
-				fmt.Printf("signature hex:  %s\n", hex.EncodeToString(d))
+				fmt.Printf("sha256 hex:     %s\n", hex.EncodeToString(hcrypto.Sha256Hash(canonical)))
+				fmt.Printf("signature hex:  %s\n", signatureHex)
 			}
 
 			arr = append(arr, Reading{
@@ -84,7 +94,7 @@ func main() {
 				Value:     sr.Value,
 				Nonce:     sr.Nonce,
 				Timestamp: sr.Timestamp,
-				Signature: hex.EncodeToString(d),
+				Signature: signatureHex,
 			})
 		}
 		payloads[i], _ = json.Marshal(arr)

@@ -1,13 +1,7 @@
 package main
 
 import (
-	"crypto/ecdsa"
-	"crypto/rand"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/hex"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"os"
 	"time"
@@ -15,6 +9,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 
+	hcrypto "horizon-core/internal/crypto"
 	"horizon-core/internal/merkle"
 )
 
@@ -38,19 +33,14 @@ func main() {
 	keyPath, dbPath, hwid, userID := os.Args[1], os.Args[2], os.Args[3], os.Args[4]
 
 	pemData, err := os.ReadFile(keyPath)
-	if err != nil { fmt.Fprintln(os.Stderr, "read key:", err); os.Exit(1) }
-	block, _ := pem.Decode(pemData)
-	if block == nil { fmt.Fprintln(os.Stderr, "no pem block in", keyPath); os.Exit(1) }
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "read key:", err)
+		os.Exit(1)
+	}
 
-	var priv *ecdsa.PrivateKey
-	if k, e := x509.ParseECPrivateKey(block.Bytes); e == nil {
-		priv = k
-	} else if k, e := x509.ParsePKCS8PrivateKey(block.Bytes); e == nil {
-		pk, ok := k.(*ecdsa.PrivateKey)
-		if !ok { fmt.Fprintln(os.Stderr, "not ecdsa"); os.Exit(1) }
-		priv = pk
-	} else {
-		fmt.Fprintln(os.Stderr, "parse key failed:", e)
+	priv, err := hcrypto.PEMToPrivateKey(string(pemData))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "parse key failed:", err)
 		os.Exit(1)
 	}
 
@@ -77,17 +67,17 @@ func main() {
 		MerkleRoot: root, IssuedAt: issued, ExpiresAt: expires, HardwareID: hwid,
 	}
 	msg, _ := json.Marshal(p)
-	h := sha256.Sum256(msg)
-
-	r, s, err := ecdsa.Sign(rand.Reader, priv, h[:])
-	if err != nil { fmt.Fprintln(os.Stderr, "sign:", err); os.Exit(1) }
-	sig := make([]byte, 64)
-	r.FillBytes(sig[:32])
-	s.FillBytes(sig[32:])
-	sigHex := hex.EncodeToString(sig)
+	sigHex, err := hcrypto.SignData(msg, priv)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "sign:", err)
+		os.Exit(1)
+	}
 
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
-	if err != nil { fmt.Fprintln(os.Stderr, "open db:", err); os.Exit(1) }
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "open db:", err)
+		os.Exit(1)
+	}
 
 	// delete old licenses for this user
 	if err := db.Exec("DELETE FROM licenses WHERE user_id = ?", userID).Error; err != nil {

@@ -2,12 +2,8 @@ package main
 
 import (
 	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/x509"
-	"encoding/hex"
-	"encoding/pem"
 	"fmt"
+	hcrypto "horizon-core/internal/crypto"
 	"log"
 	"time"
 )
@@ -19,29 +15,25 @@ func ShouldRotateKey(createdAt time.Time) bool {
 	return time.Since(createdAt).Hours() > float64(keyRotationDays*24)
 }
 
-// GenerateNewSigningKey creates a fresh ECDSA P-256 key
+// GenerateNewSigningKey creates a fresh secp256k1 ECDSA key
 func GenerateNewSigningKey() (*ecdsa.PrivateKey, string, error) {
-	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	priv, err := hcrypto.GenerateSecp256k1ECDSAKey()
 	if err != nil {
-		return nil, "", fmt.Errorf("keygen failed: %w", err)
+		return nil, "", fmt.Errorf("secp256k1 keygen failed: %w", err)
 	}
 
-	pubBytes := elliptic.Marshal(priv.Curve, priv.X, priv.Y)
-	addr := hex.EncodeToString(pubBytes[:20])
+	addr := hcrypto.PublicAddressFromKey(priv)
 
-	return priv, "0x" + addr, nil
+	return priv, addr, nil
 }
 
 // ExportPrivateKeyPEM converts a private key to PEM format
 func ExportPrivateKeyPEM(priv *ecdsa.PrivateKey) ([]byte, error) {
-	der, err := x509.MarshalECPrivateKey(priv)
+	value, err := hcrypto.PrivateKeyPEM(priv)
 	if err != nil {
 		return nil, err
 	}
-	return pem.EncodeToMemory(&pem.Block{
-		Type:  "EC PRIVATE KEY",
-		Bytes: der,
-	}), nil
+	return []byte(value), nil
 }
 
 // CheckKeyRotation logs a warning if the key needs rotation
