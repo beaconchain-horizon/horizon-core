@@ -19,6 +19,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/glebarez/sqlite"
+
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
 	"horizon-core/internal/license"
@@ -159,18 +161,16 @@ func requireAdmin(c *gin.Context) bool {
 }
 
 func connectPostgres() error {
+	var err error
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		log.Println("ENV CHECK — DATABASE_URL set:", os.Getenv("DATABASE_URL") != "")
-		log.Println("ENV CHECK — DATABASE_URL value:", os.Getenv("DATABASE_URL"))
-		log.Println("ENV CHECK — PORT:", os.Getenv("PORT"))
-		log.Println("ENV CHECK — SERVER_PORT:", os.Getenv("SERVER_PORT"))
-		return errors.New("DATABASE_URL is required")
+		log.Println("DATABASE_URL not set - falling back to SQLite at ./horizon-dev.db")
+		pgDB, err = gorm.Open(sqlite.Open("horizon-dev.db"), &gorm.Config{})
+	} else {
+		pgDB, err = gorm.Open(postgres.New(postgres.Config{DSN: dsn, PreferSimpleProtocol: true}), &gorm.Config{})
 	}
-	var err error
-	pgDB, err = gorm.Open(postgres.New(postgres.Config{DSN: dsn, PreferSimpleProtocol: true}), &gorm.Config{})
 	if err != nil {
-		return err
+		return fmt.Errorf("open database: %w", err)
 	}
 	return nil
 }
@@ -234,6 +234,10 @@ func main() {
 	}
 	if err := connectPostgres(); err != nil {
 		panic(err)
+	}
+
+	if err := pgDB.AutoMigrate(&LicenseRecord{}, &Customer{}, &Payment{}, &Transaction{}); err != nil {
+		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 
 	r := gin.Default()
