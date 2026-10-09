@@ -14,12 +14,12 @@ import (
 
 // LOSEngine - موتور پردازش درخواست‌های اعتبار
 type LOSEngine struct {
-	plans       map[string]*CreditPlan
-	providers   map[string]*Provider
-	orgs        map[string]*Organization
-	personnel   map[string]*Personnel
-	apps        map[string]*LOSApplication
-	rules       []*Rule
+	plans     map[string]*CreditPlan
+	providers map[string]*Provider
+	orgs      map[string]*Organization
+	personnel map[string]*Personnel
+	apps      map[string]*LOSApplication
+	rules     []*Rule
 }
 
 func NewLOSEngine() *LOSEngine {
@@ -35,9 +35,9 @@ func NewLOSEngine() *LOSEngine {
 
 // ScoringInput - ورودی ارزیابی
 type ScoringInput struct {
-	PersonnelID string
-	PlanID      string
-	Amount      int64
+	PersonnelID  string
+	PlanID       string
+	Amount       int64
 	Installments int
 }
 

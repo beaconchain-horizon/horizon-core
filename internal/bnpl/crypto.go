@@ -7,18 +7,16 @@ package main
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/sha256"
-	"crypto/x509"
 	"encoding/hex"
-	"encoding/pem"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"golang.org/x/crypto/sha3"
+	hcrypto "horizon-core/internal/crypto"
 )
 
 var (
@@ -38,52 +36,110 @@ func loadKeyFromEnvOrFile(keyPath string) error {
 
 // loadHexKey - loads secp256k1 key from hex string (Ethereum format)
 func loadHexKey(hexKey string) error {
-	clean := strings.TrimPrefix(hexKey, "0x")
-	bytes, err := hex.DecodeString(clean)
+	clean := strings.TrimSpace(hexKey)
+	clean = strings.TrimPrefix(clean, "0x")
+	clean = strings.TrimPrefix(clean, "0X")
+	keyBytes, err := hex.DecodeString(clean)
 	if err != nil {
 		return errors.New("invalid hex: " + err.Error())
 	}
-	if len(bytes) != 32 {
+	if len(keyBytes) != 32 {
 		return errors.New("private key must be 32 bytes (64 hex chars)")
 	}
-	priv, _ := btcec.PrivKeyFromBytes(bytes)
-	issuerKey = priv.ToECDSA()
-	derivePublic()
+	key, err := hcrypto.Secp256k1PrivateKeyFromBytes(keyBytes)
+	if err != nil {
+		return fmt.Errorf("invalid secp256k1 private key: %w", err)
+	}
+	issuerKey = key
+	if err := derivePublic(); err != nil {
+		issuerKey = nil
+		issuerPubPEM = ""
+		issuerAddress = ""
+		return err
+	}
 	return nil
 }
 
 // loadOrCreateFileKey - dev fallback: file-based key
 func loadOrCreateFileKey(keyPath string) error {
-	os.MkdirAll(filepath.Dir(keyPath), 0700)
+	if err := os.MkdirAll(filepath.Dir(keyPath), 0700); err != nil {
+		return fmt.Errorf("create issuer key directory: %w", err)
+	}
 
-	if data, err := os.ReadFile(keyPath); err == nil {
-		block, _ := pem.Decode(data)
-		if block != nil {
-			if key, err := x509.ParseECPrivateKey(block.Bytes); err == nil {
-				issuerKey = key
-				derivePublic()
-				return nil
-			}
+	data, err := os.ReadFile(keyPath)
+	if err == nil {
+		key, parseErr := hcrypto.PEMToPrivateKey(string(data))
+		if parseErr != nil {
+			return fmt.Errorf("existing issuer key %q cannot be loaded as a Horizon secp256k1 key; refusing implicit key rotation: %w", keyPath, parseErr)
 		}
+		issuerKey = key
+		if err := derivePublic(); err != nil {
+			issuerKey = nil
+			issuerPubPEM = ""
+			issuerAddress = ""
+			return fmt.Errorf("derive issuer public identity: %w", err)
+		}
+		return nil
+	}
+	if !os.IsNotExist(err) {
+		return fmt.Errorf("read issuer key %q: %w", keyPath, err)
 	}
 
-	priv, err := ecdsa.GenerateKey(btcec.S256(), rand.Reader)
+	generated, err := secp256k1.GeneratePrivateKey()
 	if err != nil {
-		return err
+		return fmt.Errorf("generate secp256k1 issuer key: %w", err)
 	}
-	issuerKey = priv
-	derivePublic()
+	key := generated.ToECDSA()
+	privatePEM, err := hcrypto.PrivateKeyPEM(key)
+	if err != nil {
+		return fmt.Errorf("encode secp256k1 issuer key: %w", err)
+	}
+	publicPEM, err := hcrypto.PublicKeyPEM(key)
+	if err != nil {
+		return fmt.Errorf("encode secp256k1 issuer public key: %w", err)
+	}
+	address := ethereumAddress(&key.PublicKey)
+	if address == "" {
+		return errors.New("could not derive secp256k1 issuer address")
+	}
 
-	kb, _ := x509.MarshalECPrivateKey(priv)
-	pemBytes := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: kb})
-	return os.WriteFile(keyPath, pemBytes, 0400)
+	// O_EXCL prevents accidentally overwriting a key created by another process.
+	file, err := os.OpenFile(keyPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
+	if err != nil {
+		return fmt.Errorf("create issuer key file without overwriting an existing key: %w", err)
+	}
+	if _, err := file.Write([]byte(privatePEM)); err != nil {
+		_ = file.Close()
+		_ = os.Remove(keyPath)
+		return fmt.Errorf("write issuer key file: %w", err)
+	}
+	if err := file.Close(); err != nil {
+		_ = os.Remove(keyPath)
+		return fmt.Errorf("close issuer key file: %w", err)
+	}
+
+	issuerKey = key
+	issuerPubPEM = publicPEM
+	issuerAddress = address
+	return nil
 }
 
 // derivePublic - extracts PEM pubkey + Ethereum address
-func derivePublic() {
-	pb, _ := x509.MarshalPKIXPublicKey(&issuerKey.PublicKey)
-	issuerPubPEM = string(pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: pb}))
-	issuerAddress = ethereumAddress(&issuerKey.PublicKey)
+func derivePublic() error {
+	if issuerKey == nil {
+		return errors.New("issuer private key is not loaded")
+	}
+	publicPEM, err := hcrypto.PublicKeyPEM(issuerKey)
+	if err != nil {
+		return fmt.Errorf("encode secp256k1 issuer public key: %w", err)
+	}
+	address := ethereumAddress(&issuerKey.PublicKey)
+	if address == "" {
+		return errors.New("could not derive secp256k1 issuer address")
+	}
+	issuerPubPEM = publicPEM
+	issuerAddress = address
+	return nil
 }
 
 // ethereumAddress - derives 0x... from secp256k1 public key
@@ -103,41 +159,21 @@ func signData(data []byte) (string, error) {
 	if issuerKey == nil {
 		return "", errors.New("signer key not loaded")
 	}
-	h := sha256.Sum256(data)
-	r, s, err := ecdsa.Sign(rand.Reader, issuerKey, h[:])
+	sig, err := hcrypto.SignDataRS(data, issuerKey)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("secp256k1 sign failed: %w", err)
 	}
-	buf := make([]byte, 64)
-	rb := r.Bytes()
-	sb := s.Bytes()
-	copy(buf[32-len(rb):32], rb)
-	copy(buf[64-len(sb):64], sb)
-	return hex.EncodeToString(buf), nil
+	return hex.EncodeToString(sig), nil
 }
 
 // verifyData - verifies signature with given pubkey PEM
 func verifyData(pubPEM string, data []byte, sigHex string) bool {
-	block, _ := pem.Decode([]byte(pubPEM))
-	if block == nil {
-		return false
-	}
-	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	pub, err := hcrypto.PEMToPublicKey(pubPEM)
 	if err != nil {
 		return false
 	}
-	ecPub, ok := pub.(*ecdsa.PublicKey)
-	if !ok {
-		return false
-	}
-	sig, err := hex.DecodeString(sigHex)
-	if err != nil || len(sig) != 64 {
-		return false
-	}
-	r := new(bigInt).SetBytes(sig[:32])
-	s := new(bigInt).SetBytes(sig[32:])
-	h := sha256.Sum256(data)
-	return ecdsa.Verify(ecPub, h[:], r, s)
+	ok, err := hcrypto.VerifyData(pub, data, sigHex)
+	return err == nil && ok
 }
 
 // txSignablePayload - canonical bytes signed for a tx

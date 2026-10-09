@@ -1,23 +1,16 @@
 package main
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/asn1"
 	"encoding/hex"
 	"encoding/json"
-	"encoding/pem"
 	"flag"
 	"fmt"
-	"math/big"
+	"horizon-core/internal/crypto"
 	"os"
+	"path/filepath"
 	"time"
 )
-
-type sigASN struct{ R, S *big.Int }
 
 // MUST match industrial.SignableReading field order exactly
 type SignableReading struct {
@@ -34,18 +27,55 @@ func main() {
 		fmt.Println("  sensortool sign --key=keys/private.pem --sensor=temp-001 --value=45.5")
 		os.Exit(1)
 	}
+
 	switch os.Args[1] {
 	case "genkey":
 		fs := flag.NewFlagSet("genkey", flag.ExitOnError)
 		out := fs.String("out", "keys", "output directory")
 		fs.Parse(os.Args[2:])
-		os.MkdirAll(*out, 0700)
-		priv, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		privBytes, _ := x509.MarshalECPrivateKey(priv)
-		pubBytes, _ := x509.MarshalPKIXPublicKey(&priv.PublicKey)
-		os.WriteFile(*out+"/private.pem", pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes}), 0600)
-		os.WriteFile(*out+"/public.pem", pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: pubBytes}), 0644)
-		fmt.Println("keys written to " + *out)
+
+		if err := os.MkdirAll(*out, 0700); err != nil {
+			fmt.Println("mkdir:", err)
+			os.Exit(1)
+		}
+
+		privatePEM, err := crypto.GenerateKeyPair()
+		if err != nil {
+			fmt.Println("generate key:", err)
+			os.Exit(1)
+		}
+
+		priv, err := crypto.PEMToPrivateKey(privatePEM)
+		if err != nil {
+			fmt.Println("parse generated key:", err)
+			os.Exit(1)
+		}
+
+		publicPEM, err := crypto.PublicKeyPEM(priv)
+		if err != nil {
+			fmt.Println("public key:", err)
+			os.Exit(1)
+		}
+
+		if err := os.WriteFile(
+			filepath.Join(*out, "private.pem"),
+			[]byte(privatePEM),
+			0600,
+		); err != nil {
+			fmt.Println("write private key:", err)
+			os.Exit(1)
+		}
+
+		if err := os.WriteFile(
+			filepath.Join(*out, "public.pem"),
+			[]byte(publicPEM),
+			0644,
+		); err != nil {
+			fmt.Println("write public key:", err)
+			os.Exit(1)
+		}
+
+		fmt.Println("secp256k1 keys written to " + *out)
 
 	case "sign":
 		fs := flag.NewFlagSet("sign", flag.ExitOnError)
@@ -53,17 +83,19 @@ func main() {
 		sensorID := fs.String("sensor", "", "sensor id")
 		value := fs.Float64("value", 0, "value")
 		fs.Parse(os.Args[2:])
+
 		if *sensorID == "" {
 			fmt.Println("--sensor is required")
 			os.Exit(1)
 		}
+
 		pemBytes, err := os.ReadFile(*keyPath)
 		if err != nil {
 			fmt.Println("read key:", err)
 			os.Exit(1)
 		}
-		block, _ := pem.Decode(pemBytes)
-		priv, err := x509.ParseECPrivateKey(block.Bytes)
+
+		priv, err := crypto.PEMToPrivateKey(string(pemBytes))
 		if err != nil {
 			fmt.Println("parse key:", err)
 			os.Exit(1)
@@ -75,19 +107,29 @@ func main() {
 			Nonce:     randHex(16),
 			Timestamp: time.Now().Unix(),
 		}
+
 		canonical, _ := json.Marshal(sr)
-		digest := sha256.Sum256(canonical)
-		r, s, _ := ecdsa.Sign(rand.Reader, priv, digest[:])
-		der, _ := asn1.Marshal(sigASN{r, s})
+
+		signature, err := crypto.SignData(canonical, priv)
+		if err != nil {
+			fmt.Println("sign:", err)
+			os.Exit(1)
+		}
 
 		out := map[string]any{
 			"sensor_id": sr.SensorID,
 			"value":     sr.Value,
 			"nonce":     sr.Nonce,
 			"timestamp": sr.Timestamp,
-			"signature": hex.EncodeToString(der),
+			"signature": signature,
 		}
-		b, _ := json.MarshalIndent(out, "", "  ")
+
+		b, err := json.MarshalIndent(out, "", "  ")
+		if err != nil {
+			fmt.Println("marshal:", err)
+			os.Exit(1)
+		}
+
 		fmt.Println(string(b))
 	}
 }

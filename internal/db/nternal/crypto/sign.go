@@ -2,41 +2,23 @@ package crypto
 
 import (
 	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"crypto/sha256"
-	"crypto/x509"
-	"encoding/hex"
-	"encoding/pem"
-	"fmt"
+
+	hcrypto "horizon-core/internal/crypto"
 )
 
+// Sha256Hash is retained for compatibility with existing package callers.
 func Sha256Hash(data []byte) []byte {
 	h := sha256.Sum256(data)
 	return h[:]
 }
 
+// SignData delegates to the shared secp256k1 signing implementation.
 func SignData(data []byte, privKey *ecdsa.PrivateKey) (string, error) {
-	if privKey == nil {
-		return "", fmt.Errorf("private key is nil")
-	}
-	r, s, err := ecdsa.Sign(rand.Reader, privKey, Sha256Hash(data))
-	if err != nil {
-		return "", err
-	}
-	sig := append(r.Bytes(), s.Bytes()...)
-	return hex.EncodeToString(sig), nil
+	return hcrypto.SignData(data, privKey)
 }
 
-func GenerateKeyPair() (privPEM string, err error) {
-	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return "", err
-	}
-	privBytes, err := x509.MarshalECPrivateKey(priv)
-	if err != nil {
-		return "", err
-	}
-	privPEM = string(pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes}))
-	return privPEM, nil
+// GenerateKeyPair delegates to the shared secp256k1 key format.
+func GenerateKeyPair() (string, error) {
+	return hcrypto.GenerateKeyPair()
 }
