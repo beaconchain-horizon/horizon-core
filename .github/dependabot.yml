@@ -1,28 +1,56 @@
 version: 2
+
 updates:
+  # Go modules: check every day and group all available vulnerability fixes
+  # into a security PR. Go toolchain remains pinned to the Go 1.24 line in CI.
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
+      interval: "daily"
+      time: "03:00"
+      timezone: "Asia/Tehran"
+    open-pull-requests-limit: 10
     labels:
       - "dependencies"
       - "security"
+    groups:
+      go-security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
 
+  # Docker base-image and image-reference updates.
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 3
+      interval: "daily"
+      time: "03:15"
+      timezone: "Asia/Tehran"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "docker"
+      - "security"
+    groups:
+      docker-security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
 
+  # Keep GitHub Actions pinned dependencies current and raise security PRs.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 3
+      interval: "daily"
+      time: "03:30"
+      timezone: "Asia/Tehran"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "ci"
+      - "security"
+    groups:
+      actions-security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
