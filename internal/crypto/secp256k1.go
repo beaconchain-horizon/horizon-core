@@ -146,60 +146,72 @@ func parseRS(sig []byte) (*big.Int, *big.Int, error) {
 	return r, s, nil
 }
 
-func VerifyHashRS(pub *ecdsa.PublicKey, hash []byte, sig []byte) bool {
-	if pub == nil || pub.Curve == nil || len(hash) != 32 || pub.X == nil || pub.Y == nil {
-		return false
+func validatedSecp256k1PublicKey(pub *ecdsa.PublicKey) (*ecdsa.PublicKey, bool) {
+	if pub == nil || pub.Curve == nil || pub.X == nil || pub.Y == nil {
+		return nil, false
 	}
+
 	curve := secp256k1.S256()
 	params := pub.Curve.Params()
 	want := curve.Params()
-	if params == nil || params.Name != want.Name || params.N == nil || params.N.Cmp(want.N) != 0 {
-		return false
+	if params == nil || want == nil || params.Name != want.Name || params.BitSize != want.BitSize ||
+		params.P == nil || params.N == nil || params.B == nil || params.Gx == nil || params.Gy == nil ||
+		params.P.Cmp(want.P) != 0 || params.N.Cmp(want.N) != 0 || params.B.Cmp(want.B) != 0 ||
+		params.Gx.Cmp(want.Gx) != 0 || params.Gy.Cmp(want.Gy) != 0 {
+		return nil, false
 	}
 	if !curve.IsOnCurve(pub.X, pub.Y) {
+		return nil, false
+	}
+	return &ecdsa.PublicKey{Curve: curve, X: new(big.Int).Set(pub.X), Y: new(big.Int).Set(pub.Y)}, true
+}
+
+func VerifyHashRS(pub *ecdsa.PublicKey, hash []byte, sig []byte) bool {
+	canonicalPub, valid := validatedSecp256k1PublicKey(pub)
+	if !valid || len(hash) != 32 {
 		return false
 	}
+
 	r, s, err := parseRS(sig)
 	if err != nil {
 		return false
 	}
-	canonicalPub := &ecdsa.PublicKey{Curve: curve, X: pub.X, Y: pub.Y}
 	return ecdsa.Verify(canonicalPub, hash, r, s)
 }
 
 func VerifyData(pub *ecdsa.PublicKey, data []byte, signatureHex string) (bool, error) {
-	if pub == nil {
-		return false, errors.New("public key is nil")
+	canonicalPub, valid := validatedSecp256k1PublicKey(pub)
+	if !valid {
+		return false, errors.New("public key must be a valid secp256k1 public key")
 	}
 
 	signatureHex = strings.TrimSpace(signatureHex)
 	signatureHex = strings.TrimPrefix(signatureHex, "0x")
 	signatureHex = strings.TrimPrefix(signatureHex, "0X")
-
 	sig, err := hex.DecodeString(signatureHex)
 	if err != nil {
 		return false, fmt.Errorf("bad signature hex: %w", err)
 	}
 
 	hash := Sha256Hash(data)
-
 	if len(sig) == Secp256k1SignatureSize {
-		return VerifyHashRS(pub, hash, sig), nil
+		return VerifyHashRS(canonicalPub, hash, sig), nil
 	}
 
-	// Legacy compatibility:
-	// old deployments may contain DER ECDSA signatures.
+	// Legacy DER is accepted only for secp256k1 keys. P-256 and other curves
+	// are rejected above so a legacy encoding cannot bypass the curve policy.
 	var legacy legacyECDSASignature
-
-	if _, err := asn1.Unmarshal(sig, &legacy); err != nil {
+	rest, err := asn1.Unmarshal(sig, &legacy)
+	if err != nil {
 		return false, fmt.Errorf("unsupported signature format: %w", err)
 	}
-
+	if len(rest) != 0 {
+		return false, errors.New("legacy DER signature contains trailing data")
+	}
 	if legacy.R == nil || legacy.S == nil {
 		return false, errors.New("legacy DER signature missing R/S")
 	}
-
-	return ecdsa.Verify(pub, hash, legacy.R, legacy.S), nil
+	return ecdsa.Verify(canonicalPub, hash, legacy.R, legacy.S), nil
 }
 
 func VerifySignature(pub *ecdsa.PublicKey, data []byte, signatureHex string) bool {
@@ -275,7 +287,6 @@ func secp256k1PublicKeyPEM(priv *ecdsa.PrivateKey) (string, error) {
 
 func ParsePublicKeyPEM(value string) (*ecdsa.PublicKey, error) {
 	block, _ := pem.Decode([]byte(value))
-
 	if block == nil {
 		return nil, errors.New("invalid public key PEM")
 	}
@@ -289,18 +300,19 @@ func ParsePublicKeyPEM(value string) (*ecdsa.PublicKey, error) {
 		return pub.ToECDSA(), nil
 
 	case "PUBLIC KEY":
-		// Legacy public key support.
 		key, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
 			return nil, err
 		}
-
 		ec, ok := key.(*ecdsa.PublicKey)
 		if !ok {
 			return nil, errors.New("public key is not ECDSA")
 		}
-
-		return ec, nil
+		canonical, valid := validatedSecp256k1PublicKey(ec)
+		if !valid {
+			return nil, errors.New("public key is not a valid secp256k1 key")
+		}
+		return canonical, nil
 
 	default:
 		return nil, fmt.Errorf("unsupported public key PEM type: %s", block.Type)
@@ -308,17 +320,12 @@ func ParsePublicKeyPEM(value string) (*ecdsa.PublicKey, error) {
 }
 
 func PublicAddressFromKey(priv *ecdsa.PrivateKey) string {
-	if priv == nil || priv.D == nil {
+	keyBytes, err := signKeyBytes(priv)
+	if err != nil {
 		return ""
 	}
-
-	keyBytes := make([]byte, 32)
-	priv.D.FillBytes(keyBytes)
-
 	key := secp256k1.PrivKeyFromBytes(keyBytes)
 	pub := key.PubKey().SerializeCompressed()
-
 	h := Sha256Hash(pub)
-
 	return "0x" + hex.EncodeToString(h[:20])
 }

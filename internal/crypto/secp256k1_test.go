@@ -5,6 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
+	"encoding/asn1"
 	"encoding/hex"
 	"encoding/pem"
 	"testing"
@@ -79,5 +80,75 @@ func TestRejectP256ForSecp256k1Signing(t *testing.T) {
 
 	if _, err := ParsePrivateKeyPEM(string(legacyPEM)); err == nil {
 		t.Fatal("legacy EC PRIVATE KEY was unexpectedly accepted")
+	}
+}
+
+func TestVerifyDataRejectsP256DERAndPublicPEM(t *testing.T) {
+	legacyKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate P-256 test key: %v", err)
+	}
+	data := []byte("legacy P-256 DER must not pass secp256k1 verification")
+	r, s, err := ecdsa.Sign(rand.Reader, legacyKey, Sha256Hash(data))
+	if err != nil {
+		t.Fatalf("create legacy DER signature: %v", err)
+	}
+	der, err := asn1.Marshal(legacyECDSASignature{R: r, S: s})
+	if err != nil {
+		t.Fatalf("encode legacy DER signature: %v", err)
+	}
+	valid, err := VerifyData(&legacyKey.PublicKey, data, hex.EncodeToString(der))
+	if valid || err == nil {
+		t.Fatal("P-256 DER signature was not rejected")
+	}
+
+	publicDER, err := x509.MarshalPKIXPublicKey(&legacyKey.PublicKey)
+	if err != nil {
+		t.Fatalf("encode P-256 public key: %v", err)
+	}
+	publicPEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: publicDER})
+	if _, err := ParsePublicKeyPEM(string(publicPEM)); err == nil {
+		t.Fatal("P-256 public key PEM was not rejected")
+	}
+}
+
+func TestLegacyDERSecp256k1SignatureStillVerifies(t *testing.T) {
+	priv, err := GenerateSecp256k1ECDSAKey()
+	if err != nil {
+		t.Fatalf("generate secp256k1 key: %v", err)
+	}
+	data := []byte("legacy DER compatibility for secp256k1 only")
+	r, s, err := ecdsa.Sign(rand.Reader, priv, Sha256Hash(data))
+	if err != nil {
+		t.Fatalf("create secp256k1 DER signature: %v", err)
+	}
+	der, err := asn1.Marshal(legacyECDSASignature{R: r, S: s})
+	if err != nil {
+		t.Fatalf("encode secp256k1 DER signature: %v", err)
+	}
+	valid, err := VerifyData(&priv.PublicKey, data, hex.EncodeToString(der))
+	if err != nil || !valid {
+		t.Fatalf("valid secp256k1 DER signature rejected: valid=%v err=%v", valid, err)
+	}
+}
+
+func TestLegacyDERSignatureRejectsTrailingData(t *testing.T) {
+	priv, err := GenerateSecp256k1ECDSAKey()
+	if err != nil {
+		t.Fatalf("generate secp256k1 key: %v", err)
+	}
+	data := []byte("reject trailing bytes after legacy DER signature")
+	r, s, err := ecdsa.Sign(rand.Reader, priv, Sha256Hash(data))
+	if err != nil {
+		t.Fatalf("sign test data: %v", err)
+	}
+	der, err := asn1.Marshal(legacyECDSASignature{R: r, S: s})
+	if err != nil {
+		t.Fatalf("marshal DER signature: %v", err)
+	}
+	der = append(der, 0x00)
+	valid, err := VerifyData(&priv.PublicKey, data, hex.EncodeToString(der))
+	if valid || err == nil {
+		t.Fatal("DER signature with trailing bytes was not rejected")
 	}
 }
