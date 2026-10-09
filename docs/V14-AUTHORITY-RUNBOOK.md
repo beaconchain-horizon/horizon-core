@@ -102,6 +102,18 @@ docker compose logs --tail=100 backend switch postgres
 
 خطای HWID، امضا، ریشهٔ مرکل، انقضا یا کلید Authority باید لایسنس را رد کند، نه این‌که اعتبارسنجی را خاموش کند. برای عیب‌یابی تنظیمات را باز کن؛ فایل‌های کلید خصوصی را در Issue/PR/گفت‌وگو کپی نکن.
 
+## 8. استقرار Liara (فقط پس از بازبینی و مجوز جداگانه)
+
+این PR هیچ deployment تولیدی انجام نمی‌دهد. چون GitHub Actions مخزن برای push به `main` workflow استقرار Backend را اجرا می‌کند، این شاخه را merge نکن تا کلیدها و پیکربندی محیط Liara جداگانه آماده و تأیید شده باشند.
+
+برای راه‌اندازی Backend روی Liara:
+- در تنظیمات secret محیط `horizon-backend`، مقدار `LICENSE_PRIVATE_KEY_PEM` را با کلید خصوصی جدید Authority ثبت کن. از `LICENSE_PRIVATE_KEY_FILE` فقط وقتی استفاده کن که واقعاً فایل secret به کانتینر mount شده باشد.
+- مقدار `SWITCH_URL` را روی آدرس قابل دسترس Switch قرار بده؛ در معماری فعلی دو اپ مستقل Liara، `http://switch:8080` فقط برای Docker Compose محلی است.
+- روی Switch همان Authority public key را در `HORIZON_LICENSE_PUBLIC_KEY` قرار بده (مقدار hex از فایل `issuer-public.hex`، نه کلید خصوصی) و `ADMIN_TOKEN` را مطابق Backend هماهنگ کن.
+- بعد از provisioning کلیدها، health هر دو سرویس و آزمون امضای زنده را جداگانه بررسی کن. کلید خصوصی را در GitHub Actions log، issue، PR یا کد frontend قرار نده.
+
+**مرز HWID:** مسیر `/api/v1/license/hardware-id` برمی‌گرداند شناسه‌ای را که خود همان Switch اعمال می‌کند. در Liara، این معمولاً شناسهٔ استقرار ابری است، نه HWID شعبهٔ مشتری. این پروتکل فعلی با اعتبارسنجی مستقیم HWID همان Switch طراحی شده است؛ برای چند شعبه با HWIDهای متفاوت، از یک Switch جداگانه در هر سایت/شعبه استفاده کن یا یک پروتکل agent-authenticated برای تأیید HWID واقعی دستگاه اضافه کن. یک Switch ابری مشترک به‌تنهایی نمی‌تواند لایسنس‌های چند HWID متفاوت را با همین منطق تأیید کند. تا آن تغییر معماری انجام نشده، صدور/عملیات چندشعبه‌ای از یک Switch مشترک تأییدشده محسوب نمی‌شود.
+
 ## مرز مهم اثبات
 
 در این نسخه، ریشهٔ مرکل فیلدهای immutable لایسنس را پوشش می‌دهد و امضای Authority اصالت statement را بررسی می‌کند. اثبات inclusion این لایسنس در یک رجیستری سراسری append-only با checkpoint/root منتشرشده، هنوز کار مستقلی است و نباید صرفاً به‌دلیل وجود این root ادعای آن مطرح شود.
