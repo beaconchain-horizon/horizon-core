@@ -219,6 +219,48 @@ func VerifySignature(pub *ecdsa.PublicKey, data []byte, signatureHex string) boo
 	return ok
 }
 
+// Secp256k1PublicKeyFromHex parses a secp256k1 public key from hex.
+// Accepts 33-byte compressed, 64-byte X||Y, or 65-byte uncompressed.
+func Secp256k1PublicKeyFromHex(value string) (*ecdsa.PublicKey, error) {
+	value = strings.TrimSpace(value)
+	value = strings.TrimPrefix(value, "0x")
+	value = strings.TrimPrefix(value, "0X")
+
+	raw, err := hex.DecodeString(value)
+	if err != nil {
+		return nil, fmt.Errorf("public key hex: %w", err)
+	}
+
+	switch len(raw) {
+	case 33:
+		pub, err := secp256k1.ParsePubKey(raw)
+		if err != nil {
+			return nil, err
+		}
+		return pub.ToECDSA(), nil
+	case 64:
+		x := new(big.Int).SetBytes(raw[:32])
+		y := new(big.Int).SetBytes(raw[32:])
+		return validatedOrError(x, y)
+	case 65:
+		if raw[0] != 0x04 {
+			return nil, errors.New("invalid uncompressed secp256k1 public key prefix")
+		}
+		x := new(big.Int).SetBytes(raw[1:33])
+		y := new(big.Int).SetBytes(raw[33:65])
+		return validatedOrError(x, y)
+	default:
+		return nil, fmt.Errorf("unsupported secp256k1 public key length: %d bytes", len(raw))
+	}
+}
+
+func validatedOrError(x, y *big.Int) (*ecdsa.PublicKey, error) {
+	curve := secp256k1.S256()
+	if !curve.IsOnCurve(x, y) {
+		return nil, errors.New("public key is not on secp256k1 curve")
+	}
+	return &ecdsa.PublicKey{Curve: curve, X: x, Y: y}, nil
+}
 func PrivateKeyPEM(priv *ecdsa.PrivateKey) (string, error) {
 	keyBytes, err := signKeyBytes(priv)
 	if err != nil {
