@@ -40,5 +40,12 @@ What it DOES show:
 
 ## Reproduce
 
-export ADMIN_TOKEN="..."
-SWITCH_DB=:memory: GOMAXPROCS=8 ./bin/switch.exe --port 8080
+The throughput values above are historical and preliminary; they are not a claim of sustained end-to-end throughput. The local prebuilt `./bin/switch.exe` binary is not part of this source repository.
+
+Use Go 1.24 for source validation:
+
+```bash
+go test -count=1 ./...
+```
+
+A new throughput figure must be collected against a fully configured switch, registered sensor, and compatible test key. Record submitted/flushed counts and errors alongside TPS.

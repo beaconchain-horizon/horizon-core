@@ -1,4 +1,6 @@
-# 🌟 Horizon Angel Core v1.4.0
+> **Archived note:** This file is retained as historical documentation from an earlier repository state. It is not the current release specification or cryptographic source of truth. The product version remains **Horizon Core v1.4**; consult the root README and current source code for current behavior.
+
+# Archived release notes — Horizon v1.4 (legacy snapshot)
 
 پس از سال‌ها توسعه، تست میدانی و بازخورد واقعی از صنایع و بانک‌ها، **نسخه سوم Horizon Angel** منتشر شد.
 
@@ -46,7 +48,7 @@
 © 2026 Horizon — **مجوز تجاری اختصاصی**
 استفاده تجاری تنها با اجازه کتبی.
 
-جزئیات: [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md)
+جزئیات: [Commercial License](../../../COMMERCIAL_LICENSE.md)
 
 ---
 
@@ -56,4 +58,3 @@
 
 ---
 
-**Full Changelog**: https://github.com/beaconchain-horizon/horizon-core/compare/v2.0.0...v1.4.0

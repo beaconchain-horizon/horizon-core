@@ -2,27 +2,44 @@ name: Update Map Data Weekly
 
 on:
   schedule:
-    # هر شنبه ساعت ۳ صبح
-    - cron: '0 3 * * 6'
+    - cron: "0 3 * * 6"
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-map-data
+  cancel-in-progress: false
 
 jobs:
   update:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Generate map data
+      - uses: actions/checkout@v7
+      - name: Generate map metadata
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p docs/data
-          cat > docs/data/map-data.json <<'JSONEOF'
-{"generated_at":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","source":"manual","version":"1.0"}
-JSONEOF
-
-      - name: Commit & Push
+          generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          source="scheduled"
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            source="manual"
+          fi
+          printf '{"generated_at":"%s","source":"%s","version":"1.0"}\n' "$generated_at" "$source" > docs/data/map-data.json
+      - name: Commit and push map metadata if changed
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/map-data.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update map data"
-          git push
+          git add -- docs/data/map-data.json
+          if git diff --cached --quiet; then
+            echo "Map metadata is unchanged; nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore: update map data"
+          git push origin HEAD:main

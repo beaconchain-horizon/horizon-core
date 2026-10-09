@@ -1,15 +1,12 @@
-# Horizon Core — gitignore
-
-# Environment & Secrets
+# Environment files and secrets
 .env
 .env.*
 !.env.example
-*/.env
-*/.env.*
-!*/.env.example
-*.env
+**/.env
+**/.env.*
+!**/.env.example
 
-# Keys & Certificates
+# Keys and certificates
 keys/
 test-keys/
 *.pem
@@ -26,7 +23,7 @@ id_ecdsa
 id_ed25519
 *.asc
 
-# Database
+# Runtime data and databases
 *.db
 *.db-shm
 *.db-wal
@@ -37,10 +34,12 @@ config/chain.json
 config/customers.json
 customers.json
 
-# Backups
+# Backups and temporary output
 .backups/
 .hz-fix-backup-*/
 .merkle-v2-backup-*/
+_angel_backup_*/
+_angel_auth_backup_*/
 *.bak
 *.bak.*
 *.bak-*
@@ -50,14 +49,27 @@ customers.json
 *.old
 *.tmp
 *~
+HorizonCore-backups/
+.migration-go124/
+.migration-logs/
+/horizon-core/
+horizon-*-backup-*/
+horizon-v14-audit-*.txt
+migration-*-terminal.txt
+migration-terminal-output.txt
+migrate-secp256k1*.sh
+migrate-v14-safe.sh
+push-all-changes-to-main.sh
+remove-nextjs-frontend.sh
 
-# Deliveries
+# Delivery data
 deliveries/
 templates/
 
-# Binaries & Build
+# Binaries and build output
 *.exe
 *.exe~
+api-linux
 bin/
 dist/
 build/
@@ -65,26 +77,17 @@ build/
 *.dll
 *.dylib
 
-# Node / Frontend
+# Node/TypeScript caches only; the Next.js application has been removed
 node_modules/
 .next/
 out/
 .turbo/
 *.tsbuildinfo
-frontend/.next/
-frontend/node_modules/
-frontend/.turbo/
-frontend/tsconfig.tsbuildinfo
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
-# Logs
+# Logs and reports
 *.log
 logs/
 *.out
-
-# Reports
 vuln_report_*.txt
 key_clean_report_*.txt
 github-report-*.txt
@@ -94,7 +97,7 @@ audit-*.md
 attack-report-*.txt
 attack-output.txt
 
-# OS / Editor
+# OS and editor
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -103,19 +106,8 @@ desktop.ini
 *.swp
 *.swo
 
-# Local scripts
+# Local-only config and Liara credentials
 config.local.js
 *.local.js
-start.sh
-start-switch.sh
-run-switch.bat
-run.js
-prepare-horizon.sh
-horizon-bank-proof.sh
-merkle-v2-upgrade.sh
-fix-hash.js
-hash.txt
-
-# Liara
 .liara-auth.json
 .liara-token
