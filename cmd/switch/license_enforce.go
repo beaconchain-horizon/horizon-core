@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/ecdsa"
-	"crypto/elliptic"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -13,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"gorm.io/gorm"
 )
 
@@ -91,7 +91,7 @@ func getActiveLicense() (*License, error) {
 	return &license, nil
 }
 
-// loadLicensePublicKey loads an ECDSA P-256 public key from
+// loadLicensePublicKey loads an ECDSA secp256k1 public key from
 // HORIZON_LICENSE_PUBLIC_KEY.
 func loadLicensePublicKey() (*ecdsa.PublicKey, error) {
 
@@ -121,45 +121,45 @@ func loadLicensePublicKey() (*ecdsa.PublicKey, error) {
 
 	switch len(raw) {
 	case 64:
-		return newP256PublicKey(raw[:32], raw[32:])
+		return newSecp256k1PublicKey(raw[:32], raw[32:])
 
 	case 65:
 		if raw[0] != 0x04 {
 			return nil, errors.New(
-				"invalid uncompressed P-256 public key prefix",
+				"invalid uncompressed secp256k1 public key prefix",
 			)
 		}
 
-		return newP256PublicKey(raw[1:33], raw[33:65])
+		return newSecp256k1PublicKey(raw[1:33], raw[33:65])
 
 	default:
 		return nil, fmt.Errorf(
-			"unsupported P-256 public key length: %d bytes",
+			"unsupported secp256k1 public key length: %d bytes",
 			len(raw),
 		)
 	}
 }
 
-// newP256PublicKey constructs an ECDSA P-256 public key from
+// newP256PublicKey constructs an ECDSA secp256k1 public key from
 // X and Y coordinates.
-func newP256PublicKey(
+func newSecp256k1PublicKey(
 	xBytes []byte,
 	yBytes []byte,
 ) (*ecdsa.PublicKey, error) {
 	if len(xBytes) != 32 || len(yBytes) != 32 {
 		return nil, errors.New(
-			"P-256 public key coordinates must be 32 bytes",
+			"secp256k1 public key coordinates must be 32 bytes",
 		)
 	}
+
+	curve := secp256k1.S256()
 
 	x := new(big.Int).SetBytes(xBytes)
 	y := new(big.Int).SetBytes(yBytes)
 
-	curve := elliptic.P256()
-
 	if !curve.IsOnCurve(x, y) {
 		return nil, errors.New(
-			"license public key is not on P-256 curve",
+			"license public key is not on secp256k1 curve",
 		)
 	}
 

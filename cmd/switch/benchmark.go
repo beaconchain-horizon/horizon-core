@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -14,6 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"github.com/gin-gonic/gin"
 )
 
@@ -75,7 +75,7 @@ func benchmarkHandler(c *gin.Context) {
 	}
 
 	// Generate one ECDSA key for all workers
-	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	priv, err := ecdsa.GenerateKey(secp256k1.S256(), rand.Reader)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "keygen failed"})
 		return
