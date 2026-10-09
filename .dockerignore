@@ -1,0 +1,3 @@
+fatal: ambiguous argument 'origin\feat\v14-unified-authority-license-20261009;.dockerignore': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
