@@ -37,6 +37,7 @@ jobs:
           go build ./cmd/authority-keygen
           go build ./cmd/licensegen
           go build ./cmd/licenseverify
+          go build ./cmd/license-e2e
       - name: Validate shell scripts
         run: |
           bash -n scripts/bootstrap-horizon-v14.sh
