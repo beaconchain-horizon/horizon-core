@@ -1,35 +1,36 @@
 // licensegen — Offline License Generator
 //
 // Purpose:
-//   Sign Horizon Core licenses using an ECDSA P-256 private key
-//   WITHOUT any server connection. Designed for air-gapped USB use.
+//
+//	Sign Horizon Core licenses using an ECDSA secp256k1 private key
+//	WITHOUT any server connection. Designed for air-gapped USB use.
 //
 // Usage:
-//   licensegen \
-//     -key <hex-private-key> \
-//     -license-id BANK-MELLI-SHOBE-01 \
-//     -user-id bank-melli \
-//     -product-id horizon-core \
-//     -volume 10000000 \
-//     -days 365 \
-//     -hardware-id <optional-hex> \
-//     -out license.json
+//
+//	licensegen \
+//	  -key <hex-private-key> \
+//	  -license-id BANK-MELLI-SHOBE-01 \
+//	  -user-id bank-melli \
+//	  -product-id horizon-core \
+//	  -volume 10000000 \
+//	  -days 365 \
+//	  -hardware-id <optional-hex> \
+//	  -out license.json
 //
 // Output:
-//   A JSON file containing the fully signed license, ready for
-//   POST /api/v1/license/save or /api/v1/admin/license/issue.
+//
+//	A JSON file containing the fully signed license, ready for
+//	POST /api/v1/license/save or /api/v1/admin/license/issue.
 package main
 
 import (
 	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"math/big"
+	"horizon-core/internal/crypto"
 	"os"
 	"time"
 )
@@ -61,24 +62,7 @@ type SignedLicense struct {
 }
 
 func hexToECDSA(hexKey string) (*ecdsa.PrivateKey, error) {
-	hexKey = trim0x(hexKey)
-	b, err := hex.DecodeString(hexKey)
-	if err != nil {
-		return nil, fmt.Errorf("hex decode: %w", err)
-	}
-	if len(b) != 32 {
-		return nil, fmt.Errorf("private key must be 32 bytes (64 hex chars), got %d", len(b))
-	}
-	curve := elliptic.P256()
-	d := new(big.Int).SetBytes(b)
-	if d.Sign() <= 0 || d.Cmp(curve.Params().N) >= 0 {
-		return nil, fmt.Errorf("private key out of range")
-	}
-	priv := new(ecdsa.PrivateKey)
-	priv.Curve = curve
-	priv.D = d
-	priv.PublicKey.X, priv.PublicKey.Y = curve.ScalarBaseMult(b)
-	return priv, nil
+	return crypto.Secp256k1PrivateKeyFromHex(hexKey)
 }
 
 func trim0x(s string) string {
@@ -89,27 +73,20 @@ func trim0x(s string) string {
 }
 
 func signData(priv *ecdsa.PrivateKey, data []byte) (string, error) {
-	hash := sha256.Sum256(data)
-	r, s, err := ecdsa.Sign(rand.Reader, priv, hash[:])
+	sig, err := crypto.SignDataRS(data, priv)
 	if err != nil {
 		return "", err
 	}
-	// R || S, each padded to 32 bytes
-	sig := make([]byte, 64)
-	r.FillBytes(sig[:32])
-	s.FillBytes(sig[32:])
 	return hex.EncodeToString(sig), nil
 }
 
 func publicAddressFromKey(priv *ecdsa.PrivateKey) string {
-	pubBytes := elliptic.Marshal(priv.Curve, priv.PublicKey.X, priv.PublicKey.Y)
-	hash := sha256.Sum256(pubBytes)
-	return "0x" + hex.EncodeToString(hash[:20])
+	return crypto.PublicAddressFromKey(priv)
 }
 
 func main() {
 	var (
-		keyHex     = flag.String("key", "", "ECDSA P-256 private key (64 hex chars, with or without 0x)")
+		keyHex     = flag.String("key", "", "ECDSA secp256k1 private key (64 hex chars, with or without 0x)")
 		keyFile    = flag.String("key-file", "", "path to file containing hex private key (alternative to -key)")
 		licenseID  = flag.String("license-id", "", "license ID (required)")
 		userID     = flag.String("user-id", "", "user/org ID (required)")

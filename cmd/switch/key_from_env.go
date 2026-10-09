@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"time"
-
 )
 
 // autoSetupKeyFromEnv — reads HORIZON_ISSUER_KEY from env
