@@ -885,6 +885,7 @@ func main() {
 
 	// Routes
 	api := r.Group("/api/v1")
+	api.POST("/license/check", licenseCheckHandler)
 	{
 		registerIndustrialRoutes(api)
 
