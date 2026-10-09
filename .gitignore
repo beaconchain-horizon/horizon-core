@@ -119,3 +119,4 @@ hash.txt
 # Liara
 .liara-auth.json
 .liara-token
+!.env.example
