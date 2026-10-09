@@ -15,6 +15,10 @@ var bad = []string{
 
 func SanitizeInputMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if c.Request.URL.Path == "/api/v1/license/check" {
+			c.Next()
+			return
+		}
 		if c.Request.Method != "POST" {
 			c.Next()
 			return

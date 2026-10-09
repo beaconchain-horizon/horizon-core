@@ -120,3 +120,4 @@ hash.txt
 .liara-auth.json
 .liara-token
 !.env.example
+.horizon-dev-key.pem
