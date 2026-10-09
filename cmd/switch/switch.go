@@ -886,6 +886,15 @@ func main() {
 	// Routes
 	api := r.Group("/api/v1")
 	api.POST("/license/check", licenseCheckHandler)
+	api.POST("/license/check-legacy", legacyLicenseCheckHandler)
+	api.GET("/license/hardware-id", func(c *gin.Context) {
+		hardwareID := getHardwareIDOrEmpty()
+		if hardwareID == "" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Switch hardware ID unavailable"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"hardware_id": hardwareID, "source": "switch"})
+	})
 	{
 		registerIndustrialRoutes(api)
 

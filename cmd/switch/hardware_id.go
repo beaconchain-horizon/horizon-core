@@ -2,6 +2,7 @@ package main
 
 import (
 	"strings"
+	"os"
 	"sync"
 )
 
@@ -21,6 +22,14 @@ var (
 // Without caching, every license save request would be slow.
 func getHardwareIDOrEmpty() string {
 	hardwareIDOnce.Do(func() {
+		// Container/cloud deployments may expose a stable hardware identity
+		// through deployment secrets/configuration. If set, this explicit
+		// identity takes precedence over host-specific discovery.
+		override := strings.TrimSpace(os.Getenv("HORIZON_HARDWARE_ID"))
+		if override != "" {
+			cachedHardwareID = override
+			return
+		}
 		cachedHardwareID = strings.TrimSpace(computeHardwareID())
 	})
 	return cachedHardwareID

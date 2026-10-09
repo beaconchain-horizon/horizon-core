@@ -98,17 +98,7 @@ func loadLicensePublicKey() (*ecdsa.PublicKey, error) {
 	value := strings.TrimSpace(os.Getenv("HORIZON_LICENSE_PUBLIC_KEY"))
 
 	if value == "" {
-		// Fallback: use the currently unlocked key pair
-		stateMutex.RLock()
-		unlocked := unlockedKey
-		stateMutex.RUnlock()
-
-		if unlocked != nil {
-			return &unlocked.PublicKey, nil
-		}
-		return nil, errors.New(
-			"HORIZON_LICENSE_PUBLIC_KEY is not configured",
-		)
+		return nil, errors.New("HORIZON_LICENSE_PUBLIC_KEY is not configured; refusing to trust the local Switch signing key")
 	}
 
 	value = strings.TrimPrefix(value, "0x")
@@ -247,6 +237,16 @@ func validateLicense(license *License, now time.Time) error {
 		return errors.New("license expires_at must be after issued_at")
 	}
 
+	if license.Duration <= 0 {
+		return errors.New("license duration must be greater than zero")
+	}
+	if license.ExpiresAt-license.IssuedAt != int64(license.Duration)*86400 {
+		return errors.New("license duration does not match issued_at/expires_at")
+	}
+	if strings.TrimSpace(license.HardwareID) == "" {
+		return errors.New("license hardware_id is required")
+	}
+
 	issuedAt := time.Unix(license.IssuedAt, 0)
 	expiresAt := time.Unix(license.ExpiresAt, 0)
 
@@ -268,21 +268,23 @@ func validateLicense(license *License, now time.Time) error {
 		return err
 	}
 
+	if !strings.EqualFold(license.MerkleRoot, licenseMerkleRoot(license)) {
+		return errors.New("license Merkle root does not match immutable fields")
+	}
+
 	// P0.3 FIX: Hardware ID enforcement is independent of signature check.
 	// Before: HWID was only checked inside the signature-error branch,
 	// meaning any valid signature bypassed hardware binding entirely.
-	if license.HardwareID != "" {
-		currentHWID := getHardwareIDOrEmpty()
-		if currentHWID == "" {
-			return fmt.Errorf("hardware id: cannot read current hardware")
-		}
-		if currentHWID != license.HardwareID {
-			return fmt.Errorf(
-				"hardware id mismatch: license bound to %s, current is %s",
-				license.HardwareID,
-				currentHWID,
-			)
-		}
+	currentHWID := getHardwareIDOrEmpty()
+	if currentHWID == "" {
+		return fmt.Errorf("hardware id: cannot read current hardware")
+	}
+	if !strings.EqualFold(strings.TrimSpace(currentHWID), strings.TrimSpace(license.HardwareID)) {
+		return fmt.Errorf(
+			"hardware id mismatch: license bound to %s, current is %s",
+			license.HardwareID,
+			currentHWID,
+		)
 	}
 
 	// Grace period: allow up to gracePeriodDays after expiry

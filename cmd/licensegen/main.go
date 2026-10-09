@@ -1,203 +1,100 @@
-// licensegen — Offline License Generator
-//
-// Purpose:
-//
-//	Sign Horizon Core licenses using an ECDSA secp256k1 private key
-//	WITHOUT any server connection. Designed for air-gapped USB use.
-//
-// Usage:
-//
-//	licensegen \
-//	  -key <hex-private-key> \
-//	  -license-id BANK-MELLI-SHOBE-01 \
-//	  -user-id bank-melli \
-//	  -product-id horizon-core \
-//	  -volume 10000000 \
-//	  -days 365 \
-//	  -hardware-id <optional-hex> \
-//	  -out license.json
-//
-// Output:
-//
-//	A JSON file containing the fully signed license, ready for
-//	POST /api/v1/license/save or /api/v1/admin/license/issue.
+// licensegen creates a signed Horizon Core v1.4 license using the shared protocol.
 package main
 
 import (
-	"crypto/ecdsa"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
+	"crypto/ecdsa"
 	"flag"
 	"fmt"
-	"horizon-core/internal/crypto"
 	"os"
+	"strings"
 	"time"
+
+	hcrypto "horizon-core/internal/crypto"
+	protocol "horizon-core/internal/license"
 )
 
-type LicenseSigningPayload struct {
-	LicenseID  string `json:"license_id"`
-	UserID     string `json:"user_id"`
-	ProductID  string `json:"product_id"`
-	Volume     int    `json:"volume"`
-	Duration   int    `json:"duration"`
-	MerkleRoot string `json:"merkle_root"`
-	IssuedAt   int64  `json:"issued_at"`
-	ExpiresAt  int64  `json:"expires_at"`
-	HardwareID string `json:"hardware_id,omitempty"`
-}
-
-type SignedLicense struct {
-	LicenseID  string `json:"license_id"`
-	UserID     string `json:"user_id"`
-	ProductID  string `json:"product_id"`
-	Volume     int    `json:"volume"`
-	Duration   int    `json:"duration"`
-	MerkleRoot string `json:"merkle_root"`
-	IssuedAt   int64  `json:"issued_at"`
-	ExpiresAt  int64  `json:"expires_at"`
-	HardwareID string `json:"hardware_id,omitempty"`
-	Signature  string `json:"signature"`
-	SignerAddr string `json:"signer_addr"`
-}
-
-func hexToECDSA(hexKey string) (*ecdsa.PrivateKey, error) {
-	return crypto.Secp256k1PrivateKeyFromHex(hexKey)
-}
-
-func trim0x(s string) string {
-	if len(s) >= 2 && (s[:2] == "0x" || s[:2] == "0X") {
-		return s[2:]
-	}
-	return s
-}
-
-func signData(priv *ecdsa.PrivateKey, data []byte) (string, error) {
-	sig, err := crypto.SignDataRS(data, priv)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(sig), nil
-}
-
-func publicAddressFromKey(priv *ecdsa.PrivateKey) string {
-	return crypto.PublicAddressFromKey(priv)
-}
-
 func main() {
-	var (
-		keyHex     = flag.String("key", "", "ECDSA secp256k1 private key (64 hex chars, with or without 0x)")
-		keyFile    = flag.String("key-file", "", "path to file containing hex private key (alternative to -key)")
-		licenseID  = flag.String("license-id", "", "license ID (required)")
-		userID     = flag.String("user-id", "", "user/org ID (required)")
-		productID  = flag.String("product-id", "horizon-core", "product ID")
-		volume     = flag.Int("volume", 0, "max readings/transactions (required, >0)")
-		days       = flag.Int("days", 365, "validity in days")
-		hwid       = flag.String("hardware-id", "", "bind license to a specific hardware ID (optional)")
-		merkleRoot = flag.String("merkle-root", "", "merkle root (optional, computed if empty)")
-		out        = flag.String("out", "license.json", "output JSON file")
-	)
+	keyHex := flag.String("key", "", "secp256k1 private key hex")
+	keyFile := flag.String("key-file", "", "file containing secp256k1 private key hex")
+	licenseID := flag.String("license-id", "", "unique license ID")
+	userID := flag.String("user-id", "", "tenant/customer ID")
+	productID := flag.String("product-id", "horizon-core", "product ID")
+	volume := flag.Int("volume", 0, "max transactions/readings, >0")
+	days := flag.Int("days", 365, "validity duration in days, >0")
+	hwid := flag.String("hardware-id", "", "required target hardware ID")
+	out := flag.String("out", "license.json", "output JSON file (must not already exist)")
 	flag.Parse()
 
-	// ── read key ──
-	var privHex string
-	if *keyHex != "" {
-		privHex = *keyHex
-	} else if *keyFile != "" {
-		data, err := os.ReadFile(*keyFile)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "read key-file: %v\n", err)
-			os.Exit(1)
-		}
-		privHex = string(data)
+	rawKey := strings.TrimSpace(*keyHex)
+	if rawKey == "" && *keyFile != "" {
+		raw, err := os.ReadFile(*keyFile)
+		if err != nil { fail("read key file", err) }
+		rawKey = strings.TrimSpace(string(raw))
+	}
+	if rawKey == "" { fail("input", fmt.Errorf("-key or -key-file is required")) }
+	var priv *ecdsa.PrivateKey
+	var err error
+	if strings.HasPrefix(rawKey, "-----BEGIN ") {
+		priv, err = hcrypto.PEMToPrivateKey(rawKey)
 	} else {
-		fmt.Fprintln(os.Stderr, "error: -key or -key-file required")
-		flag.Usage()
-		os.Exit(1)
+		priv, err = hcrypto.Secp256k1PrivateKeyFromHex(rawKey)
+	}
+	if err != nil { fail("parse Authority key", err) }
+	if strings.TrimSpace(*licenseID) == "" || strings.TrimSpace(*userID) == "" ||
+		strings.TrimSpace(*productID) == "" || strings.TrimSpace(*hwid) == "" ||
+		*volume <= 0 || *days <= 0 {
+		fail("input", fmt.Errorf("license-id, user-id, product-id, hardware-id, positive volume and positive days are required"))
+	}
+	if _, err := os.Stat(*out); err == nil {
+		fail("output", fmt.Errorf("refusing to overwrite existing file %q", *out))
+	} else if !os.IsNotExist(err) {
+		fail("output", err)
 	}
 
-	priv, err := hexToECDSA(privHex)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "invalid private key: %v\n", err)
-		os.Exit(1)
+	now := time.Now().UTC().Unix()
+	s := protocol.Statement{
+		LicenseID: strings.TrimSpace(*licenseID),
+		UserID: strings.TrimSpace(*userID),
+		ProductID: strings.TrimSpace(*productID),
+		Volume: *volume,
+		Duration: *days,
+		IssuedAt: now,
+		ExpiresAt: now + int64(*days)*86400,
+		HardwareID: strings.TrimSpace(*hwid),
 	}
+	s.MerkleRoot = protocol.MerkleRoot(s)
+	message, err := protocol.CanonicalBytes(s)
+	if err != nil { fail("canonicalize license", err) }
+	signature, err := hcrypto.SignData(message, priv)
+	if err != nil { fail("sign license", err) }
 
-	// ── validate ──
-	if *licenseID == "" || *userID == "" || *volume <= 0 {
-		fmt.Fprintln(os.Stderr, "error: -license-id, -user-id, -volume (>0) required")
-		os.Exit(1)
+	envelope := protocol.SignedLicense{Statement:s, Signature:signature}
+	data, err := json.MarshalIndent(envelope, "", "  ")
+	if err != nil { fail("serialize license", err) }
+	data = append(data, '\n')
+	f, err := os.OpenFile(*out, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	if err != nil { fail("create license output", err) }
+	if _, err := f.Write(data); err != nil {
+		_ = f.Close()
+		_ = os.Remove(*out)
+		fail("write license output", err)
 	}
-
-	now := time.Now().Unix()
-	lic := LicenseSigningPayload{
-		LicenseID:  *licenseID,
-		UserID:     *userID,
-		ProductID:  *productID,
-		Volume:     *volume,
-		Duration:   *days,
-		MerkleRoot: *merkleRoot,
-		IssuedAt:   now,
-		ExpiresAt:  now + int64(*days)*86400,
-		HardwareID: *hwid,
+	if err := f.Sync(); err != nil {
+		_ = f.Close()
+		fail("sync license output", err)
 	}
+	if err := f.Close(); err != nil { fail("close license output", err) }
 
-	// compute merkle root if empty (must match licenseMerkleRoot in server)
-	if lic.MerkleRoot == "" {
-		lic.MerkleRoot = computeMerkleRoot(lic)
-	}
-
-	// canonical JSON (must match licenseCanonicalMessage on server)
-	canon, err := json.Marshal(lic)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "marshal: %v\n", err)
-		os.Exit(1)
-	}
-
-	sig, err := signData(priv, canon)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "sign: %v\n", err)
-		os.Exit(1)
-	}
-
-	signed := SignedLicense{
-		LicenseID:  lic.LicenseID,
-		UserID:     lic.UserID,
-		ProductID:  lic.ProductID,
-		Volume:     lic.Volume,
-		Duration:   lic.Duration,
-		MerkleRoot: lic.MerkleRoot,
-		IssuedAt:   lic.IssuedAt,
-		ExpiresAt:  lic.ExpiresAt,
-		HardwareID: lic.HardwareID,
-		Signature:  sig,
-		SignerAddr: publicAddressFromKey(priv),
-	}
-
-	outJSON, _ := json.MarshalIndent(signed, "", "  ")
-	if err := os.WriteFile(*out, outJSON, 0600); err != nil {
-		fmt.Fprintf(os.Stderr, "write output: %v\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("✅ License signed successfully\n")
-	fmt.Printf("   File:        %s\n", *out)
-	fmt.Printf("   License:     %s\n", signed.LicenseID)
-	fmt.Printf("   User:        %s\n", signed.UserID)
-	fmt.Printf("   Volume:      %d\n", signed.Volume)
-	fmt.Printf("   Valid until: %s\n", time.Unix(signed.ExpiresAt, 0).Format(time.RFC3339))
-	fmt.Printf("   Signer:      %s\n", signed.SignerAddr)
-	fmt.Printf("   Signature:   %s...\n", sig[:24])
+	fmt.Printf("Horizon Core v1.4 license created: %s\n", *out)
+	fmt.Printf("License ID: %s\n", s.LicenseID)
+	fmt.Printf("Product: %s | User: %s | Volume: %d | Duration: %d days\n", s.ProductID, s.UserID, s.Volume, s.Duration)
+	fmt.Printf("Expires: %s UTC\n", time.Unix(s.ExpiresAt, 0).UTC().Format(time.RFC3339))
+	fmt.Printf("Merkle root: %s\n", s.MerkleRoot)
+	fmt.Println("Envelope format: shared v1.4 secp256k1 Statement + Signature")
 }
 
-// computeMerkleRoot — placeholder, mirrors server licenseMerkleRoot
-// If the server computes a different root, use -merkle-root to provide it.
-func computeMerkleRoot(lic LicenseSigningPayload) string {
-	// simple SHA-256 over concatenation — SERVER MUST MATCH THIS
-	// (see cmd/switch/license_sign.go: licenseMerkleRoot)
-	// For safety, admin can pass -merkle-root explicitly.
-	h := sha256.New()
-	fmt.Fprintf(h, "license_id=%s|user_id=%s|product_id=%s|volume=%d|duration=%d|issued_at=%d|expires_at=%d|hardware_id=%s",
-		lic.LicenseID, lic.UserID, lic.ProductID, lic.Volume, lic.Duration,
-		lic.IssuedAt, lic.ExpiresAt, lic.HardwareID)
-	return hex.EncodeToString(h.Sum(nil))
+func fail(label string, err error) {
+	fmt.Fprintf(os.Stderr, "%s: %v\n", label, err)
+	os.Exit(1)
 }

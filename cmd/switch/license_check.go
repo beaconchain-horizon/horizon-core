@@ -16,11 +16,13 @@ type licenseCheckRequest struct {
 	Data      string `json:"data" binding:"required"`
 }
 
-func licenseCheckHandler(c *gin.Context) {
+// legacyLicenseCheckHandler verifies the historical pipe-delimited payload for audit only.
+// It is not used for transactions requiring v1.4 Hardware-ID binding.
+func legacyLicenseCheckHandler(c *gin.Context) {
 	var req licenseCheckRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"valid": false, "verified": false,
+			"valid": false, "verified": false, "legacy": true, "hardware_bound": false,
 			"error": "invalid request: " + err.Error(),
 		})
 		return
@@ -58,7 +60,7 @@ func licenseCheckHandler(c *gin.Context) {
 	if err := db.Where("license_id = ?", req.LicenseID).First(&lic).Error; err == nil {
 		if err := validateLicense(&lic, time.Now()); err != nil {
 			c.JSON(http.StatusOK, gin.H{
-				"valid": false, "verified": true,
+				"valid": false, "verified": true, "legacy": true, "hardware_bound": false,
 				"license_id": req.LicenseID,
 				"error": "policy rejection: " + err.Error(),
 			})
@@ -67,7 +69,7 @@ func licenseCheckHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"valid": true, "verified": true,
+		"valid": true, "verified": true, "legacy": true, "hardware_bound": false,
 		"license_id": req.LicenseID,
 		"user_id": req.UserID,
 		"checked_at": time.Now().Unix(),

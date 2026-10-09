@@ -1,131 +1,102 @@
 'use client';
 
-import {
-  angelAgents,
-  angelCustomers,
-  angelDemoOrders,
-} from '../../lib/angel-demo-data';
+import type { FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useEffect, useMemo, useState } from 'react';
-
-type Order = (typeof angelDemoOrders)[number];
-
-type LiveSummary = {
-  agents: number;
-  online: number;
-  warning: number;
-  offline: number;
+type Summary = {
+  ok?: boolean;
   source?: string;
-  timestamp?: string;
+  status?: string;
+  version?: string;
+  message?: string;
+  stats?: Record<string, unknown> | null;
+};
+
+type IssueResult = {
+  ok?: boolean;
+  license_id?: string;
+  message?: string;
+  error?: string;
+  license?: unknown;
 };
 
 export default function Angel() {
-  const [orders, setOrders] = useState<Order[]>(angelDemoOrders);
-  const [live, setLive] = useState<LiveSummary | null>(null);
-  const [selected, setSelected] = useState<Order | null>(null);
-  const [msg, setMsg] = useState('');
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [summaryMessage, setSummaryMessage] = useState('در حال اتصال به Switch...');
+  const [customerID, setCustomerID] = useState('');
+  const [branchID, setBranchID] = useState('');
+  const [productID, setProductID] = useState('industrial-monitoring');
+  const [hardwareID, setHardwareID] = useState('');
+  const [volume, setVolume] = useState('1000');
+  const [duration, setDuration] = useState('30');
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [issued, setIssued] = useState<IssueResult | null>(null);
 
   useEffect(() => {
     let mounted = true;
-
-    fetch('/api/angel/summary', {
-      cache: 'no-store',
-    })
-      .then((r) => {
-        if (!r.ok) {
-          throw new Error('summary request failed');
+    fetch('/api/angel/summary', { cache: 'no-store' })
+      .then(async (r) => {
+        const data = await r.json().catch(() => ({})) as Summary;
+        if (r.status === 401) {
+          window.location.href = '/angel/login';
+          return;
         }
-
-        return r.json();
-      })
-      .then((data: LiveSummary) => {
+        if (!r.ok) throw new Error(data.message || 'ارتباط با Switch برقرار نشد.');
         if (mounted) {
-          setLive(data);
+          setSummary(data);
+          setSummaryMessage('اتصال زنده برقرار است.');
         }
       })
-      .catch(() => {
+      .catch((e: unknown) => {
         if (mounted) {
-          setLive(null);
+          setSummary(null);
+          setSummaryMessage(e instanceof Error ? e.message : 'وضعیت زنده در دسترس نیست.');
         }
       });
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
-  const stats = useMemo(
-    () => ({
-      total: live?.agents ?? angelAgents.length,
-      online:
-        live?.online ??
-        angelAgents.filter((a) => a.status === 'online').length,
-      warning:
-        live?.warning ??
-        angelAgents.filter((a) => a.status === 'warning').length,
-      offline:
-        live?.offline ??
-        angelAgents.filter((a) => a.status === 'offline').length,
-    }),
-    [live]
-  );
-
-  const issue = async () => {
-    if (!selected || busy) {
-      return;
-    }
-
+  async function issueLicense(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
     setBusy(true);
-    setMsg('');
-
+    setError('');
+    setIssued(null);
     try {
-      const response = await fetch(
-        '/api/angel/issue-license',
-        {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            customer_id: selected.customer,
-            branch_id: 'branch-demo-01',
-            industry_id: 'industrial-monitoring',
-            hardware_id: 'HW-BIND-DEMO-01',
-            order_id: selected.id,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data?.message || 'صدور لایسنس ناموفق بود.'
-        );
+      const response = await fetch('/api/angel/issue-license', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        cache: 'no-store',
+        body: JSON.stringify({
+          customer_id: customerID.trim(),
+          branch_id: branchID.trim(),
+          product_id: productID.trim(),
+          hardware_id: hardwareID.trim(),
+          volume: Number(volume),
+          duration: Number(duration),
+        }),
+      });
+      const data = await response.json().catch(() => ({})) as IssueResult;
+      if (response.status === 401) {
+        window.location.href = '/angel/login';
+        return;
       }
-
-      setMsg(`صدور موفق: ${data.license_id}`);
-
-      setOrders((current) =>
-        current.map((order) =>
-          order.id === selected.id
-            ? { ...order, status: 'issued' }
-            : order
-        )
-      );
-
-      setSelected(null);
-    } catch (error) {
-      setMsg(
-        error instanceof Error
-          ? error.message
-          : 'خطای ناشناخته در صدور لایسنس'
-      );
+      if (!response.ok || !data.ok || !data.license) {
+        throw new Error(data.message || data.error || 'صدور امن لایسنس انجام نشد.');
+      }
+      setIssued(data);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'خطای نامشخص در صدور لایسنس');
     } finally {
       setBusy(false);
     }
-  };
+  }
+
+  async function logout() {
+    await fetch('/api/angel/login', { method: 'DELETE' }).catch(() => undefined);
+    window.location.href = '/angel/login';
+  }
 
   return (
     <main>
@@ -133,283 +104,86 @@ export default function Angel() {
         <div className="container">
           <div className="split">
             <div>
-              <span className="eyebrow">
-                <span className="dot" /> PRIVATE OWNER CONSOLE
-              </span>
-
-              <h1>Horizon Angel · SOC</h1>
-
-              <p>
-                کنترل مرکزی برای Agentها، مشتری‌ها، سفارش‌ها و
-                صدور لایسنس. داده‌های عملیاتی باید از API امن
-                Horizon بیایند.
+              <span className="eyebrow"><span className="dot" /> PRIVATE OWNER CONSOLE</span>
+              <h1>Horizon Angel · Authority</h1>
+              <p className="muted">
+                صدور لایسنس v1.4 از Horizon Authority؛ کلید خصوصی فقط در Backend نگه‌داری می‌شود.
               </p>
             </div>
-
-            <button
-              className="btn btn-danger"
-              onClick={async () => {
-                try {
-                  await fetch('/api/angel/login', {
-                    method: 'DELETE',
-                  });
-                } finally {
-                  window.location.href = '/angel/login';
-                }
-              }}
-            >
-              خروج
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container grid-4">
-          <div className="card kpi">
-            <div className="v">{stats.total}</div>
-            <div className="l">Agentها</div>
-          </div>
-
-          <div className="card kpi">
-            <div className="v ok-text">{stats.online}</div>
-            <div className="l">Online</div>
-          </div>
-
-          <div className="card kpi">
-            <div className="v warn-text">{stats.warning}</div>
-            <div className="l">Warning</div>
-          </div>
-
-          <div className="card kpi">
-            <div className="v danger-text">{stats.offline}</div>
-            <div className="l">Offline</div>
+            <button className="btn btn-danger" onClick={logout}>خروج امن</button>
           </div>
         </div>
       </section>
 
       <section className="section">
         <div className="container">
-          <div className="section-title">
-            <div>
-              <h2>Agent Network</h2>
-
-              <p>
-                وضعیت Agentها از API خوانده می‌شود؛ در حالت فعلی
-                داده‌ها Demo هستند.
+          <div className="card panel">
+            <span className="eyebrow">LIVE SWITCH STATUS</span>
+            <h2>{summary?.status === 'online' ? 'Switch متصل است' : 'وضعیت سرویس'}</h2>
+            <p className={summary?.status === 'online' ? 'ok-text' : 'warn-text'}>{summaryMessage}</p>
+            {summary?.status === 'online' && (
+              <p className="muted small">
+                سرویس: {summary.source || 'horizon-switch'} · نسخه: {summary.version || 'نامشخص'}
               </p>
-            </div>
-          </div>
-
-          <div className="agent-grid">
-            {angelAgents.map((agent) => (
-              <div className="agent" key={agent.id}>
-                <b>{agent.name}</b>
-                <small>{agent.site}</small>
-
-                <div
-                  className={`state ${
-                    agent.status === 'offline'
-                      ? 'off'
-                      : agent.status === 'warning'
-                        ? 'warn'
-                        : ''
-                  }`}
-                >
-                  <i /> {agent.status}
-                </div>
-              </div>
-            ))}
+            )}
+            <p className="muted small">
+              تعداد Agent و سفارش تا زمانی که منبع عملیاتی واقعی متصل نباشد نمایش داده نمی‌شود؛ دادهٔ ساختگی به‌عنوان وضعیت زنده نشان داده نمی‌شود.
+            </p>
           </div>
         </div>
       </section>
 
       <section className="section">
-        <div className="container two-col">
+        <div className="container">
           <div className="card panel">
-            <div className="split">
-              <div>
-                <h2 style={{ margin: '0 0 5px' }}>
-                  Pending issuance
-                </h2>
-
-                <div className="muted small">
-                  سفارش‌های آماده بررسی و صدور
-                </div>
+            <span className="eyebrow">AUTHORITY · ECDSA SECP256K1</span>
+            <h2>صدور لایسنس جدید</h2>
+            <p className="muted small">
+              HWID را از مسیر محافظت‌شدهٔ Switch یعنی <code>/api/v1/license/hardware-id</code> بگیر. HWID خالی یا ساختگی استفاده نکن.
+            </p>
+            <form onSubmit={issueLicense} className="license-form">
+              <div className="field">
+                <label htmlFor="customer-id">شناسه مشتری / Tenant</label>
+                <input id="customer-id" value={customerID} onChange={(e) => setCustomerID(e.target.value)} required maxLength={200} autoComplete="off" />
               </div>
-            </div>
-
-            <div className="spaced">
-              {orders.map((order) => (
-                <div
-                  className="order-card"
-                  key={order.id}
-                  style={{
-                    border: '1px solid var(--line)',
-                    borderRadius: 16,
-                    marginBottom: 10,
-                    padding: 14,
-                  }}
-                >
-                  <div className="split">
-                    <div>
-                      <b>{order.customer}</b>
-
-                      <div className="muted small">
-                        {order.product} · {order.qty} license
-                      </div>
-                    </div>
-
-                    <span
-                      className={`badge ${
-                        order.status === 'issued'
-                          ? 'ok'
-                          : order.status === 'pending_issuance'
-                            ? 'warn'
-                            : ''
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-
-                  <div className="split">
-                    <span className="muted small mono">
-                      {order.id}
-                    </span>
-
-                    {order.status === 'pending_issuance' && (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => setSelected(order)}
-                      >
-                        صدور لایسنس
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {msg && (
-              <div className="notice ok-text">
-                {msg}
+              <div className="field">
+                <label htmlFor="branch-id">شناسه شعبه / سایت</label>
+                <input id="branch-id" value={branchID} onChange={(e) => setBranchID(e.target.value)} required maxLength={200} autoComplete="off" />
+              </div>
+              <div className="field">
+                <label htmlFor="product-id">شناسه محصول</label>
+                <input id="product-id" value={productID} onChange={(e) => setProductID(e.target.value)} required maxLength={200} autoComplete="off" />
+              </div>
+              <div className="field">
+                <label htmlFor="hardware-id">Hardware ID (HWID)</label>
+                <input id="hardware-id" value={hardwareID} onChange={(e) => setHardwareID(e.target.value)} required maxLength={512} autoComplete="off" />
+              </div>
+              <div className="field">
+                <label htmlFor="volume">ظرفیت / Volume</label>
+                <input id="volume" type="number" min={1} max={10000000} value={volume} onChange={(e) => setVolume(e.target.value)} required />
+              </div>
+              <div className="field">
+                <label htmlFor="duration">مدت اعتبار (روز)</label>
+                <input id="duration" type="number" min={1} max={3650} value={duration} onChange={(e) => setDuration(e.target.value)} required />
+              </div>
+              <button className="btn btn-primary" type="submit" disabled={busy}>
+                {busy ? 'در حال صدور امن…' : 'صدور و امضای لایسنس'}
+              </button>
+            </form>
+            {error && <div className="notice danger-text" role="alert">{error}</div>}
+            {issued && Boolean(issued.license) && (
+              <div className="spaced">
+                <div className="notice ok-text">لایسنس جدید با مرجع Authority صادر شد: <b>{issued.license_id}</b></div>
+                <p className="muted small">JSON زیر envelope امضاشده است؛ کلید خصوصی یا API key در آن قرار ندارد.</p>
+                <pre className="license-output">{JSON.stringify(issued.license, null, 2)}</pre>
+                <button className="btn btn-secondary" type="button" onClick={() => {
+                  void navigator.clipboard?.writeText(JSON.stringify(issued.license, null, 2));
+                }}>کپی JSON لایسنس</button>
               </div>
             )}
           </div>
-
-          <div className="card panel">
-            <h2 style={{ marginTop: 0 }}>Customers</h2>
-
-            {angelCustomers.map((customer) => (
-              <div
-                className="status-row"
-                key={customer.id}
-              >
-                <div>
-                  <b>{customer.name}</b>
-
-                  <div className="muted small">
-                    {customer.type} · {customer.branches} branch
-                  </div>
-                </div>
-
-                <span
-                  className={
-                    customer.status === 'active'
-                      ? 'ok-text'
-                      : 'warn-text'
-                  }
-                >
-                  {customer.status}
-                </span>
-              </div>
-            ))}
-
-            <div className="hr" />
-
-            <div className="notice">
-              hardware_id باید در binding واقعی لایسنس قرار
-              بگیرد و private key هرگز نباید به browser منتقل
-              شود.
-            </div>
-          </div>
         </div>
       </section>
-
-      {selected && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 100,
-            background: 'rgba(0,0,0,.68)',
-            display: 'grid',
-            placeItems: 'center',
-            padding: 20,
-          }}
-        >
-          <div
-            className="card panel"
-            style={{ width: 'min(520px,100%)' }}
-          >
-            <div className="split">
-              <h2 style={{ margin: 0 }}>Bind & Issue</h2>
-
-              <button
-                className="btn btn-ghost"
-                onClick={() => setSelected(null)}
-                disabled={busy}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="spaced">
-              <div className="order-meta">
-                <div className="meta">
-                  <span>Customer</span>
-                  <b>{selected.customer}</b>
-                </div>
-
-                <div className="meta">
-                  <span>Branch</span>
-                  <b>branch-demo-01</b>
-                </div>
-
-                <div className="meta">
-                  <span>Industry</span>
-                  <b>industrial-monitoring</b>
-                </div>
-
-                <div className="meta">
-                  <span>Hardware</span>
-                  <b className="mono">
-                    HW-BIND-DEMO-01
-                  </b>
-                </div>
-              </div>
-
-              <div className="notice spaced">
-                این مرحله Demo است. private key در browser قرار
-                نمی‌گیرد. اتصال واقعی باید به سرویس امن Horizon
-                Core انجام شود.
-              </div>
-
-              <button
-                className="btn btn-primary spaced"
-                style={{ width: '100%' }}
-                onClick={issue}
-                disabled={busy}
-              >
-                {busy
-                  ? 'در حال صدور...'
-                  : 'ایجاد و ثبت لایسنس'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

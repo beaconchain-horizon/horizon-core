@@ -1,0 +1,80 @@
+name: Horizon Core v1.4 validation
+
+on:
+  push:
+    branches: ["feat/v14-unified-authority-license-*"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  go124:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+          cache: true
+      - name: Verify Go toolchain and product version
+        run: |
+          go version
+          go version | grep -E 'go1\.24\.'
+          grep -R -n 'v1\.4' cmd/switch internal/license docs 2>/dev/null | head -n 20 || true
+      - name: Targeted cryptographic and license protocol tests
+        run: go test -count=1 ./internal/crypto ./internal/license
+      - name: Full repository tests
+        run: go test -count=1 ./...
+      - name: Static analysis
+        run: go vet ./...
+      - name: Build core executables
+        run: |
+          go build ./cmd/switch
+          go build ./cmd/api
+          go build ./cmd/authority-keygen
+          go build ./cmd/licensegen
+          go build ./cmd/licenseverify
+      - name: Validate shell scripts
+        run: |
+          bash -n scripts/bootstrap-horizon-v14.sh
+          bash -n scripts/start-switch.sh
+          bash -n scripts/start-backend.sh
+      - name: Provide a temporary file-backed secret for Compose validation
+        run: |
+          mkdir -p secrets/v1.4
+          printf 'CI-only-placeholder-not-a-real-key\\n' > secrets/v1.4/issuer-private.pem
+      - name: Validate Compose template
+        env:
+          POSTGRES_PASSWORD: ci-temporary-password-1234567890
+          ADMIN_TOKEN: ci-temporary-admin-token-1234567890
+          API_KEY: ci-temporary-api-token-1234567890
+          HORIZON_LICENSE_PUBLIC_KEY: "04$(printf '%0128d' 0)"
+          ANGEL_ADMIN_PASSWORD: ci-temporary-owner-password-1234567890
+          ANGEL_SESSION_SECRET: ci-temporary-session-secret-1234567890
+        run: docker compose config -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package.json
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+      - name: Build Store and Angel
+        working-directory: frontend
+        env:
+          ANGEL_ADMIN_PASSWORD: ci-test-owner-password-not-used-for-production
+          ANGEL_SESSION_SECRET: ci-test-session-secret-please-do-not-use
+          HORIZON_ISSUE_API: http://localhost:8080/api/v1/license/generate
+          HORIZON_API_KEY: ci-api-key-only-for-build
+          HORIZON_SWITCH_URL: http://localhost:8081
+        run: npm run build

@@ -79,3 +79,49 @@ func TestValidateRejectsExpiryAndInvalidMerkleRoot(t *testing.T) {
 		t.Fatal("invalid Merkle root must be rejected")
 	}
 }
+
+
+func TestValidateRejectsTamperedSignature(t *testing.T) {
+	now := time.Unix(1791540000, 0)
+	priv, err := hcrypto.GenerateSecp256k1ECDSAKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := Statement{
+		LicenseID: "HZ-V14-SIG-TEST", UserID: "tenant-01", ProductID: "horizon-core",
+		Volume: 10, Duration: 30, IssuedAt: now.Unix(), ExpiresAt: now.Unix() + 30*86400,
+		HardwareID: "HWID-EXAMPLE",
+	}
+	s.MerkleRoot = MerkleRoot(s)
+	message, err := CanonicalBytes(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	signature, err := hcrypto.SignData(message, priv)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(signature) < 2 {
+		t.Fatal("test signature unexpectedly short")
+	}
+	last := signature[len(signature)-1]
+	if last == '0' {
+		signature = signature[:len(signature)-1] + "1"
+	} else {
+		signature = signature[:len(signature)-1] + "0"
+	}
+	_ = last
+	signed := SignedLicense{Statement: s, Signature: signature}
+	if err := Validate(signed, &priv.PublicKey, now, s.HardwareID); err == nil {
+		t.Fatal("tampered signature must be rejected")
+	}
+}
+
+func TestValidateRejectsDurationMismatch(t *testing.T) {
+	now := time.Unix(1791540000, 0)
+	env, _ := signedFixture(t, now)
+	env.Statement.Duration++
+	if err := Validate(env, nil, now, env.Statement.HardwareID); err == nil {
+		t.Fatal("duration mismatch must be rejected")
+	}
+}

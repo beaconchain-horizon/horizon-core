@@ -10,6 +10,7 @@
 *.env
 
 # Keys & Certificates
+secrets/
 keys/
 test-keys/
 *.pem

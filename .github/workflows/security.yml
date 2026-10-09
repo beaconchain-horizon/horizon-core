@@ -1,51 +1,27 @@
-name: "Security Scan"
+name: "Security Dependency Review"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   schedule:
     - cron: "0 8 * * 1"
 
 permissions:
   contents: read
-  security-events: write
-  actions: read
 
 jobs:
-  codeql:
-    name: "CodeQL Analysis (Go)"
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: go
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:go"
-
   dependency-review:
     name: "Dependency Review"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Dependency Review
+        uses: actions/checkout@v4
+      - name: Review dependency changes
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
+
+# CodeQL uses GitHub's repository-level Default Setup. Do not upload analyses
+# from an Advanced Setup workflow at the same time; GitHub rejects the SARIF.

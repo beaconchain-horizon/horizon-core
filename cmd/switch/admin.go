@@ -219,78 +219,13 @@ func adminAuditHandler(c *gin.Context) {
 	})
 }
 
+// License issuance belongs exclusively to Horizon Authority/Backend.
+// Keep the route temporarily for clients that need an explicit migration error.
 func adminIssueLicenseHandler(c *gin.Context) {
-	var req struct {
-		LicenseID  string `json:"license_id" binding:"required"`
-		UserID     string `json:"user_id" binding:"required"`
-		ProductID  string `json:"product_id"`
-		Volume     int    `json:"volume"`
-		Duration   int    `json:"duration"`
-		MerkleRoot string `json:"merkle_root"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	stateMutex.RLock()
-	key := unlockedKey
-	stateMutex.RUnlock()
-	if key == nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "key locked"})
-		return
-	}
-
-	if req.ProductID == "" {
-		req.ProductID = "horizon-core"
-	}
-	if req.Duration == 0 {
-		req.Duration = 8760
-	}
-
-	now := time.Now().Unix()
-	lic := &License{
-		LicenseID:  req.LicenseID,
-		UserID:     req.UserID,
-		ProductID:  req.ProductID,
-		Volume:     req.Volume,
-		Duration:   req.Duration,
-		MerkleRoot: req.MerkleRoot,
-		IssuedAt:   now,
-		ExpiresAt:  now + int64(req.Duration*86400),
-		Status:     "active",
-	}
-
-	if lic.MerkleRoot == "" {
-		lic.MerkleRoot = licenseMerkleRoot(lic)
-	}
-
-	msg := licenseCanonicalMessage(lic)
-	sig, err := signData(key, []byte(msg))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "sign failed: " + err.Error()})
-		return
-	}
-	lic.Signature = sig
-
-	if err := db.Create(lic).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "save failed: " + err.Error()})
-		return
-	}
-
-	// append license to blockchain chain
-	if chainTx, _, err := appendChainTx(db, key, TxLicenseIssue, lic); err != nil {
-		log.Printf("⚠️  chain: license append failed: %v", err)
-	} else {
-		log.Printf("⛓  license %s appended in block #%d", lic.LicenseID, chainTx.BlockNum)
-	}
-
-	addAudit("issue_license", lic.LicenseID, "for user "+lic.UserID, c.ClientIP())
-
-	// refresh license state in memory (so isLicenseValid becomes true)
-	checkLicenseNow()
-
-	c.JSON(http.StatusCreated, lic)
+	c.JSON(http.StatusGone, gin.H{
+		"error": "Switch is a Policy Enforcement Gateway and no longer issues Authority licenses",
+		"use":   "POST /api/v1/license/generate on Horizon Backend",
+	})
 }
 
 func revokeLicenseHandler(c *gin.Context) {

@@ -1,3 +1,26 @@
-fatal: ambiguous argument 'origin\feat\v14-unified-authority-license-20261009;.dockerignore': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
+# Never send signing material, local state, credentials or caches to Docker builders.
+.git
+.github
+.backups
+HorizonCore-backups
+**/.env
+**/.env.*
+.env
+.env.*
+secrets/
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.jks
+**/*.keystore
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+data/
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+**/*.exe
+**/*.log

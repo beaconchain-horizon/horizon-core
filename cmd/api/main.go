@@ -44,20 +44,24 @@ type Payment struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 type LicenseRecord struct {
-	ID        string     `json:"id" gorm:"primaryKey"`
-	Volume    int        `json:"volume"`
-	Used      int        `json:"used"`
-	ProductID string     `json:"product_id"`
-	UserID    string     `json:"user_id"`
-	Root      string     `json:"root"`
-	Seed      string     `json:"seed"`
-	PrevHash  string     `json:"prev_hash"`
-	Hash      string     `json:"hash"`
-	Signature string     `json:"signature"`
-	PublicKey string     `json:"public_key"`
-	CreatedAt time.Time  `json:"created_at"`
-	Status    string     `json:"status"`
-	ExpiresAt *time.Time `json:"expires_at"`
+	ID         string     `json:"id" gorm:"primaryKey"`
+	Volume     int        `json:"volume"`
+	Used       int        `json:"used"`
+	ProductID  string     `json:"product_id"`
+	UserID     string     `json:"user_id"`
+	Root       string     `json:"root"`
+	Seed       string     `json:"seed"`
+	PrevHash   string     `json:"prev_hash"`
+	Hash       string     `json:"hash"`
+	Signature  string     `json:"signature"`
+	PublicKey  string     `json:"public_key"`
+	MerkleRoot string     `json:"merkle_root"`
+	IssuedAt   int64      `json:"issued_at"`
+	Duration   int        `json:"duration"`
+	HardwareID string     `json:"hardware_id"`
+	CreatedAt  time.Time  `json:"created_at"`
+	Status     string     `json:"status"`
+	ExpiresAt  *time.Time `json:"expires_at"`
 }
 type Transaction struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
@@ -137,19 +141,13 @@ func switchEnabled() bool {
 }
 
 func adminTokenValid(c *gin.Context) bool {
-	expected := os.Getenv("ADMIN_TOKEN")
-	if expected == "" {
-		return true
-	}
-	return c.GetHeader("X-Admin-Key") == expected
+	expected := strings.TrimSpace(os.Getenv("ADMIN_TOKEN"))
+	return len(expected) >= 32 && c.GetHeader("X-Admin-Key") == expected
 }
 
 func apiKeyValid(c *gin.Context) bool {
-	expected := os.Getenv("API_KEY")
-	if expected == "" {
-		return true
-	}
-	return c.GetHeader("X-API-Key") == expected
+	expected := strings.TrimSpace(os.Getenv("API_KEY"))
+	return len(expected) >= 32 && c.GetHeader("X-API-Key") == expected
 }
 
 func requireAdmin(c *gin.Context) bool {
@@ -175,8 +173,26 @@ func connectPostgres() error {
 	return nil
 }
 
+func statementFromRecord(l LicenseRecord) license.Statement {
+	var expiresAt int64
+	if l.ExpiresAt != nil {
+		expiresAt = l.ExpiresAt.Unix()
+	}
+	return license.Statement{
+		LicenseID: l.ID, UserID: l.UserID, ProductID: l.ProductID,
+		Volume: l.Volume, Duration: l.Duration, MerkleRoot: l.MerkleRoot,
+		IssuedAt: l.IssuedAt, ExpiresAt: expiresAt, HardwareID: l.HardwareID,
+	}
+}
+
 func canonicalLicenseData(l LicenseRecord) []byte {
-	return []byte(fmt.Sprintf("%s|%s|%s|%d|%s|%s|%s", l.ID, l.ProductID, l.UserID, l.Volume, l.Root, l.Status, timeString(l.ExpiresAt)))
+	data, _ := license.CanonicalBytes(statementFromRecord(l))
+	return data
+}
+
+func errorMessage(err error) string {
+	if err == nil { return "" }
+	return err.Error()
 }
 func timeString(t *time.Time) string {
 	if t == nil {
@@ -199,6 +215,9 @@ func callSwitch(path string, payload any) (map[string]any, int, error) {
 		return nil, 0, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if token := strings.TrimSpace(os.Getenv("ADMIN_TOKEN")); token != "" {
+		req.Header.Set("X-Admin-Token", token)
+	}
 	client := &http.Client{Timeout: 8 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -216,17 +235,11 @@ func mustReadFile(path string) []byte { b, _ := os.ReadFile(path); return b }
 
 func main() {
 	// ─── P0.4 FAIL-CLOSED: refuse to start without required secrets ───
-	adminToken := os.Getenv("ADMIN_TOKEN")
-	if adminToken == "" {
-		adminToken = os.Getenv("API_KEY")
-	}
-	if adminToken == "" {
-		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN (or API_KEY) must be set. Refusing to start with open auth.")
-	}
-	if len(adminToken) < 32 {
-		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN must be at least 32 characters.")
-	}
-	log.Printf("P0.4: auth enabled (token length=%d)", len(adminToken))
+	adminToken := strings.TrimSpace(os.Getenv("ADMIN_TOKEN"))
+	apiKey := strings.TrimSpace(os.Getenv("API_KEY"))
+	if len(adminToken) < 32 { log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN must be set to at least 32 characters.") }
+	if len(apiKey) < 32 { log.Fatal("P0.4 FAIL-CLOSED: API_KEY must be set to at least 32 characters.") }
+	log.Printf("P0.4: independent admin/API authentication enabled")
 	// ──────────────────────────────────────────────────────────────
 
 	if err := db.InitDB(); err != nil {
@@ -236,7 +249,8 @@ func main() {
 		panic(err)
 	}
 
-	if err := pgDB.AutoMigrate(&LicenseRecord{}, &Customer{}, &Payment{}, &Transaction{}); err != nil {
+	if err := pgDB.AutoMigrate(&LicenseRecord{}, &Customer{}, &Payment{}, &Transaction{}, &LicensePackage{},
+		&IndustrialSensor{}, &SensorReading{}, &IndustryAlert{}, &StartToken{}, &Gateway{}, &Wallet{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 
@@ -251,67 +265,87 @@ func main() {
 			return
 		}
 		var req struct {
-			ProductID string `json:"product_id"`
-			UserID    string `json:"user_id"`
-			Volume    int    `json:"volume"`
-			Duration  int    `json:"duration"`
+			ProductID  string `json:"product_id"`
+			UserID     string `json:"user_id"`
+			Volume     int    `json:"volume"`
+			Duration   int    `json:"duration"`
+			HardwareID string `json:"hardware_id"`
 		}
-		if err := c.ShouldBindJSON(&req); err != nil || req.Volume <= 0 || req.ProductID == "" || req.UserID == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "product_id, user_id and positive volume are required"})
+		if err := c.ShouldBindJSON(&req); err != nil || req.Volume <= 0 || req.ProductID == "" ||
+			req.UserID == "" || req.Duration <= 0 || strings.TrimSpace(req.HardwareID) == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "product_id, user_id, positive volume/duration, and hardware_id are required"})
+			return
+		}
+		if req.Duration > 36500 || req.Volume > 1000000000 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "volume or duration exceeds policy limits"})
 			return
 		}
 		pkg := license.NewPrepaidPackage(req.Volume)
 		if err := pkg.Generate(); err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "license package generation failed"})
 			return
 		}
-		pub, _ := db.PublicKeyPEM()
-		now := time.Now().UTC()
-		var exp *time.Time
-		if req.Duration > 0 {
-			t := now.Add(time.Duration(req.Duration) * 24 * time.Hour)
-			exp = &t
-		}
-		lic := LicenseRecord{ID: fmt.Sprintf("lic_%d_%d", now.UnixNano(), time.Now().Nanosecond()), Volume: req.Volume, ProductID: req.ProductID, UserID: req.UserID, Root: pkg.RootHex(), Seed: pkg.SeedHex(), CreatedAt: now, Status: "active", PublicKey: pub, ExpiresAt: exp}
-		sig, err := crypto.SignData(canonicalLicenseData(lic), db.PrivateKey)
+		pub, err := db.PublicKeyPEM()
 		if err != nil {
-			c.JSON(500, gin.H{"error": "signing failed"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Authority public key unavailable"})
 			return
 		}
-		lic.Signature = sig
+		now := time.Now().UTC().Truncate(time.Second)
+		expires := time.Unix(now.Unix()+int64(req.Duration)*86400, 0).UTC()
+		lic := LicenseRecord{
+			ID: fmt.Sprintf("HZ14-%d", now.UnixNano()), Volume: req.Volume, ProductID: strings.TrimSpace(req.ProductID),
+			UserID: strings.TrimSpace(req.UserID), Root: pkg.RootHex(), Seed: pkg.SeedHex(), CreatedAt: now,
+			IssuedAt: now.Unix(), Duration: req.Duration, HardwareID: strings.TrimSpace(req.HardwareID),
+			Status: "active", PublicKey: pub, ExpiresAt: &expires,
+		}
+		statement := statementFromRecord(lic)
+		statement.MerkleRoot = license.MerkleRoot(statement)
+		lic.MerkleRoot = statement.MerkleRoot
+		message, err := license.CanonicalBytes(statement)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "canonical license encoding failed"})
+			return
+		}
+		signature, err := crypto.SignData(message, db.PrivateKey)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Authority signing failed"})
+			return
+		}
+		lic.Signature = signature
 		if err := pgDB.Create(&lic).Error; err != nil {
-			c.JSON(500, gin.H{"error": "license persistence failed"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "license persistence failed"})
 			return
 		}
-		c.JSON(http.StatusCreated, gin.H{"id": lic.ID, "volume": lic.Volume, "root": lic.Root, "seed": lic.Seed, "signature": lic.Signature, "public_key": lic.PublicKey, "expires_at": lic.ExpiresAt})
+		c.JSON(http.StatusCreated, gin.H{
+			"license": license.SignedLicense{Statement: statement, Signature: signature},
+			"package_root": lic.Root, "seed": lic.Seed, "issuer_public_key": lic.PublicKey,
+			"status": lic.Status,
+		})
 	})
 
 	r.POST("/api/v1/license/verify", func(c *gin.Context) {
-		var req struct {
-			LicenseID string `json:"license_id"`
-			Signature string `json:"signature"`
-			Data      string `json:"data"`
-		}
+		var req struct { LicenseID string `json:"license_id" binding:"required"` }
 		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(400, gin.H{"error": "invalid request"})
+			c.JSON(http.StatusBadRequest, gin.H{"verified": false, "valid": false, "error": "license_id is required"})
 			return
 		}
 		var lic LicenseRecord
 		if err := pgDB.First(&lic, "id = ?", req.LicenseID).Error; err != nil {
-			c.JSON(404, gin.H{"verified": false, "error": "license not found"})
+			c.JSON(http.StatusNotFound, gin.H{"verified": false, "valid": false, "error": "license not found"})
 			return
 		}
-		pub, err := crypto.PEMToPublicKey(lic.PublicKey)
-		if err != nil {
-			c.JSON(500, gin.H{"verified": false, "error": "invalid public key"})
+		if lic.Status != "active" || lic.ExpiresAt == nil {
+			c.JSON(http.StatusOK, gin.H{"verified": false, "valid": false, "license_id": lic.ID, "status": lic.Status})
 			return
 		}
-		data := []byte(req.Data)
-		if len(data) == 0 {
-			data = canonicalLicenseData(lic)
+		if db.PrivateKey == nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"verified": false, "valid": false, "error": "Authority key unavailable"})
+			return
 		}
-		ok := crypto.VerifySignature(pub, data, req.Signature)
-		c.JSON(http.StatusOK, gin.H{"verified": ok, "license_id": lic.ID, "status": lic.Status})
+		err := license.Validate(license.SignedLicense{Statement: statementFromRecord(lic), Signature: lic.Signature},
+			&db.PrivateKey.PublicKey, time.Now(), "")
+		c.JSON(http.StatusOK, gin.H{"verified": err == nil, "valid": err == nil, "license_id": lic.ID,
+			"status": lic.Status, "error": errorMessage(err), "merkle_root": lic.MerkleRoot})
 	})
 
 	r.GET("/api/v1/licenses", func(c *gin.Context) {
@@ -364,23 +398,20 @@ func main() {
 			c.JSON(404, gin.H{"error": "license not found"})
 			return
 		}
-		if lic.Status != "active" || (lic.ExpiresAt != nil && lic.ExpiresAt.Before(time.Now().UTC())) {
+		if lic.Status != "active" || lic.ExpiresAt == nil || !lic.ExpiresAt.After(time.Now().UTC()) {
 			c.JSON(403, gin.H{"error": "license is not active"})
 			return
 		}
 		if switchEnabled() {
-			result, status, err := callSwitch("/api/v1/license/check", map[string]any{"license_id": lic.ID, "user_id": lic.UserID, "signature": lic.Signature, "data": string(canonicalLicenseData(lic))})
+			result, status, err := callSwitch("/api/v1/license/check", license.SignedLicense{Statement: statementFromRecord(lic), Signature: lic.Signature})
 			if err != nil {
 				c.JSON(502, gin.H{"error": "switch unavailable"})
 				return
 			}
 			valid, _ := result["valid"].(bool)
-			if !valid {
-				verified, _ := result["verified"].(bool)
-				if status >= 400 || !verified {
-					c.JSON(403, gin.H{"error": "switch rejected license"})
-					return
-				}
+			if status < 200 || status >= 300 || !valid {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Switch rejected license", "reason": result["error"]})
+				return
 			}
 		}
 		requestMu.Lock()

@@ -1,72 +1,117 @@
 services:
-  # ═══════════════════════════════════════════════════════
-  #  PostgreSQL — فقط برای backend (cmd/api)
-  # ═══════════════════════════════════════════════════════
   postgres:
     image: postgres:16-alpine
     container_name: horizon-postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: horizon
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-horizon_secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run scripts/bootstrap-horizon-v14.sh first}
       POSTGRES_DB: horizon
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
-    networks:
-      - horizon-net
+      - "127.0.0.1:5432:5432"
+    networks: [horizon-net]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U horizon"]
+      test: ["CMD-SHELL", "pg_isready -U horizon -d horizon"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
-  # ═══════════════════════════════════════════════════════
-  #  Switch — SQLite محلی (بدون وابستگی به Postgres)
-  # ═══════════════════════════════════════════════════════
   switch:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: horizon-switch
-    restart: always
+    restart: unless-stopped
     environment:
       GIN_MODE: release
       SWITCH_PORT: 8080
-      SWITCH_DB: /root/data/horizon-switch.db
-      CHAIN_CONFIG: /root/data/chain.json
-      CUSTOMERS_CONFIG: /root/data/customers.json
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-change-me}
+      SWITCH_DB: /data/horizon-switch.db
+      CHAIN_CONFIG: /data/chain.json
+      CUSTOMERS_CONFIG: /data/customers.json
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?run scripts/bootstrap-horizon-v14.sh first}
+      HORIZON_LICENSE_PUBLIC_KEY: ${HORIZON_LICENSE_PUBLIC_KEY:?Authority public key is required}
+      HORIZON_HARDWARE_ID: ${HORIZON_HARDWARE_ID:-}
     volumes:
-      - switch_data:/root/data
-      - ./config:/root/config-seed:ro
+      - switch_data:/data
+      - ./config:/app/config-seed:ro
     ports:
-      - "8080:8080"
-    networks:
-      - horizon-net
+      - "127.0.0.1:8081:8080"
+    networks: [horizon-net]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
 
-  # ═══════════════════════════════════════════════════════
-  #  Backend — Postgres + cmd/api
-  # ═══════════════════════════════════════════════════════
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: horizon-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+      switch:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-Horizon}
+      NEXT_PUBLIC_STORE_NAME: ${NEXT_PUBLIC_STORE_NAME:-Horizon Store}
+      HORIZON_API_URL: http://backend:8080
+      HORIZON_SWITCH_URL: http://switch:8080
+      HORIZON_ISSUE_API: http://backend:8080/api/v1/license/generate
+      HORIZON_API_KEY: ${API_KEY:?run scripts/bootstrap-horizon-v14.sh first}
+      HORIZON_ORDER_API: ${HORIZON_ORDER_API:-}
+      HORIZON_ORDER_API_KEY: ${HORIZON_ORDER_API_KEY:-}
+      ANGEL_ADMIN_PASSWORD: ${ANGEL_ADMIN_PASSWORD:?run scripts/bootstrap-horizon-v14.sh first}
+      ANGEL_SESSION_SECRET: ${ANGEL_SESSION_SECRET:?run scripts/bootstrap-horizon-v14.sh first}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?run scripts/bootstrap-horizon-v14.sh first}
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks: [horizon-net]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/angel/login"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile.api
     container_name: horizon-backend
-    restart: always
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
+      switch:
+        condition: service_healthy
     environment:
+      GIN_MODE: release
       SERVER_PORT: 8080
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-change-me}
-      API_KEY: ${API_KEY:-change-me}
-      DATABASE_URL: postgresql://horizon:${POSTGRES_PASSWORD:-horizon_secret}@postgres:5432/horizon
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?run scripts/bootstrap-horizon-v14.sh first}
+      API_KEY: ${API_KEY:?run scripts/bootstrap-horizon-v14.sh first}
+      DATABASE_URL: postgresql://horizon:${POSTGRES_PASSWORD:?required}@postgres:5432/horizon?sslmode=disable
+      LICENSE_PRIVATE_KEY_FILE: /run/horizon/issuer-private.pem
+      SWITCH_URL: http://switch:8080
+      ENABLE_SWITCH: "true"
+    secrets:
+      - source: horizon_issuer_private_key
+        target: horizon_issuer_private_key
+        uid: "10001"
+        gid: "10001"
+        mode: 0400
     ports:
-      - "8081:8080"
-    networks:
-      - horizon-net
+      - "127.0.0.1:8080:8080"
+    networks: [horizon-net]
+
+secrets:
+  horizon_issuer_private_key:
+    file: ./secrets/v1.4/issuer-private.pem
 
 volumes:
   postgres_data:

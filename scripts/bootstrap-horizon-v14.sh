@@ -65,7 +65,8 @@ if [[ -f .env ]]; then
   awk -F= '
     $1=="POSTGRES_PASSWORD" || $1=="ADMIN_TOKEN" || $1=="API_KEY" ||
     $1=="HORIZON_LICENSE_PUBLIC_KEY" || $1=="AUTHORITY_PROTOCOL_VERSION" ||
-    $1=="LICENSE_PRIVATE_KEY_FILE" || $1=="SWITCH_URL" || $1=="ENABLE_SWITCH" ||
+    $1=="LICENSE_PRIVATE_KEY_FILE" || $1=="LICENSE_PRIVATE_KEY_PEM" ||
+    $1=="SWITCH_URL" || $1=="ENABLE_SWITCH" ||
     $1=="ANGEL_ADMIN_PASSWORD" || $1=="ANGEL_SESSION_SECRET" {next}
     {print}
   ' .env > "$TMP_ENV"
@@ -91,8 +92,8 @@ docker compose up -d --build
 
 ok=0
 for _ in $(seq 1 60); do
-  if curl -fsS http://127.0.0.1:8080/health >/dev/null 2>&1 &&
-     curl -fsS http://127.0.0.1:8081/api/v1/health >/dev/null 2>&1 &&
+  if curl -fsS http://127.0.0.1:8081/health >/dev/null 2>&1 &&
+     curl -fsS http://127.0.0.1:8080/api/v1/health >/dev/null 2>&1 &&
      curl -fsS http://127.0.0.1:3000/angel/login >/dev/null 2>&1; then
     ok=1
     break
@@ -108,8 +109,8 @@ if [[ "$ok" != 1 ]]; then
 fi
 
 printf '\nHorizon Core v1.4 is up.\n'
-printf 'Switch health:  http://127.0.0.1:8080/health\n'
-printf 'Backend health: http://127.0.0.1:8081/api/v1/health\n'
+printf 'Switch health:  http://127.0.0.1:8081/health\n'
+printf 'Backend health: http://127.0.0.1:8080/api/v1/health\n'
 printf 'Store:           http://127.0.0.1:3000/\n'
 printf 'Owner console:   http://127.0.0.1:3000/angel/login\n'
 printf 'Owner password is stored in .env; read it locally and never share it.\n'

@@ -23,7 +23,7 @@ func adminAuth(c *gin.Context) {
 		p == "/api/v1/industrial/panel" ||
 		p == "/api/v1/industrial/reading" ||
 		p == "/api/v1/industrial/reading/batch" ||
-		p == "/api/v1/license/check" ||
+		p == "/api/v1/license/check-legacy" ||
 		p == "/api/v1/admin/login" ||
 		p == "/api/v1/admin/logout" ||
 		strings.HasPrefix(p, "/api/v1/customer/login") {

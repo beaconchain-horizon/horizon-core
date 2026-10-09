@@ -6,16 +6,16 @@ import (
 	"time"
 )
 
-// autoSetupKeyFromEnv — reads HORIZON_ISSUER_KEY from env
+// autoSetupKeyFromEnv — reads HORIZON_SWITCH_BLOCK_SIGNING_KEY from env
 // and sets up the key vault on startup (idempotent)
 func autoSetupKeyFromEnv() {
-	hexKey := os.Getenv("HORIZON_ISSUER_KEY")
+	hexKey := os.Getenv("HORIZON_SWITCH_BLOCK_SIGNING_KEY")
 	if hexKey == "" {
-		log.Printf("[KEY-ENV] HORIZON_ISSUER_KEY not set")
+		log.Printf("[KEY-ENV] HORIZON_SWITCH_BLOCK_SIGNING_KEY not set")
 		return
 	}
 	if len(hexKey) < 64 {
-		log.Printf("[KEY-ENV] HORIZON_ISSUER_KEY too short: %d", len(hexKey))
+		log.Printf("[KEY-ENV] HORIZON_SWITCH_BLOCK_SIGNING_KEY too short: %d", len(hexKey))
 		return
 	}
 
@@ -35,7 +35,8 @@ func autoSetupKeyFromEnv() {
 
 	password := os.Getenv("KEY_VAULT_PASSWORD")
 	if password == "" {
-		password = "testpass123"
+		log.Printf("[KEY-ENV] KEY_VAULT_PASSWORD must be set; refusing to import the Switch block-signing key")
+		return
 	}
 
 	encrypted, iv, err := encryptPrivateKey(hexKey, password)

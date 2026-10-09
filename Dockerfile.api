@@ -1,7 +1,20 @@
+# Backend is built from source using the supported Go 1.24 toolchain.
+FROM golang:1.24-alpine AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /horizon-api ./cmd/api
+
 FROM alpine:3.20
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata curl su-exec && addgroup -g 10001 horizon && adduser -D -u 10001 -G horizon horizon
 WORKDIR /app
-COPY api-linux ./api
-EXPOSE 8080
+COPY --from=builder /horizon-api /app/api
+COPY scripts/start-backend.sh /app/start.sh
+RUN chmod 0755 /app/start.sh && chown -R horizon:horizon /app
 ENV GIN_MODE=release
-CMD ["./api"]
+ENV SERVER_PORT=8080
+ENV LICENSE_PRIVATE_KEY_FILE=/run/horizon/issuer-private.pem
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 CMD curl -fsS http://127.0.0.1:8080/api/v1/health || exit 1
+CMD ["/app/start.sh"]

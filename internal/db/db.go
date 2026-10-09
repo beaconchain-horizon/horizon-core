@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"horizon-core/internal/crypto"
@@ -18,21 +19,20 @@ func InitDB() error {
 	mu.Lock()
 	defer mu.Unlock()
 
-	if pemValue := os.Getenv("LICENSE_PRIVATE_KEY_PEM"); pemValue != "" {
-		key, err := crypto.PEMToPrivateKey(pemValue)
+	pemValue := strings.TrimSpace(os.Getenv("LICENSE_PRIVATE_KEY_PEM"))
+	if keyFile := strings.TrimSpace(os.Getenv("LICENSE_PRIVATE_KEY_FILE")); keyFile != "" {
+		data, err := os.ReadFile(keyFile)
 		if err != nil {
-			return fmt.Errorf("invalid LICENSE_PRIVATE_KEY_PEM: %w", err)
+			return fmt.Errorf("read LICENSE_PRIVATE_KEY_FILE: %w", err)
 		}
-		PrivateKey = key
-		return nil
+		pemValue = string(data)
 	}
-	pemValue, err := crypto.GenerateKeyPair()
-	if err != nil {
-		return err
+	if strings.TrimSpace(pemValue) == "" {
+		return fmt.Errorf("LICENSE_PRIVATE_KEY_FILE or LICENSE_PRIVATE_KEY_PEM is required; refusing to generate an ephemeral Authority key")
 	}
 	key, err := crypto.PEMToPrivateKey(pemValue)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid Authority secp256k1 private key: %w", err)
 	}
 	PrivateKey = key
 	return nil

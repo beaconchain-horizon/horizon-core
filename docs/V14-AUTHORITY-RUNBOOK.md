@@ -30,8 +30,8 @@ bash scripts/bootstrap-horizon-v14.sh
 ## 3. بررسی سرویس‌ها
 
 ```bash
-curl -fsS http://127.0.0.1:8080/health
-curl -fsS http://127.0.0.1:8081/api/v1/health
+curl -fsS http://127.0.0.1:8081/health
+curl -fsS http://127.0.0.1:8080/api/v1/health
 docker compose ps
 ```
 
@@ -40,7 +40,7 @@ docker compose ps
 ```bash
 ADMIN_TOKEN="$(sed -n 's/^ADMIN_TOKEN=//p' .env)"
 curl -fsS -H "X-Admin-Token: $ADMIN_TOKEN" \
-  http://127.0.0.1:8080/api/v1/license/hardware-id
+  http://127.0.0.1:8081/api/v1/license/hardware-id
 ```
 
 در استقرار ابری که شناسهٔ DMI در کانتینر قابل خواندن نیست، مقدار پایدار `HORIZON_HARDWARE_ID` را در تنظیمات secret/config همان سرویس Switch تنظیم کن. اگر Switch نتواند HWID تعیین کند، اعتبارسنجی باید fail-closed شود؛ از HWID دلخواه یا خالی استفاده نکن.
@@ -54,7 +54,7 @@ ADMIN_TOKEN="$(sed -n 's/^ADMIN_TOKEN=//p' .env)"
 API_KEY="$(sed -n 's/^API_KEY=//p' .env)"
 HWID="PUT_SWITCH_HARDWARE_ID_HERE"
 
-curl -fsS -X POST http://127.0.0.1:8081/api/v1/license/generate \
+curl -fsS -X POST http://127.0.0.1:8080/api/v1/license/generate \
   -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   --data "{\"product_id\":\"horizon-core\",\"user_id\":\"local-validation-tenant\",\"volume\":1000,\"duration\":30,\"hardware_id\":\"$HWID\"}"
