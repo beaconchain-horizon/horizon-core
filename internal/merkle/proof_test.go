@@ -59,7 +59,8 @@ func TestProof_RejectsDifferentRoot(t *testing.T) {
 	if p.Verify(otherRoot) {
 		t.Fatal("proof verified against wrong root")
 	}
-	if bytes.Equal(p.RecomputeRoot()[:], otherRoot[:]) {
+	thisRoot := p.RecomputeRoot()
+	if bytes.Equal(thisRoot[:], otherRoot[:]) {
 		t.Fatal("roots collide")
 	}
 }
