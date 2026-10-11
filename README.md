@@ -1,3 +1,49 @@
+# Horizon Core
+
+**Offline-first tamper-evident ledger for banking, industry, and air-gapped environments.**
+
+Version: **v1.4** · Go 1.24 · secp256k1 signatures
+
+## What's new in v1.4
+
+- **Signature algorithm**: ECDSA on **secp256k1** (was P-256)
+- **Signature format**: 64-byte `R||S` raw, RFC 6979 deterministic
+- **Trust root**: Horizon Authority holds the private key; Switch holds only the public key
+- **Switch**: Policy Enforcement Gateway at `POST /api/v1/license/check`
+- **Browser signing**: `offline-license.html` uses `@noble/secp256k1`, private key never leaves USB
+- **Tools**: `cmd/horizon-keygen`, `cmd/horizon-pubkey`, `cmd/horizon-usbkey`, `cmd/license-signer`, `cmd/licenseverify`, `cmd/authority-keygen`
+
+## Quick start
+
+```bash
+# Terminal 1 — start Switch with USB key
+unset HORIZON_LICENSE_PUBLIC_KEY
+HORIZON_ISSUER_KEY_PATH="/d/mykey.txt" bash scripts/start-switch.sh
+
+# Browser — open offline-license.html via file://
+# Sign → Verify on Switch → green
+```
+
+See [`docs/V14-DEMO.md`](docs/V14-DEMO.md) for the full demo.
+See [`docs/CRYPTO-CONTRACT.md`](docs/CRYPTO-CONTRACT.md) for the signature spec.
+See [`docs/V14-AUTHORITY-RUNBOOK.md`](docs/V14-AUTHORITY-RUNBOOK.md) for production setup.
+
+## Status
+
+| Layer | Status |
+|---|---|
+| Crypto (secp256k1) | ✅ tested |
+| Backend | ✅ working |
+| Switch | ✅ working |
+| Offline verifier | ⏳ in progress |
+| Merkle inclusion | ⏳ in progress |
+| Production deploy | ⏳ pending |
+
+---
+
+## (legacy README below)
+
+
 # Horizon Core — Industrial Platform
 
 **Offline-First Tamper-Evident Ledger for Banking, Industry, and Air-Gapped Environments**
