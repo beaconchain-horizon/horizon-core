@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -877,7 +878,15 @@ func main() {
 	r.Use(RateLimitMiddleware(rl))
 	r.Use(SanitizeInputMiddleware())
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://horizon-backend.liara.run", "https://horizon-switch.liara.run", "http://localhost:8080", "http://localhost:8000", "http://localhost:3000", "http://127.0.0.1:8080"},
+		AllowOriginFunc: func(origin string) bool {
+			if origin == "" || origin == "null" {
+				return true
+			}
+			return strings.HasPrefix(origin, "http://localhost") ||
+				strings.HasPrefix(origin, "http://127.0.0.1") ||
+				origin == "https://horizon-backend.liara.run" ||
+				origin == "https://horizon-switch.liara.run"
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Customer-Token", "X-Admin-Token"},
 		AllowCredentials: false,
