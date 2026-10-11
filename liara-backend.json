@@ -1,1 +1,5 @@
-{"app":"horizon-backend","platform":"docker","port":8080}
+{
+  "app": "horizon-backend",
+  "platform": "docker",
+  "port": 8080
+}
