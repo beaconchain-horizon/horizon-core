@@ -1,123 +1,114 @@
-# Horizon Core — gitignore
 
-# Environment & Secrets
-.env
-.env.*
-!.env.example
-*/.env
-*/.env.*
 !*/.env.example
-*.env
-
-# Keys & Certificates
-keys/
-test-keys/
-*.pem
-*.key
-*.crt
-*.p12
-*.pfx
-*.jks
-*.keystore
-*.ppk
-id_rsa
-id_rsa.*
-id_ecdsa
-id_ed25519
-*.asc
-
+!.env.example
+# Backups
+# Binaries & Build
 # Database
+# Deliveries
+# Environment & Secrets
+# Horizon Core — gitignore
+# Keys & Certificates
+# Liara
+# Local scripts
+# Logs
+# Node / Frontend
+# OS / Editor
+# Reports
+*.asc
+*.backup-*
+*.bak
+*.bak-*
+*.bak.*
+*.broken-*
+*.crt
 *.db
 *.db-shm
 *.db-wal
+*.dll
+*.dylib
+*.env
+*.exe
+*.exe~
+*.jks
+*.key
+*.keystore
+*.local.js
+*.log
+*.old
+*.out
+*.p12
+*.pem
+*.pfx
+*.ppk
+*.pre-*
+*.pre-*.go
+*.so
 *.sqlite
 *.sqlite3
-data/
+*.swo
+*.swp
+*.tmp
+*.tsbuildinfo
+*/.env
+*/.env.*
+*~
+.DS_Store
+.backups/
+.env
+.env.*
+.horizon-dev-key.pem
+.hz-fix-backup-*/
+.idea/
+.liara-auth.json
+.liara-token
+.merkle-v2-backup-*/
+.next/
+.turbo/
+.vscode/
+Thumbs.db
+attack-output.txt
+attack-report-*.txt
+audit-*.md
+bin/
+build/
+config.local.js
 config/chain.json
 config/customers.json
 customers.json
-
-# Backups
-.backups/
-.hz-fix-backup-*/
-.merkle-v2-backup-*/
-*.bak
-*.bak.*
-*.bak-*
-*.backup-*
-*.broken-*
-*.pre-*
-*.old
-*.tmp
-*~
-
-# Deliveries
+data/
 deliveries/
-templates/
-
-# Binaries & Build
-*.exe
-*.exe~
-bin/
-dist/
-build/
-*.so
-*.dll
-*.dylib
-
-# Node / Frontend
-node_modules/
-.next/
-out/
-.turbo/
-*.tsbuildinfo
-frontend/.next/
-frontend/node_modules/
-frontend/.turbo/
-frontend/tsconfig.tsbuildinfo
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Logs
-*.log
-logs/
-*.out
-
-# Reports
-vuln_report_*.txt
-key_clean_report_*.txt
-github-report-*.txt
-repo-snapshot-*.txt
-inspection-*.md
-audit-*.md
-attack-report-*.txt
-attack-output.txt
-
-# OS / Editor
-.DS_Store
-Thumbs.db
 desktop.ini
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Local scripts
-config.local.js
-*.local.js
-start.sh
-start-switch.sh
+dist/
+fix-hash.js
+frontend/.next/
+frontend/.turbo/
+frontend/node_modules/
+frontend/tsconfig.tsbuildinfo
+github-report-*.txt
+hash.txt
+horizon-bank-proof.sh
+horizon-dev.db
+horizon-switch-dev.db*
+id_ecdsa
+id_ed25519
+id_rsa
+id_rsa.*
+inspection-*.md
+key_clean_report_*.txt
+keys/
+logs/
+merkle-v2-upgrade.sh
+node_modules/
+out/
+package-lock.json
+pnpm-lock.yaml
+prepare-horizon.sh
+repo-snapshot-*.txt
 run-switch.bat
 run.js
-prepare-horizon.sh
-horizon-bank-proof.sh
-merkle-v2-upgrade.sh
-fix-hash.js
-hash.txt
-
-# Liara
-.liara-auth.json
-.liara-token
-!.env.example
-.horizon-dev-key.pem
+start-switch.sh
+start.sh
+templates/
+test-keys/
+vuln_report_*.txt
+yarn.lock
