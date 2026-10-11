@@ -1,0 +1,10 @@
+# Default owners
+* @beaconchain-horizon
+
+# Critical files — require review by owner
+/cmd/switch/         @beaconchain-horizon
+/cmd/api/            @beaconchain-horizon
+/internal/crypto/    @beaconchain-horizon
+/cmd/license-signer/ @beaconchain-horizon
+/internal/license/   @beaconchain-horizon
+*.go                 @beaconchain-horizon
