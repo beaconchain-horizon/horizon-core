@@ -165,7 +165,11 @@ func connectPostgres() error {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		log.Println("DATABASE_URL not set - falling back to SQLite at ./horizon-dev.db")
-		pgDB, err = gorm.Open(sqlite.Open("horizon-dev.db"), &gorm.Config{})
+		dbPath := os.Getenv("HORIZON_DB_PATH")
+		if dbPath == "" {
+			dbPath = "/tmp/horizon.db"
+		}
+		pgDB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	} else {
 		pgDB, err = gorm.Open(postgres.New(postgres.Config{DSN: dsn, PreferSimpleProtocol: true}), &gorm.Config{})
 	}
