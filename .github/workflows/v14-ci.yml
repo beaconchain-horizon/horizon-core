@@ -1,0 +1,87 @@
+name: Horizon v1.4 — Crypto & License CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "1.24.4"
+  CGO_ENABLED: "0"
+  GOOS: "linux"
+  GOARCH: "amd64"
+  GOTOOLCHAIN: "local"
+  GOWORK: "off"
+
+jobs:
+  crypto:
+    name: Crypto tests · secp256k1
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Download deps
+        run: go mod download
+
+      - name: Verify modules
+        run: go mod verify
+
+      - name: Crypto tests (verbose)
+        run: |
+          go test -count=1 -v ./internal/crypto/... 2>&1 | tee crypto-tests.log
+
+      - name: License protocol tests
+        run: go test -count=1 -v ./internal/license/... 2>&1 | tee license-tests.log
+
+      - name: Build all
+        run: |
+          go build -trimpath -buildvcs=false -ldflags="-s -w" -o /tmp/horizon-api ./cmd/api
+          go build -trimpath -buildvcs=false -ldflags="-s -w" -o /tmp/horizon-switch ./cmd/switch
+          go build -trimpath -buildvcs=false -ldflags="-s -w" -o /tmp/horizon-signer ./cmd/license-signer
+          go build -trimpath -buildvcs=false -ldflags="-s -w" -o /tmp/horizon-verify ./cmd/licenseverify
+          go build -trimpath -buildvcs=false -ldflags="-s -w" -o /tmp/horizon-usbkey ./cmd/horizon-usbkey
+          ls -lh /tmp/horizon-*
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-test-logs
+          path: |
+            crypto-tests.log
+            license-tests.log
+
+  tamper:
+    name: Tamper + HWID + Expiry
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: crypto
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Tamper tests
+        run: go test -count=1 -v -run TestTamper ./internal/crypto/...
+
+      - name: HWID tests
+        run: go test -count=1 -v -run TestHWID ./internal/crypto/...
+
+      - name: Expiry tests
+        run: go test -count=1 -v -run TestExpiry ./internal/crypto/...
+
+      - name: Vet
+        run: go vet ./...
