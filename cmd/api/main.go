@@ -283,7 +283,7 @@ func main() {
 			c.JSON(500, gin.H{"error": "license persistence failed"})
 			return
 		}
-		c.JSON(http.StatusCreated, gin.H{"id": lic.ID, "volume": lic.Volume, "root": lic.Root, "seed": lic.Seed, "signature": lic.Signature, "public_key": lic.PublicKey, "expires_at": lic.ExpiresAt})
+		c.JSON(http.StatusCreated, gin.H{"id": lic.ID, "volume": lic.Volume, "root": lic.Root, "seed": lic.Seed, "signature": lic.Signature, "public_key": lic.PublicKey, "expires_at": lic.ExpiresAt, "signed_data": string(canonicalLicenseData(lic))})
 	})
 
 	r.POST("/api/v1/license/verify", func(c *gin.Context) {
