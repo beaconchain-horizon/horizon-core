@@ -28,6 +28,40 @@ See [`docs/V14-DEMO.md`](docs/V14-DEMO.md) for the full demo.
 See [`docs/CRYPTO-CONTRACT.md`](docs/CRYPTO-CONTRACT.md) for the signature spec.
 See [`docs/V14-AUTHORITY-RUNBOOK.md`](docs/V14-AUTHORITY-RUNBOOK.md) for production setup.
 
+
+## Live Pages & Demos
+
+| Page | URL |
+|---|---|
+| 🏠 Home | https://beaconchain-horizon.github.io/horizon-security-assessment/ |
+| 🔑 **Offline Signer (USB)** | https://beaconchain-horizon.github.io/horizon-security-assessment/offline-license.html |
+| 🎛️ Monitor (SOC) | https://beaconchain-horizon.github.io/horizon-security-assessment/monitor.html |
+| 🛍️ Store | https://beaconchain-horizon.github.io/horizon-security-assessment/store.html |
+| 🛍️ Store v2 | https://beaconchain-horizon.github.io/horizon-security-assessment/store-v2.html |
+| 📊 Demo | https://beaconchain-horizon.github.io/horizon-security-assessment/demo.html |
+| 🌐 WebApp Real | https://beaconchain-horizon.github.io/horizon-security-assessment/webapp-real.html |
+
+> **Important**: the Offline Signer must be opened from `file://` (not GitHub Pages)
+> so the browser can POST to `http://localhost:8081/api/v1/license/check`.
+
+## Related Repos
+
+| Repo | Purpose |
+|---|---|
+| [horizon-core](https://github.com/beaconchain-horizon/horizon-core) | This repo — main codebase (v1.4) |
+| [horizon-security-assessment](https://github.com/beaconchain-horizon/horizon-security-assessment) | Demo pages + assessment |
+| [horizon-airgap-demo](https://github.com/beaconchain-horizon/horizon-airgap-demo) | Air-gap mode demo |
+| [horizon-benchmark](https://github.com/beaconchain-horizon/horizon-benchmark) | TPS + latency benchmarks |
+
+## Canonical Docs
+
+- [docs/CRYPTO-CONTRACT.md](docs/CRYPTO-CONTRACT.md) — signature spec
+- [docs/V14-DEMO.md](docs/V14-DEMO.md) — live demo guide
+- [docs/PRE-DEMO.md](docs/PRE-DEMO.md) — pre-demo checklist
+- [docs/V14-AUTHORITY-RUNBOOK.md](docs/V14-AUTHORITY-RUNBOOK.md) — production runbook
+
+---
+
 ## Status
 
 | Layer | Status |
