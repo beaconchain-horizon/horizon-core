@@ -6,12 +6,6 @@ import (
 	"fmt"
 )
 
-// RFC 6962 leaf and node prefixes.
-const (
-	leafPrefix = 0x00
-	nodePrefix = 0x01
-)
-
 func hashLeaf(data []byte) [32]byte {
 	buf := make([]byte, 0, 1+len(data))
 	buf = append(buf, leafPrefix)

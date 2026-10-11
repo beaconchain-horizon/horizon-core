@@ -12,7 +12,7 @@ func TestBuildCanonical(t *testing.T) {
 		ExpiresAt: 1823257127,
 	}
 	got := buildCanonical(l)
-	want := "HORIZON-GOLD-001|horizon-core|bank-markazi|50000000||active|2027-10-11T11:38:47Z"
+	want := "HORIZON-GOLD-001|horizon-core|bank-markazi|50000000||active|2027-10-11T12:18:47Z"
 	if got != want {
 		t.Fatalf("got %q want %q", got, want)
 	}
