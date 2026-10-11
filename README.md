@@ -55,6 +55,21 @@ See [`docs/V14-AUTHORITY-RUNBOOK.md`](docs/V14-AUTHORITY-RUNBOOK.md) for product
 
 ## Canonical Docs
 
+### For customers & regulators
+
+- [docs/POSITIONING.md](docs/POSITIONING.md) — deployment layers (bank L1-L2, industry L2.5)
+- [docs/DEPLOYMENT-REQUIREMENTS.md](docs/DEPLOYMENT-REQUIREMENTS.md) — hardware, OS, CBS/SCADA integration
+- [docs/OPERATIONS.md](docs/OPERATIONS.md) — SLA, backup, DR, training, monitoring
+- [docs/COMPLIANCE.md](docs/COMPLIANCE.md) — standards, court admissibility, legal
+
+### For engineers
+
+- [docs/CRYPTO-CONTRACT.md](docs/CRYPTO-CONTRACT.md) — signature spec
+- [docs/V14-DEMO.md](docs/V14-DEMO.md) — live demo guide
+- [docs/PRE-DEMO.md](docs/PRE-DEMO.md) — pre-demo checklist
+- [docs/V14-AUTHORITY-RUNBOOK.md](docs/V14-AUTHORITY-RUNBOOK.md) — production runbook
+
+
 - [docs/CRYPTO-CONTRACT.md](docs/CRYPTO-CONTRACT.md) — signature spec
 - [docs/V14-DEMO.md](docs/V14-DEMO.md) — live demo guide
 - [docs/PRE-DEMO.md](docs/PRE-DEMO.md) — pre-demo checklist
