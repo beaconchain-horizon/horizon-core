@@ -1,9 +1,21 @@
-# Horizon Core v1.4 — Comprehensive Technical Proposal
+# Horizon Core — Comprehensive Technical Proposal
 
-**Version**: 1.4
-**Date**: October 2026
+**Current Version**: 1.4
 **Status**: Deployable · Tested · Documented
+**Last Updated**: October 2026
 **Audience**: Independent technical review, banking, industry, regulatory
+
+---
+
+## Version History
+
+| Version | Date | Key Changes |
+|---------|------|-------------|
+| v1.0.0  | 2023 | Initial single-node ledger, P-256 signatures |
+| v1.1.0  | 2023 | Air-gap mode, Shamir secret sharing |
+| v1.2.0  | 2024 | Dual control, signing sessions |
+| v1.3.0  | 2025 | Industrial anchor, Merkle tree (binary) |
+| **v1.4.0** | **2026** | **secp256k1, RFC 6962, offline signer, trust separation** |
 
 ---
 
@@ -543,15 +555,15 @@ expert verification with `licenseverify`.
 
 | Phase | Capability | Status | ETA |
 |---|---|---|---|
-| v1.0 | Single-node ledger | ✅ Complete | — |
-| v1.1 | Air-gap mode | ✅ Complete | — |
-| v1.2 | Dual control | ✅ Complete | — |
-| v1.3 | Industrial anchor | ✅ Complete | — |
-| **v1.4** | **secp256k1 + Merkle + offline signer** | **✅ Current** | — |
-| v1.5 | HSM hardware integration | ⏳ Planning | Q4 2026 |
-| v2.0 | Multi-node consensus | ⏳ Design | Q1 2027 |
-| v2.1 | ISO/IEC 27001 | ⏳ Documentation | Q2 2027 |
-| v2.2 | FIPS (if required) | ⏳ Optional | Q3 2027 |
+| v1.0.0 | Single-node ledger | ✅ Complete | — |
+| v1.1.0 | Air-gap mode | ✅ Complete | — |
+| v1.2.0 | Dual control | ✅ Complete | — |
+| v1.3.0 | Industrial anchor | ✅ Complete | — |
+| **v1.4.0** | **secp256k1 + Merkle + offline signer** | **✅ Current** | — |
+| v1.5.0 | HSM hardware integration | ⏳ Planning | Q4 2026 |
+| v2.0.0 | Multi-node consensus | ⏳ Design | Q1 2027 |
+| v2.1.0 | ISO/IEC 27001 | ⏳ Documentation | Q2 2027 |
+| v2.2.0 | FIPS (if required) | ⏳ Optional | Q3 2027 |
 
 ---
 
