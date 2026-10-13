@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -266,6 +267,7 @@ func main() {
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{AllowOriginFunc: corsOriginAllowed, AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"}, AllowCredentials: false, MaxAge: 12 * time.Hour}))
+	r.Use(bodyLimitMiddleware())
 
 	registerChainHandlers(r, pgDB)
 	registerPricingHandlers(r)
@@ -802,4 +804,31 @@ func corsAllowList() []string {
 		}
 	}
 	return base
+}
+
+// --- Body size limit -----------------------------------------
+// Fail-closed against unbounded request bodies. Without this
+// middleware, a single oversized POST could drive the backend
+// into OOM (observed in pentest with 64MB payloads).
+//
+// Default: 8 MiB. Override with HORIZON_MAX_BODY_BYTES.
+func bodyLimitMiddleware() gin.HandlerFunc {
+	maxBytes := int64(8 << 20)
+	if v := os.Getenv("HORIZON_MAX_BODY_BYTES"); v != "" {
+		if parsed, err := strconv.ParseInt(v, 10, 64); err == nil && parsed > 0 {
+			maxBytes = parsed
+		}
+	}
+	return func(c *gin.Context) {
+		if c.Request.Body != nil && c.Request.ContentLength > maxBytes {
+			c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge, gin.H{
+				"error":    "request body too large",
+				"limit":    maxBytes,
+				"provided": c.Request.ContentLength,
+			})
+			return
+		}
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxBytes)
+		c.Next()
+	}
 }
