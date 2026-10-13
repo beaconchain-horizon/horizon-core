@@ -112,12 +112,15 @@ func TestVerifyDataRejectsP256DERAndPublicPEM(t *testing.T) {
 	}
 }
 
-func TestLegacyDERSecp256k1SignatureStillVerifies(t *testing.T) {
+// TestVerifyDataRejectsSecp256k1DER proves DER/ASN.1 is rejected
+// outright per CRYPTO-CONTRACT.md. Accepting DER alongside raw
+// R||S would re-open ECDSA malleability via encoding differences.
+func TestVerifyDataRejectsSecp256k1DER(t *testing.T) {
 	priv, err := GenerateSecp256k1ECDSAKey()
 	if err != nil {
 		t.Fatalf("generate secp256k1 key: %v", err)
 	}
-	data := []byte("legacy DER compatibility for secp256k1 only")
+	data := []byte("DER must be rejected even for secp256k1")
 	r, s, err := ecdsa.Sign(rand.Reader, priv, Sha256Hash(data))
 	if err != nil {
 		t.Fatalf("create secp256k1 DER signature: %v", err)
@@ -127,8 +130,8 @@ func TestLegacyDERSecp256k1SignatureStillVerifies(t *testing.T) {
 		t.Fatalf("encode secp256k1 DER signature: %v", err)
 	}
 	valid, err := VerifyData(&priv.PublicKey, data, hex.EncodeToString(der))
-	if err != nil || !valid {
-		t.Fatalf("valid secp256k1 DER signature rejected: valid=%v err=%v", valid, err)
+	if valid || err == nil {
+		t.Fatalf("secp256k1 DER signature should be rejected: valid=%v err=%v", valid, err)
 	}
 }
 
