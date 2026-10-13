@@ -112,3 +112,5 @@ templates/
 test-keys/
 vuln_report_*.txt
 yarn.lock
+*.bak*
+*.exe
