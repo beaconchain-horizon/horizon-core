@@ -26,7 +26,7 @@ import (
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
 	"horizon-core/internal/license"
-	_ "horizon-core/internal/mtls" // wired in a follow-up commit
+	"horizon-core/internal/mtls"
 	"horizon-core/internal/network"
 	"horizon-core/internal/ratelimit"
 )
@@ -270,7 +270,7 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{AllowOriginFunc: corsOriginAllowed, AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"}, AllowCredentials: false, MaxAge: 12 * time.Hour}))
 	r.Use(bodyLimitMiddleware())
-	r.Use(ratelimit.New(5, 10).Middleware())
+	r.Use(ratelimit.New(60, 120).Middleware())
 
 	registerChainHandlers(r, pgDB)
 	registerPricingHandlers(r)
@@ -754,6 +754,15 @@ func main() {
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		port = "8080"
+	}
+	if mtls.Enabled() {
+		cfg, err := mtls.Load(mtls.FromEnv())
+		if err != nil {
+			log.Fatalf("mtls: %v", err)
+		}
+		srv := &http.Server{Addr: ":" + port, Handler: r, TLSConfig: cfg}
+		log.Printf("[mtls] enabled, listening on :%s", port)
+		log.Fatal(srv.ListenAndServeTLS("", ""))
 	}
 	if err := r.Run(":" + port); err != nil {
 		panic(err)
