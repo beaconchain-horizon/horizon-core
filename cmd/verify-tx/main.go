@@ -19,6 +19,7 @@ type input struct {
 	MerkleLeaf   string   `json:"merkle_leaf"`
 	MerkleProof  []string `json:"merkle_proof"`
 	ExpectedRoot string   `json:"expected_root"`
+	Index        int      `json:"index"`
 }
 
 var exitCode int
@@ -28,13 +29,20 @@ func bad(s string, a ...any)  { exitCode = 1; fmt.Printf("  [FAIL] %s\n", fmt.Sp
 func fail(s string, a ...any) { fmt.Fprintf(os.Stderr, s+"\n", a...); os.Exit(2) }
 func mustHex(s string) []byte { b, _ := hex.DecodeString(strings.TrimSpace(s)); return b }
 
-func walkProof(leafHex string, proof []string) string {
+func walkProof(leafHex string, proof []string, index int) string {
 	cur, _ := hex.DecodeString(leafHex)
+	idx := index
 	for _, s := range proof {
 		sib, _ := hex.DecodeString(s)
-		pair := append(append([]byte{}, cur...), sib...)
+		var pair []byte
+		if idx%2 == 0 {
+			pair = append(append([]byte{}, cur...), sib...)
+		} else {
+			pair = append(append([]byte{}, sib...), cur...)
+		}
 		h := sha256.Sum256(pair)
 		cur = h[:]
+		idx = idx / 2
 	}
 	return hex.EncodeToString(cur)
 }
@@ -60,14 +68,14 @@ func main() {
 		fail("decode input: %v", err)
 	}
 
-	fmt.Println("── verify-tx ──────────────────────────────────")
+	fmt.Println("-- verify-tx --")
 
 	h := sha256.Sum256([]byte(in.Payload))
 	wantLeaf := hex.EncodeToString(h[:])
 	if wantLeaf == in.MerkleLeaf {
 		ok("leaf = SHA256(payload)")
 	} else {
-		bad("leaf mismatch\n    computed: %s\n    expected: %s", wantLeaf, in.MerkleLeaf)
+		bad("leaf mismatch computed=%s expected=%s", wantLeaf, in.MerkleLeaf)
 	}
 
 	pub, err := crypto.Secp256k1PublicKeyFromHex(in.PublicKey)
@@ -85,13 +93,12 @@ func main() {
 
 	if len(in.MerkleProof) == 0 {
 		bad("merkle proof empty")
-	} else if root := walkProof(in.MerkleLeaf, in.MerkleProof); root == in.ExpectedRoot {
+	} else if root := walkProof(in.MerkleLeaf, in.MerkleProof, in.Index); root == in.ExpectedRoot {
 		ok("merkle proof walks to root")
 	} else {
-		bad("merkle proof root mismatch\n    computed: %s\n    expected: %s", root, in.ExpectedRoot)
+		bad("merkle proof root mismatch computed=%s expected=%s", root, in.ExpectedRoot)
 	}
 
-	fmt.Println("───────────────────────────────────────────────")
 	if exitCode == 0 {
 		fmt.Println("RESULT: VALID")
 	} else {
