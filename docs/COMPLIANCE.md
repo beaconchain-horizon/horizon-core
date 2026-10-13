@@ -9,7 +9,7 @@
 
 | Standard | Status | Notes |
 |---|---|---|
-| RFC 6962 (Merkle) | ✅ Implemented | Binary + trinary tree |
+| RFC 6962 (v1 legacy) (Merkle) | ✅ Implemented | Binary + trinary tree |
 | SEC 2 (secp256k1) | ✅ Implemented | Curve parameters certified |
 | RFC 6979 (deterministic ECDSA) | ✅ Implemented | No randomness |
 | ISO/IEC 27001 | ⏳ Roadmap Q2 2027 | Documentation in progress |

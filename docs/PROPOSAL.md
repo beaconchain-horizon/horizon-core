@@ -15,7 +15,7 @@
 | v1.1.0  | 2023 | Air-gap mode, Shamir secret sharing |
 | v1.2.0  | 2024 | Dual control, signing sessions |
 | v1.3.0  | 2025 | Industrial anchor, Merkle tree (binary) |
-| **v1.4.0** | **2026** | **secp256k1, RFC 6962, offline signer, trust separation** |
+| **v1.4.0** | **2026** | **secp256k1, RFC 6962 (v1 legacy), offline signer, trust separation** |
 
 ---
 
@@ -28,7 +28,7 @@ replace SCADA. It does one thing: it makes every operation **provably authentic*
 
 **Core capability**: every transaction, sensor reading, or license statement is
 cryptographically signed with **ECDSA on secp256k1**, chained into a **Merkle tree
-(RFC 6962)**, and can be verified by any third party using only a public key and a
+(RFC 6962 (v1 legacy))**, and can be verified by any third party using only a public key and a
 proof — nothing else.
 
 **Design principles**:
@@ -171,7 +171,7 @@ Historical blocks remain valid (signed with the old key). No mass re-signing.
 │   │ Merkle       │   │ Offline      │   │ Browser      │        │
 │   │ Ledger       │   │ Verifier     │   │ Signer       │        │
 │   │              │   │              │   │              │        │
-│   │ RFC 6962     │   │ Standalone   │   │ USB-based    │        │
+│   │ RFC 6962 (v1 legacy)     │   │ Standalone   │   │ USB-based    │        │
 │   │ Inclusion    │   │ No Server    │   │ noble-       │        │
 │   │ Proof        │   │ Required     │   │ secp256k1    │        │
 │   └──────────────┘   └──────────────┘   └──────────────┘        │
@@ -256,7 +256,7 @@ proof, not a spreadsheet.
 
 - `BuildProof(leaves, index)` — generate inclusion proof
 - `Proof.Verify(root)` — independent verification
-- RFC 6962 compliant: leaf prefix `0x00`, node prefix `0x01`
+- RFC 6962 (v1 legacy) compliant: leaf prefix `0x00`, node prefix `0x01`
 - Odd-level self-pairing (handles non-power-of-2 leaf counts)
 
 ### 6.4 Backend (`cmd/api/`)
@@ -446,7 +446,7 @@ No trust in Horizon required. No API call. No internet.
 
 | Standard | Status | Notes |
 |---|---|---|
-| RFC 6962 (Merkle) | ✅ Implemented | Binary + trinary tree |
+| RFC 6962 (v1 legacy) (Merkle) | ✅ Implemented | Binary + trinary tree |
 | SEC 2 (secp256k1) | ✅ Implemented | Curve parameters verified |
 | RFC 6979 (deterministic ECDSA) | ✅ Implemented | No randomness |
 | ISO/IEC 27001 | ⏳ Roadmap Q2 2027 | Documentation in progress |
@@ -595,7 +595,7 @@ expert verification with `licenseverify`.
 4. **Test-backed claims.** 15+ security tests + 192 penetration vectors.
 5. **Honest about limitations.** FIPS/HSM/consensus not claimed. Trust through truth.
 6. **Independently verifiable.** Auditor verifies with public key + proof only.
-7. **Standards-compliant.** RFC 6962, RFC 6979, SEC 2, GDPR, SCC.
+7. **Standards-compliant.** RFC 6962 (v1 legacy), RFC 6979, SEC 2, GDPR, SCC.
 8. **Zero changes to existing systems.** CBS and SCADA remain untouched.
 
 ---

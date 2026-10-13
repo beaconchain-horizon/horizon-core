@@ -69,7 +69,7 @@ Rule: never prefix a secret with NEXT_PUBLIC_.
 
 ## 5. Merkle Tree
 
-Two modes: binary (fanout=2, RFC 6962) and ternary (fanout=3, Horizon custom).
+Two modes: binary (fanout=2, RFC 6962 (v1 legacy)) and ternary (fanout=3, Horizon custom).
 
 Block contains: fanout, merkle_root, tx_ids, hash, signature, signer_addr.
 
@@ -109,7 +109,7 @@ Hash-chained. Immutable. Daily Merkle root anchored externally.
 
 - secp256k1: SEC 2
 - SHA-256: FIPS 180-4
-- Merkle: RFC 6962 (binary) + Horizon custom (ternary)
+- Merkle: RFC 6962 (v1 legacy) (binary) + Horizon custom (ternary)
 - TLS: 1.2+
 - bcrypt: cost 12+
 - Randomness: crypto/rand
