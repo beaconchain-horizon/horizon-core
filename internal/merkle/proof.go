@@ -6,19 +6,18 @@ import (
 	"fmt"
 )
 
+// hashLeaf matches the v2 chain formula: SHA256(data), no prefix.
+// See internal/chain/append.go and merkle.BinaryRootNoPrefix.
 func hashLeaf(data []byte) [32]byte {
-	buf := make([]byte, 0, 1+len(data))
-	buf = append(buf, leafPrefix)
-	buf = append(buf, data...)
-	return sha256.Sum256(buf)
+	return sha256.Sum256(data)
 }
 
+// hashNode matches the v2 chain formula: SHA256(L||R), no prefix.
 func hashNode(left, right [32]byte) [32]byte {
-	buf := make([]byte, 0, 1+64)
-	buf = append(buf, nodePrefix)
-	buf = append(buf, left[:]...)
-	buf = append(buf, right[:]...)
-	return sha256.Sum256(buf)
+	var buf [64]byte
+	copy(buf[:32], left[:])
+	copy(buf[32:], right[:])
+	return sha256.Sum256(buf[:])
 }
 
 // Proof is a Merkle inclusion proof for a single leaf.
