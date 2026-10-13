@@ -195,3 +195,43 @@ func LegacyRootFromHashes(hashes []string) string {
 	}
 	return nodes[0]
 }
+
+// BinaryRootNoPrefix matches the v2 chain Merkle formula exactly:
+//
+//	leaf  = SHA256(data)                (no domain separation)
+//	node  = SHA256(left || right)       (no domain separation)
+//	odd   = SHA256(last || last)        (self-pair)
+//
+// This is intentionally different from RFC 6962 (which uses 0x00/0x01
+// prefixes and a largest-power-of-two split). v2 uses this simpler
+// formula for chain blocks; license roots use the same formula so that
+// a license root and a chain root can be recomputed by the same tool.
+//
+// Tested against internal/chain.binaryRoot to guarantee byte-identical
+// output for any leaf set.
+func BinaryRootNoPrefix(data [][]byte) string {
+	if len(data) == 0 {
+		return hex.EncodeToString(make([]byte, 32))
+	}
+
+	level := make([][32]byte, len(data))
+	for i, d := range data {
+		level[i] = sha256.Sum256(d)
+	}
+
+	for len(level) > 1 {
+		next := make([][32]byte, 0, (len(level)+1)/2)
+		for i := 0; i < len(level); i += 2 {
+			var pair [64]byte
+			copy(pair[:32], level[i][:])
+			if i+1 < len(level) {
+				copy(pair[32:], level[i+1][:])
+			} else {
+				copy(pair[32:], level[i][:])
+			}
+			next = append(next, sha256.Sum256(pair[:]))
+		}
+		level = next
+	}
+	return hex.EncodeToString(level[0][:])
+}

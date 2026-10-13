@@ -58,7 +58,7 @@ func MerkleRoot(s Statement) string {
 		[]byte(fmt.Sprintf("expires_at=%d", s.ExpiresAt)),
 		[]byte("hardware_id=" + s.HardwareID),
 	}
-	return merkle.RootFromData(leaves)
+	return merkle.BinaryRootNoPrefix(leaves)
 }
 
 // Validate verifies protocol fields, expiry, hardware binding, recomputed
