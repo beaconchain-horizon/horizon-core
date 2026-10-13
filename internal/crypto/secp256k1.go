@@ -3,7 +3,6 @@ package crypto
 import (
 	"crypto/ecdsa"
 	"crypto/x509"
-	"encoding/asn1"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -21,11 +20,6 @@ const (
 	horizonSecpPublicPEMType  = "HORIZON SECP256K1 PUBLIC KEY"
 	Secp256k1SignatureSize    = 64
 )
-
-type legacyECDSASignature struct {
-	R *big.Int
-	S *big.Int
-}
 
 func GenerateSecp256k1ECDSAKey() (*ecdsa.PrivateKey, error) {
 	priv, err := secp256k1.GeneratePrivateKey()
@@ -143,6 +137,16 @@ func parseRS(sig []byte) (*big.Int, *big.Int, error) {
 		return nil, nil, errors.New("R or S is outside secp256k1 range")
 	}
 
+	// Reject high-S signatures. ECDSA allows both (r, s) and (r, n-s)
+	// to verify for the same message and key, which enables signature
+	// malleability: a third party can duplicate a valid transaction
+	// with a different signature and produce two distinct Merkle leaves.
+	// Low-S only is enforced by RFC 6979 and BIP-62.
+	halfN := new(big.Int).Rsh(n, 1)
+	if s.Cmp(halfN) > 0 {
+		return nil, nil, errors.New("S is over half order (high-S rejected)")
+	}
+
 	return r, s, nil
 }
 
@@ -194,24 +198,13 @@ func VerifyData(pub *ecdsa.PublicKey, data []byte, signatureHex string) (bool, e
 	}
 
 	hash := Sha256Hash(data)
-	if len(sig) == Secp256k1SignatureSize {
-		return VerifyHashRS(canonicalPub, hash, sig), nil
+	if len(sig) != Secp256k1SignatureSize {
+		return false, fmt.Errorf(
+			"signature must be exactly %d bytes (raw R||S); got %d bytes — DER/ASN.1 is not accepted",
+			Secp256k1SignatureSize, len(sig),
+		)
 	}
-
-	// Legacy DER is accepted only for secp256k1 keys. P-256 and other curves
-	// are rejected above so a legacy encoding cannot bypass the curve policy.
-	var legacy legacyECDSASignature
-	rest, err := asn1.Unmarshal(sig, &legacy)
-	if err != nil {
-		return false, fmt.Errorf("unsupported signature format: %w", err)
-	}
-	if len(rest) != 0 {
-		return false, errors.New("legacy DER signature contains trailing data")
-	}
-	if legacy.R == nil || legacy.S == nil {
-		return false, errors.New("legacy DER signature missing R/S")
-	}
-	return ecdsa.Verify(canonicalPub, hash, legacy.R, legacy.S), nil
+	return VerifyHashRS(canonicalPub, hash, sig), nil
 }
 
 func VerifySignature(pub *ecdsa.PublicKey, data []byte, signatureHex string) bool {
