@@ -121,7 +121,7 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 
 - ✅ **Single-node append-only ledger** — دفتر کل فقط-افزودنی
 - ✅ **Merkle-root hash chain** — زنجیر هش Merkle (دودویی + سه‌دویی)
-- ✅ **RFC 6962 compliant** — استاندارد بین‌المللی Merkle
+- ✅ **RFC 6962 (v1 legacy) compliant** — استاندارد بین‌المللی Merkle
 - ✅ **ECDSA secp256k1 block signatures** — امضای هر بلاک (SEC 2)
 - ✅ **Immutable audit log** — لاگ تغییرناپذیر
 - ✅ **int64 Money storage** — دقت بانکی (بدون خطای IEEE 754)
@@ -222,7 +222,7 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 | زبان | Go 1.24 |
 | HTTP | Gin |
 | Database | SQLite (WAL mode) + PostgreSQL |
-| Merkle | RFC 6962 |
+| Merkle | RFC 6962 (v1 legacy) |
 | Crypto | ECDSA secp256k1 (SEC 2), Shamir GF(2^8), SHA-256 |
 | Container | Docker |
 | Deployment | Liara, Linux |
@@ -248,7 +248,7 @@ Horizon Core یک پلتفرم بلاکچین سازمانی است که همز�
 
 - `docs/ARCHITECTURE.md` — معماری سیستم
 - `docs/CERTIFICATE.md` — گواهی‌ها
-- `docs/RFC-6962-COMPLIANCE.md` — انطباق با RFC 6962
+- `docs/RFC-6962-COMPLIANCE.md` — انطباق با RFC 6962 (v1 legacy)
 - `docs/review/CONSENSUS.md` — مکانیزم اجماع
 - `docs/review/AIRGAP.md` — Air-Gap Mode
 - `docs/review/BENCHMARK-SPEC.md` — بنچمارک

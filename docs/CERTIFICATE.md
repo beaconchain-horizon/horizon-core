@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-Horizon Core is an air-gapped blockchain platform for industrial telemetry and inter-bank settlement. Built with Go 1.24, ECDSA P-256, and RFC 6962 Merkle Trees.
+Horizon Core is an air-gapped blockchain platform for industrial telemetry and inter-bank settlement. Built with Go 1.24, ECDSA P-256, and RFC 6962 (v1 legacy) Merkle Trees.
 
 ---
 
@@ -19,7 +19,7 @@ Horizon Core is an air-gapped blockchain platform for industrial telemetry and i
 | Block signature | ECDSA P-256 | FIPS 186-5 |
 | Reading signature | ECDSA P-256 | FIPS 186-5 |
 | Hash | SHA-256 | FIPS 180-4 |
-| Merkle Tree | RFC 6962 | IETF CT |
+| Merkle Tree | RFC 6962 (v1 legacy) | IETF CT |
 | Encoding | ASN.1 DER | X.690 |
 | Password hash | bcrypt | - |
 
@@ -69,11 +69,11 @@ Duration:      1.21s
 | #1 | v1 | 3 |
 | #2 | v1 | 3 |
 | #3 | v1 | 1 |
-| #4 | v2 (RFC 6962) | 5 |
-| #5 | v2 (RFC 6962) | 6 |
+| #4 | v2 (RFC 6962 (v1 legacy)) | 5 |
+| #5 | v2 (RFC 6962 (v1 legacy)) | 6 |
 
 Archive: Blocks #0-#3 preserved with legacy Merkle (v1).
-Active:  Blocks #4+ use RFC 6962 (v2).
+Active:  Blocks #4+ use RFC 6962 (v1 legacy) (v2).
 
 ### 3.5 License Integrity
 
@@ -167,7 +167,7 @@ Expected: 33+ tests pass, TPS > 3,000.
 
 Horizon Core is a tamper-proof blockchain infrastructure.
 Every transaction is signed with ECDSA P-256.
-Every block is chained with RFC 6962 Merkle Tree.
+Every block is chained with RFC 6962 (v1 legacy) Merkle Tree.
 Every attack vector has been tested and rejected.
 
 This is not marketing. This is verifiable math.

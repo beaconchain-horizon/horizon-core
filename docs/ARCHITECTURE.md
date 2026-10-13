@@ -49,7 +49,7 @@ Unlike public blockchains (Bitcoin, Ethereum), Horizon is a
 private network. Security comes from cryptography, not from
 node count.
 
-A single hardened node with ECDSA P-256 + RFC 6962 Merkle Tree
+A single hardened node with ECDSA P-256 + RFC 6962 (v1 legacy) Merkle Tree
 provides the same cryptographic guarantees as a multi-node network,
 without the coordination overhead.
 
@@ -62,13 +62,13 @@ without the coordination overhead.
 | Block signature | ECDSA P-256 | FIPS 186-5 |
 | Reading signature | ECDSA P-256 | FIPS 186-5 |
 | Hash | SHA-256 | FIPS 180-4 |
-| Merkle Tree | RFC 6962 | IETF CT |
+| Merkle Tree | RFC 6962 (v1 legacy) | IETF CT |
 | Encoding | ASN.1 DER | X.690 |
 | Password hash | bcrypt | — |
 
-### 3.1 RFC 6962 Compliance
+### 3.1 RFC 6962 (v1 legacy) Compliance
 
-Horizon's Merkle Tree is fully compliant with RFC 6962.
+Horizon's Merkle Tree is fully compliant with RFC 6962 (v1 legacy).
 All four test vectors match the official specification:
 
 | Test | Result |
@@ -185,7 +185,7 @@ Customer requests license
          ↓
 Operator signs payload with ECDSA
          ↓
-Merkle root computed (RFC 6962)
+Merkle root computed (RFC 6962 (v1 legacy))
          ↓
 License saved with signature + merkle_root
          ↓
@@ -211,7 +211,7 @@ License auto-expires (365 days default)
 | issued_at | int64 | Unix timestamp |
 | expires_at | int64 | Unix timestamp |
 | signature | string | ECDSA P-256 |
-| merkle_root | string | RFC 6962 root |
+| merkle_root | string | RFC 6962 (v1 legacy) root |
 
 ### 6.2 Renewal
 
@@ -230,7 +230,7 @@ Every block contains:
 - Block number
 - Timestamp
 - Previous hash
-- Merkle root (RFC 6962 for v2)
+- Merkle root (RFC 6962 (v1 legacy) for v2)
 - Transaction count
 - ECDSA signature
 - Merkle algorithm marker (`v1` or `v2`)
@@ -240,9 +240,9 @@ Every block contains:
 | Era | Algorithm | Blocks |
 |---|---|---|
 | Legacy | Bitcoin-style (v1) | #0–#3 (archive) |
-| Current | RFC 6962 (v2) | #4+ |
+| Current | RFC 6962 (v1 legacy) (v2) | #4+ |
 
-Archive blocks are preserved read-only. New blocks use RFC 6962.
+Archive blocks are preserved read-only. New blocks use RFC 6962 (v1 legacy).
 
 ### 7.3 Transactions
 
@@ -458,12 +458,12 @@ It provides:
 Built on open standards:
 - ECDSA P-256 (FIPS 186-5)
 - SHA-256 (FIPS 180-4)
-- RFC 6962 Merkle Tree
+- RFC 6962 (v1 legacy) Merkle Tree
 - ASN.1 DER (X.690)
 
 Verified by:
 - 33 attack tests (0 failed)
-- RFC 6962 compliance (4/4 match)
+- RFC 6962 (v1 legacy) compliance (4/4 match)
 - 4,140 TPS benchmark
 
 Available to any organization that requires sovereignty and security.
