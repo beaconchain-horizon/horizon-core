@@ -59,7 +59,7 @@ func main() {
 		[]byte(fmt.Sprintf("expires_at=%d", expires)),
 		[]byte("hardware_id=" + hwid),
 	}
-	root := merkle.RootFromData(leaves)
+	root := merkle.BinaryRootNoPrefix(leaves)
 
 	p := payload{
 		LicenseID: licID, UserID: userID, ProductID: "horizon-core",
