@@ -8,8 +8,8 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/go-github/v62 v62.0.0
-	golang.org/x/crypto v0.41.0
-	golang.org/x/net v0.43.0
+	golang.org/x/crypto v0.43.0
+	golang.org/x/net v0.46.0
 	golang.org/x/oauth2 v0.21.0
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.30.0
