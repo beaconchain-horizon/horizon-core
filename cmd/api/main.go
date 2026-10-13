@@ -26,6 +26,7 @@ import (
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
 	"horizon-core/internal/license"
+	"horizon-core/internal/mtls"
 	"horizon-core/internal/network"
 	"horizon-core/internal/ratelimit"
 )
