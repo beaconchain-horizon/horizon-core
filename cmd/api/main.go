@@ -241,7 +241,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := pgDB.AutoMigrate(&LicenseRecord{}, &Customer{}, &Payment{}, &Transaction{}, &SensorReading{}, &IndustrialSensor{}, &IndustryAlert{}); err != nil {
+	if err := pgDB.AutoMigrate(&LicenseRecord{}, &LicensePackage{}, &Customer{}, &Payment{}, &Wallet{}, &Gateway{}, &Transaction{}, &SensorReading{}, &IndustrialSensor{}, &IndustryAlert{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 
@@ -601,7 +601,14 @@ func main() {
 		c.Status(204)
 	})
 
-	r.GET("/api/v1/gateways", func(c *gin.Context) { var v []Gateway; pgDB.Find(&v); c.JSON(200, v) })
+	r.GET("/api/v1/gateways", func(c *gin.Context) {
+		var v []Gateway
+		if err := pgDB.Find(&v).Error; err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, v)
+	})
 	r.POST("/api/v1/gateways", func(c *gin.Context) {
 		if !requireAdmin(c) {
 			return
@@ -614,7 +621,14 @@ func main() {
 		pgDB.Create(&v)
 		c.JSON(201, v)
 	})
-	r.GET("/api/v1/wallets", func(c *gin.Context) { var v []Wallet; pgDB.Find(&v); c.JSON(200, v) })
+	r.GET("/api/v1/wallets", func(c *gin.Context) {
+		var v []Wallet
+		if err := pgDB.Find(&v).Error; err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, v)
+	})
 	r.POST("/api/v1/wallets", func(c *gin.Context) {
 		if !requireAdmin(c) {
 			return
