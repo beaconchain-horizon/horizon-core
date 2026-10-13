@@ -47,7 +47,7 @@ func licenseMerkleRoot(lic *License) string {
 		[]byte("expires_at=" + strconv.FormatInt(lic.ExpiresAt, 10)),
 		[]byte("hardware_id=" + lic.HardwareID),
 	}
-	return merkle.RootFromData(leaves)
+	return merkle.BinaryRootNoPrefix(leaves)
 }
 
 // licenseCanonicalMessage returns the canonical JSON payload
