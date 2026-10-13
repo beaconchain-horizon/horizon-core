@@ -114,3 +114,5 @@ vuln_report_*.txt
 yarn.lock
 *.bak*
 *.exe
+*.bak*
+*.exe
