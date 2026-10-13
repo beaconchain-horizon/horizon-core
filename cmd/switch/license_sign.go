@@ -78,7 +78,7 @@ func licenseCanonicalMessage(lic *License) string {
 	return string(data)
 }
 
-// verifySignature verifies an ECDSA P-256 signature.
+// verifySignature verifies an ECDSA secp256k1 signature.
 //
 // The input data is SHA-256 hashed before verification.
 //

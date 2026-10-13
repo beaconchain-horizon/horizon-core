@@ -12,7 +12,7 @@ echo "════════════════════════�
 echo ""
 
 # ---------- ۱. تولید کلید ----------
-echo "[1/5] Generating fresh ECDSA P-256 signing key..."
+echo "[1/5] Generating fresh ECDSA secp256k1 signing key..."
 ./bin/sensortool genkey --out=/tmp/test-keys 2>&1 | head -2
 echo ""
 

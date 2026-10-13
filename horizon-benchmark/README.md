@@ -40,7 +40,7 @@ cd horizon-benchmark
 
 ## What This Proves
 
-- ✅ ECDSA P-256 signing on every reading
+- ✅ ECDSA secp256k1 signing on every reading
 - ✅ SHA-256 hashing per reading
 - ✅ Zero errors across 200,000 transactions
 - ✅ Zero tampering (tamper_count = 0)
