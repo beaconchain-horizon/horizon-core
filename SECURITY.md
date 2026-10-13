@@ -39,7 +39,7 @@ Horizon Core is a private, Air-Gap capable blockchain for critical industries. T
 
 | Control | Value | Location |
 |---------|-------|----------|
-| ECDSA P-256 | FIPS 186-5 | `signData()` |
+| ECDSA secp256k1 | SEC 2 | `SignDataRS()` |
 | Key Rotation | Every 90 days | `keyrotation.go` |
 | Shamir Secret Sharing | XOR-based split | `shamir.go` |
 | Auto-Lock | 30 min inactivity | `startAutoLock()` |
@@ -100,7 +100,7 @@ Horizon Core is a private, Air-Gap capable blockchain for critical industries. T
 
 ## Compliance Notes
 
-- ECDSA P-256 is FIPS 186-5 approved
+- ECDSA secp256k1 is SEC 2 (Bitcoin/Ethereum curve); NOT FIPS 186-5. See COMPLIANCE.md.
 - SHA-256 per transaction
 - Merkle Tree for batch proof
 - Immutable ledger with tamper detection

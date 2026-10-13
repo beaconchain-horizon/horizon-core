@@ -140,7 +140,7 @@ func loadLicensePublicKey() (*ecdsa.PublicKey, error) {
 	}
 }
 
-// newP256PublicKey constructs an ECDSA secp256k1 public key from
+// newSecp256k1PublicKey constructs an ECDSA secp256k1 public key from
 // X and Y coordinates.
 func newSecp256k1PublicKey(
 	xBytes []byte,

@@ -36,7 +36,7 @@ func benchWorker(priv *ecdsa.PrivateKey, iterations int) (string, int64) {
 		hasher.Write(msg)
 		digest := hasher.Sum(nil)
 
-		// 3. Sign with ECDSA P-256 (real signature)
+		// 3. Sign with ECDSA secp256k1 (real signature)
 		r, s, err := ecdsa.Sign(rand.Reader, priv, digest)
 		if err != nil {
 			continue
@@ -130,7 +130,7 @@ func benchmarkHandler(c *gin.Context) {
 		"cpu_cores":   runtime.NumCPU(),
 		"go_version":  runtime.Version(),
 		"sink_prefix": benchmarkSink[:min(16, len(benchmarkSink))],
-		"note":        "real ECDSA P-256 + SHA-256 + Merkle hash",
+		"note":        "real ECDSA secp256k1 + SHA-256 + Merkle hash",
 	})
 }
 

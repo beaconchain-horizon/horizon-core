@@ -11,7 +11,7 @@ export default function Home(){return <main>
 </div>
 <div className="hero-card"><div className="mini-grid">
 <div className="metric"><div className="label">معماری</div><div className="value">Air-Gap</div><div className="sub">آماده برای استقرار ایزوله</div></div>
-<div className="metric"><div className="label">امضای لایسنس</div><div className="value">ECDSA</div><div className="sub">P-256 · سمت امن مالک</div></div>
+<div className="metric"><div className="label">امضای لایسنس</div><div className="value">ECDSA</div><div className="sub">secp256k1 · سمت امن مالک</div></div>
 <div className="metric"><div className="label">اثبات یکپارچگی</div><div className="value">Merkle</div><div className="sub">ریشه قابل بررسی</div></div>
 <div className="metric"><div className="label">کنترل خصوصی</div><div className="value">Angel SOC</div><div className="sub">مخصوص مالک سیستم</div></div>
 </div><div className="hr"/><div className="small muted">دامنه نهایی بعداً در <span className="mono">.env.local</span> تنظیم می‌شود.</div></div>

@@ -118,7 +118,7 @@ $ curl -s http://127.0.0.1:8080/api/v1/industrial/dashboard \\
 |---|---|
 | Server binding | 127.0.0.1 only |
 | Authentication | X-Admin-Token required |
-| Signing | ECDSA P-256 per reading |
+| Signing | ECDSA secp256k1 per reading |
 | Hashing | SHA-256 per reading |
 | Tamper detection | 0 violations |
 | Network exposure | None (localhost) |
@@ -140,5 +140,5 @@ cd horizon-benchmark
 
 ---
 
-**Signed:** ECDSA P-256
+**Signed:** ECDSA secp256k1
 **Date:** 2026-09-22
