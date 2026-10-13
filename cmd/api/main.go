@@ -21,6 +21,7 @@ import (
 
 	"github.com/glebarez/sqlite"
 
+	"horizon-core/internal/chain"
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
 	"horizon-core/internal/license"
@@ -244,8 +245,21 @@ func main() {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 
+	// Chain initialization
+	if err := chain.AutoMigrateAll(pgDB); err != nil {
+		log.Fatalf("chain automigrate: %v", err)
+	}
+	authorityPub := os.Getenv("HORIZON_LICENSE_PUBLIC_KEY")
+	if _, err := chain.EnsureGenesis(pgDB, authorityPub); err != nil {
+		log.Fatalf("chain genesis: %v", err)
+	}
+	go chain.StartBlockLoop(pgDB, 30*time.Second, 1000)
+	log.Printf("[chain] initialized, block loop running (30s / 1000 tx)")
+
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{AllowOrigins: []string{"*"}, AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"}, AllowCredentials: false, MaxAge: 12 * time.Hour}))
+
+	registerChainHandlers(r, pgDB)
 
 	r.GET("/api/v1/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "online", "service": "horizon-backend"}) })
 
