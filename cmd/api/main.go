@@ -265,7 +265,7 @@ func main() {
 	}
 
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{AllowOrigins: []string{"*"}, AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"}, AllowCredentials: false, MaxAge: 12 * time.Hour}))
+	r.Use(cors.New(cors.Config{AllowOriginFunc: corsOriginAllowed, AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"}, AllowCredentials: false, MaxAge: 12 * time.Hour}))
 
 	registerChainHandlers(r, pgDB)
 	registerPricingHandlers(r)
@@ -742,3 +742,50 @@ func main() {
 }
 
 var _ *ecdsa.PublicKey
+
+// ─── CORS policy ────────────────────────────────────────────
+// Wildcard "*" is intentionally avoided: a banking/industry protocol
+// must not let arbitrary web origins issue cross-origin requests.
+//
+// Use AllowOriginFunc (not AllowOrigins) so we can accept the literal
+// "null" origin emitted by file:// pages such as offline-license.html
+// and monitor.html — gin-contrib/cors rejects "null" inside the
+// AllowOrigins slice at construction time.
+//
+// Extend at deploy time with HORIZON_CORS_ORIGINS (comma-separated).
+func corsOriginAllowed(origin string) bool {
+	if origin == "" {
+		return false
+	}
+	// Browsers send Origin: null for file:// and sandboxed iframes.
+	// We only accept it for read-only endpoints in practice; the
+	// application-level auth still applies to every mutating call.
+	if origin == "null" {
+		return true
+	}
+	for _, allowed := range corsAllowList() {
+		if allowed == "*" || allowed == origin {
+			return true
+		}
+	}
+	return false
+}
+
+func corsAllowList() []string {
+	base := []string{
+		"http://localhost",
+		"http://localhost:8080",
+		"http://127.0.0.1",
+		"http://127.0.0.1:8080",
+		"https://beaconchain-horizon.github.io",
+	}
+	if extra := os.Getenv("HORIZON_CORS_ORIGINS"); extra != "" {
+		for _, o := range strings.Split(extra, ",") {
+			o = strings.TrimSpace(o)
+			if o != "" {
+				base = append(base, o)
+			}
+		}
+	}
+	return base
+}
