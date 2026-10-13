@@ -26,7 +26,7 @@ import (
 	"horizon-core/internal/crypto"
 	"horizon-core/internal/db"
 	"horizon-core/internal/license"
-	"horizon-core/internal/mtls"
+	_ "horizon-core/internal/mtls" // wired in a follow-up commit
 	"horizon-core/internal/network"
 	"horizon-core/internal/ratelimit"
 )
