@@ -116,3 +116,4 @@ yarn.lock
 *.exe
 *.bak*
 *.exe
+reports/quarantine-*/
