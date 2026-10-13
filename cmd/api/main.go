@@ -172,7 +172,7 @@ func connectPostgres() error {
 		}
 		pgDB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	} else {
-		pgDB, err = gorm.Open(postgres.New(postgres.Config{DSN: dsn, PreferSimpleProtocol: true}), &gorm.Config{})
+		pgDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	}
 	if err != nil {
 		return fmt.Errorf("open database: %w", err)
@@ -241,7 +241,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := pgDB.AutoMigrate(&LicenseRecord{}, &Customer{}, &Payment{}, &Transaction{}); err != nil {
+	if err := pgDB.AutoMigrate(&LicenseRecord{}, &Customer{}, &Payment{}, &Transaction{}, &SensorReading{}, &IndustrialSensor{}, &IndustryAlert{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 
@@ -253,13 +253,24 @@ func main() {
 	if _, err := chain.EnsureGenesis(pgDB, authorityPub); err != nil {
 		log.Fatalf("chain genesis: %v", err)
 	}
-	go chain.StartBlockLoop(pgDB, 30*time.Second, 1000)
-	log.Printf("[chain] initialized, block loop running (30s / 1000 tx)")
+	go chain.StartBlockLoop(pgDB, 2*time.Second, 500)
+	log.Printf("[chain] initialized, block loop running (2s / 500 tx)")
+
+	// Intersection layer (SQLite <-> PostgreSQL)
+	if err := initIntersect(); err != nil {
+		log.Fatalf("intersect init: %v", err)
+	}
+	if intersectInst != nil {
+		log.Printf("[intersect] enabled, target=%s", os.Getenv("INTERSECT_DSN")[:20]+"...")
+	}
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{AllowOrigins: []string{"*"}, AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"}, AllowCredentials: false, MaxAge: 12 * time.Hour}))
 
 	registerChainHandlers(r, pgDB)
+	registerPricingHandlers(r)
+	registerIntersectHandlers(r)
+	registerMigrationHandlers(r)
 
 	r.GET("/api/v1/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "online", "service": "horizon-backend"}) })
 
