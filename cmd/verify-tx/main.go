@@ -92,7 +92,12 @@ func main() {
 	}
 
 	if len(in.MerkleProof) == 0 {
-		bad("merkle proof empty")
+		// single-leaf tree: root == leaf, valid if expected_root matches leaf
+		if in.ExpectedRoot == in.MerkleLeaf {
+			ok("merkle proof: single leaf, root = leaf")
+		} else {
+			bad("single-leaf tree but root != leaf")
+		}
 	} else if root := walkProof(in.MerkleLeaf, in.MerkleProof, in.Index); root == in.ExpectedRoot {
 		ok("merkle proof walks to root")
 	} else {
