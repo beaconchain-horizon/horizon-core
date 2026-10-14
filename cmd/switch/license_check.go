@@ -41,7 +41,7 @@ func licenseCheckHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"valid": false, "verified": false,
 			"license_id": req.LicenseID,
-			"error": "signature error: " + err.Error(),
+			"error":      "signature error: " + err.Error(),
 		})
 		return
 	}
@@ -49,7 +49,7 @@ func licenseCheckHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"valid": false, "verified": false,
 			"license_id": req.LicenseID,
-			"error": "signature verification failed",
+			"error":      "signature verification failed",
 		})
 		return
 	}
@@ -60,16 +60,13 @@ func licenseCheckHandler(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"valid": false, "verified": true,
 				"license_id": req.LicenseID,
-				"error": "policy rejection: " + err.Error(),
+				"error":      "policy rejection: " + err.Error(),
 			})
 			return
 		}
 	}
 
-	// v2 injection: persist the freshly verified license into the local
-	// DB and flip the global license state so /tx and /tx/batch accept
-	// traffic for this customer. This is the trust handoff between the
-	// Backend (source of truth) and the Switch (customer-side gateway).
+	// v2 injection: persist verified license and flip global state
 	if injErr := InjectV2License(req.Data, req.Signature); injErr != nil {
 		log.Printf("[license/check] v2 injection failed: %v", injErr)
 	}
@@ -77,7 +74,7 @@ func licenseCheckHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"valid": true, "verified": true,
 		"license_id": req.LicenseID,
-		"user_id": req.UserID,
+		"user_id":    req.UserID,
 		"checked_at": time.Now().Unix(),
 	})
 }
