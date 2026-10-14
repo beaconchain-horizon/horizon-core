@@ -1,3 +1,4 @@
+package main
 
 import (
 	"encoding/json"
@@ -22,13 +23,11 @@ func InjectV2License(data string, signature string) error {
 	if err := json.Unmarshal([]byte(data), &lic); err != nil {
 		return err
 	}
-
 	var existingUsed int
 	var old License
 	if err := db.Where("license_id = ?", lic.LicenseID).First(&old).Error; err == nil {
 		existingUsed = old.Used
 	}
-
 	row := &License{
 		LicenseID:  lic.LicenseID,
 		UserID:     lic.UserID,
@@ -44,14 +43,11 @@ func InjectV2License(data string, signature string) error {
 		HardwareID: lic.HardwareID,
 		CreatedAt:  time.Now(),
 	}
-
 	db.Where("license_id = ?", lic.LicenseID).Delete(&License{})
 	if err := db.Create(row).Error; err != nil {
 		return err
 	}
-
 	setLicenseState(true, row, nil)
-
 	log.Printf("[inject_v2] accepted license %s (user=%s volume=%d)",
 		lic.LicenseID, lic.UserID, lic.Volume)
 	return nil
