@@ -54,6 +54,9 @@ func licenseCheckHandler(c *gin.Context) {
 		return
 	}
 
+	// If the license already exists in the local DB, run policy checks
+	// (expiry, status, hardware binding). If it does not exist yet, we
+	// accept the freshly verified license and inject it below.
 	var lic License
 	if err := db.Where("license_id = ?", req.LicenseID).First(&lic).Error; err == nil {
 		if err := validateLicense(&lic, time.Now()); err != nil {
@@ -64,6 +67,14 @@ func licenseCheckHandler(c *gin.Context) {
 			})
 			return
 		}
+	}
+
+	// v2 injection: persist the verified license into the local DB and
+	// flip the global license state so /tx and /tx/batch accept traffic.
+	// This is the trust handoff between the Backend (source of truth) and
+	// the Switch (customer-side enforcement gateway).
+	if injErr := InjectV2License(req.Data, req.Signature); injErr != nil {
+		log.Printf("[license/check] v2 injection failed: %v", injErr)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
