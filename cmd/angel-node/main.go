@@ -43,8 +43,8 @@ func main() {
 	pubHex = os.Getenv("NODE_PUBKEY")
 	if role == "" || port == "" {
 		log.Fatal("FAIL-CLOSED: NODE_ROLE and NODE_PORT required")
-        EnforceLaw(role, port)
 	}
+        EnforceLaw(role, port)
 
 	// قانون: نقش باید در لیست مجاز باشد، وگرنه crash
 	allowed := map[string]bool{
