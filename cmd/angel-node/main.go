@@ -43,6 +43,7 @@ func main() {
 	pubHex = os.Getenv("NODE_PUBKEY")
 	if role == "" || port == "" {
 		log.Fatal("FAIL-CLOSED: NODE_ROLE and NODE_PORT required")
+        EnforceLaw(role, port)
 	}
 
 	// قانون: نقش باید در لیست مجاز باشد، وگرنه crash
@@ -61,7 +62,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"role": role, "port": port, "status": "online"})
+		c.JSON(200, gin.H{"role": role, "port": port, "status": "online", "law_version": LawVersion, "law_hash": LawHash()})
 	})
 	r.POST("/verify", verifyHandler)
 
