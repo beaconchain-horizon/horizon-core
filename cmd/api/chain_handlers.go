@@ -124,28 +124,6 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 			return
 		}
 
-		// Angel Consensus — 7 nodes must vote
-		angelPayload := AngelPayload{
-			Left:            req.LicenseID,
-			Right:           req.UserID,
-			Header:          req.LicenseID,
-			Message:         req.SignedData,
-			Signature:       req.Signature,
-			MerkleType:      "binary",
-			Used:            0,
-			Volume:          int64(req.Volume),
-			IssuedAt:        1,
-			ExpiresAt:       9999999999,
-			UserID:          req.UserID,
-			ProductID:       req.ProductID,
-			ExpectedUser:    req.UserID,
-			ExpectedProduct: req.ProductID,
-		}
-		cy, ct, iy, it, passed := RunAngelConsensus(angelPayload, c)
-		if !passed {
-			c.JSON(http.StatusForbidden, gin.H{"error": "angel consensus rejected", "critical": cy, "critical_total": ct, "important": iy, "important_total": it})
-			return
-		}
 		// Enqueue for the next block.
 		if err := chain.Enqueue(chain.PendingTx{
 			TxID:      chain.NewTxID(req.SignedData, time.Now()),
