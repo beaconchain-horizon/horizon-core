@@ -125,6 +125,11 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 		}
 
 		// Enqueue for the next block.
+		if trialTxLimitReached() {
+			c.JSON(http.StatusForbidden, gin.H{"error": "TRIAL: transaction limit reached (1,000,000)"})
+			return
+		}
+
 		if err := chain.Enqueue(chain.PendingTx{
 			TxID:      chain.NewTxID(req.SignedData, time.Now()),
 			TxType:    "license_issue",

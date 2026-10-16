@@ -256,6 +256,10 @@ func main() {
 	if _, err := chain.EnsureGenesis(pgDB, authorityPub); err != nil {
 		log.Fatalf("chain genesis: %v", err)
 	}
+	if err := checkTrial(pgDB); err != nil {
+		log.Fatalf("TRIAL FAIL: %v", err)
+	}
+
 	go chain.StartBlockLoop(pgDB, 2*time.Second, 500)
 	log.Printf("[chain] initialized, block loop running (2s / 500 tx)")
 
