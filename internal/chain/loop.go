@@ -15,6 +15,7 @@ var (
 	pendingMu     sync.Mutex
 	pendingQueue  []PendingTx
 	pendingNotify chan struct{}
+	ConsensusGate func(txs []PendingTx) (bool, string)
 )
 
 // Enqueue adds a transaction to the pending queue for the next block.
@@ -98,6 +99,18 @@ func flush(db *gorm.DB, maxSize int) {
 		}
 		chunk := txs[:n]
 		txs = txs[n:]
+
+		// ─── Consensus Gate ───
+		if ConsensusGate != nil {
+			passed, info := ConsensusGate(chunk)
+			if !passed {
+				log.Printf("[chain] consensus gate rejected: %s", info)
+				pendingMu.Lock()
+				pendingQueue = append(chunk, pendingQueue...)
+				pendingMu.Unlock()
+				return
+			}
+		}
 
 		block, err := AppendBlock(db, chunk)
 		if err != nil {

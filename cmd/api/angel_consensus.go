@@ -25,6 +25,7 @@ type AngelPayload struct {
 	ProductID       string `json:"product_id"`
 	ExpectedUser    string `json:"expected_user"`
 	ExpectedProduct string `json:"expected_product"`
+	Mode            string `json:"mode"`
 }
 
 type AngelResp struct {
