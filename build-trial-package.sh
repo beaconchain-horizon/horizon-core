@@ -1,24 +1,21 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-if [ -n "$(git diff-index --quiet HEAD --)" ]; then
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+if [[ -n "$(git status --porcelain)" ]]; then
   echo "ERROR: Working tree is not clean. Commit changes first."
   exit 1
 fi
-export GIT_COMMIT=$(git rev-parse --short HEAD)
-echo "Building from commit: $GIT_COMMIT"
-#!/usr/bin/env bash
-set -e
-cd "$(dirname "$0")"
+
+GIT_COMMIT="$(git rev-parse --short HEAD)"
+echo "Building from commit: ${GIT_COMMIT}"
 
 VERSION="${1:-trial-$(date +%Y%m%d)}"
 OUT="dist/beaconchain-horizon-${VERSION}"
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
-go build -o backend.exe ./cmd/api/
-go build -o switch.exe ./cmd/switch/
-go build -o angel-node.exe ./cmd/angel-node/
-go build -o pentest.exe ./cmd/pentest/
 echo "Building trial package: $VERSION"
 
 for f in backend.exe switch.exe angel-node.exe pentest.exe; do
@@ -29,7 +26,7 @@ for f in start-all-silent.bat run-all.sh tps-report.sh; do
   if [ -f "$f" ]; then cp "$f" "$OUT/"; echo "  + $f"; fi
 done
 
-cat > "$OUT/START-TRIAL.bat" << 'BATEOF'
+cat > "$OUT/START-TRIAL.bat" << 'BAT'
 @echo off
 cd /d "%~dp0"
 set HORIZON_TRIAL_MODE=true
@@ -57,9 +54,9 @@ timeout /t 6 /nobreak >nul
 echo.
 echo Trial running. Test: curl -s localhost:8080/api/v1/health
 pause
-BATEOF
+BAT
 
-cat > "$OUT/README-TRIAL.txt" << 'RDEOF'
+cat > "$OUT/README-TRIAL.txt" << 'RD'
 BEACONCHAIN HORIZON — TRIAL PACKAGE
 ====================================
 
@@ -87,12 +84,4 @@ NOT INCLUDED
 - Extended support
 
 (c) 2026 Beaconchain Horizon
-RDEOF
-
-cd dist
-if command -v zip >/dev/null 2>&1; then
-  zip -r "${VERSION}.zip" "$(basename $OUT)" >/dev/null
-  echo "Created dist/${VERSION}.zip"
-else
-  echo "zip not found; folder ready at $OUT"
-fi
+RD
