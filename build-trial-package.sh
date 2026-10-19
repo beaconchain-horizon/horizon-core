@@ -7,6 +7,10 @@ OUT="dist/beaconchain-horizon-${VERSION}"
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
+go build -o backend.exe ./cmd/api/
+go build -o switch.exe ./cmd/switch/
+go build -o angel-node.exe ./cmd/angel-node/
+go build -o pentest.exe ./cmd/pentest/
 echo "Building trial package: $VERSION"
 
 for f in backend.exe switch.exe angel-node.exe pentest.exe; do
