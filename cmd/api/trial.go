@@ -16,7 +16,6 @@ import (
 
 	"gorm.io/gorm"
 
-	"horizon-core/internal/chain"
 )
 
 const (
