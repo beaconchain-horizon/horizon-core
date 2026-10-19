@@ -25,7 +25,7 @@ const (
 var (
 	trialActive bool
 	trialDB     *gorm.DB
-	TrialMutex  sync.Mutex // For atomic tx limit check
+	TrialMutex  sync.Mutex
 )
 
 type TrialState struct {
@@ -55,25 +55,26 @@ func getMachineID() string {
 	return hex.EncodeToString(h[:8])
 }
 
-func getRegistryTime() (int64, bool) {
+func getRegistryData() (int64, string, bool) {
 	out, err := exec.Command("reg", "query", `HKCU\Software\HorizonCore\Trial`, "/v", "InstallTime").Output()
-	if err != nil {
-		return 0, false
-	}
+	if err != nil { return 0, "", false }
 	parts := strings.Fields(string(out))
-	if len(parts) >= 3 {
-		var t int64
-		fmt.Sscanf(parts[len(parts)-1], "%d", &t)
-		if t > 0 {
-			return t, true
-		}
+	var t int64
+	if len(parts) >= 3 { fmt.Sscanf(parts[len(parts)-1], "%d", &t) }
+	
+	outM, errM := exec.Command("reg", "query", `HKCU\Software\HorizonCore\Trial`, "/v", "MachineID").Output()
+	var mid string
+	if errM == nil {
+		partsM := strings.Fields(string(outM))
+		if len(partsM) >= 3 { mid = partsM[len(partsM)-1] }
 	}
-	return 0, false
+	if t > 0 && mid != "" { return t, mid, true }
+	return 0, "", false
 }
 
-func setRegistryTime(t int64) {
-	cmd := exec.Command("reg", "add", `HKCU\Software\HorizonCore\Trial`, "/v", "InstallTime", "/t", "REG_SZ", "/d", fmt.Sprintf("%d", t), "/f")
-	_ = cmd.Run()
+func setRegistryData(t int64, mid string) {
+	exec.Command("reg", "add", `HKCU\Software\HorizonCore\Trial`, "/v", "InstallTime", "/t", "REG_SZ", "/d", fmt.Sprintf("%d", t), "/f").Run()
+	exec.Command("reg", "add", `HKCU\Software\HorizonCore\Trial`, "/v", "MachineID", "/t", "REG_SZ", "/d", mid, "/f").Run()
 }
 
 func trialStatePath() string {
@@ -88,44 +89,38 @@ func checkTrial(db *gorm.DB) error {
 	if !isTrialMode() { return nil }
 
 	trialDB = db
-	mid := getMachineID()
+	currentMid := getMachineID()
 	path := trialStatePath()
-
-	regTime, regFound := getRegistryTime()
 	var state TrialState
+
+	regTime, regMid, regFound := getRegistryData()
 	
 	if regFound {
-		// Registry is the absolute source of truth
-		state = TrialState{InstalledAt: regTime, MachineID: mid}
+		state = TrialState{InstalledAt: regTime, MachineID: regMid}
+		if state.MachineID != currentMid {
+			return fmt.Errorf("TRIAL: hardware mismatch (Registry)")
+		}
 	} else {
-		// Registry missing. Try file.
 		if data, err := os.ReadFile(path); err == nil {
-			if err := json.Unmarshal(data, &state); err != nil {
-				return fmt.Errorf("invalid trial state file")
+			if err := json.Unmarshal(data, &state); err != nil { return fmt.Errorf("invalid trial state") }
+			if state.MachineID != currentMid {
+				return fmt.Errorf("TRIAL: hardware mismatch (File)")
 			}
 		} else {
-			// First run ever
-			state = TrialState{InstalledAt: time.Now().Unix(), MachineID: mid}
-			log.Printf("[TRIAL] First run — started at %s", time.Unix(state.InstalledAt, 0).Format(time.RFC3339))
+			state = TrialState{InstalledAt: time.Now().Unix(), MachineID: currentMid}
 		}
 	}
 	
-	// Sync back to both file and registry
-	setRegistryTime(state.InstalledAt)
+	setRegistryData(state.InstalledAt, state.MachineID)
 	data, _ := json.MarshalIndent(state, "", "  ")
 	os.WriteFile(path, data, 0644)
 
-	if state.MachineID != mid {
-		return fmt.Errorf("TRIAL: hardware mismatch")
-	}
-
 	elapsed := time.Now().Unix() - state.InstalledAt
 	if int64(trialHours)*3600 - elapsed <= 0 {
-		return fmt.Errorf("TRIAL EXPIRED — %d hours since install", elapsed/3600)
+		return fmt.Errorf("TRIAL EXPIRED — %d hours", elapsed/3600)
 	}
-
 	trialActive = true
-	log.Printf("[TRIAL] Active — machine=%s, remaining=%dh, max_tx=%d", mid, (int64(trialHours)*3600 - elapsed)/3600, trialMaxTx)
+	log.Printf("[TRIAL] Active — machine=%s, remaining=%dh", currentMid, (int64(trialHours)*3600 - elapsed)/3600)
 	return nil
 }
 
@@ -133,9 +128,7 @@ func trialTxLimitReached() (bool, error) {
 	if !trialActive || trialDB == nil { return false, nil }
 	var total int64
 	err := trialDB.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&total).Error
-	if err != nil { return true, err } // Fail closed on DB error
-	if total >= trialMaxTx {
-		return true, nil
-	}
-	return false, nil
+	if err != nil { return true, err }
+	// Use an atomic counter or check pending txs if available. For now, relying on DB tx count.
+	return total >= trialMaxTx, nil
 }
