@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"gorm.io/gorm"
@@ -21,15 +22,16 @@ const (
 	trialFile  = "trial-state.json"
 )
 
+var (
+	trialActive bool
+	trialDB     *gorm.DB
+	TrialMutex  sync.Mutex // For atomic tx limit check
+)
+
 type TrialState struct {
 	InstalledAt int64  `json:"installed_at"`
 	MachineID   string `json:"machine_id"`
 }
-
-var (
-	trialActive bool
-	trialDB     *gorm.DB
-)
 
 func isTrialMode() bool {
 	v := strings.ToLower(os.Getenv("HORIZON_TRIAL_MODE"))
@@ -58,7 +60,6 @@ func getRegistryTime() (int64, bool) {
 	if err != nil {
 		return 0, false
 	}
-	// Output format: "    InstallTime    REG_SZ    1234567890"
 	parts := strings.Fields(string(out))
 	if len(parts) >= 3 {
 		var t int64
@@ -77,79 +78,64 @@ func setRegistryTime(t int64) {
 
 func trialStatePath() string {
 	dir, _ := os.UserConfigDir()
-	if dir == "" {
-		dir = os.Getenv("HORIZON_TRIAL_DIR")
-	}
-	if dir == "" {
-		dir = "."
-	}
+	if dir == "" { dir = "." }
 	dir = filepath.Join(dir, "HorizonCore")
 	os.MkdirAll(dir, 0755)
 	return filepath.Join(dir, trialFile)
 }
 
 func checkTrial(db *gorm.DB) error {
-	if !isTrialMode() {
-		return nil
-	}
+	if !isTrialMode() { return nil }
 
 	trialDB = db
 	mid := getMachineID()
 	path := trialStatePath()
 
+	regTime, regFound := getRegistryTime()
 	var state TrialState
-	data, err := os.ReadFile(path)
 	
-	if err == nil {
-		// File exists, read it
-		if err := json.Unmarshal(data, &state); err != nil {
-			return fmt.Errorf("invalid trial state file")
-		}
+	if regFound {
+		// Registry is the absolute source of truth
+		state = TrialState{InstalledAt: regTime, MachineID: mid}
 	} else {
-		// File missing. Check Registry.
-		regTime, regFound := getRegistryTime()
-		if regFound {
-			state = TrialState{InstalledAt: regTime, MachineID: mid}
-			data, _ := json.MarshalIndent(state, "", "  ")
-			os.WriteFile(path, data, 0644)
-			log.Printf("[TRIAL] Restored state from Registry.")
+		// Registry missing. Try file.
+		if data, err := os.ReadFile(path); err == nil {
+			if err := json.Unmarshal(data, &state); err != nil {
+				return fmt.Errorf("invalid trial state file")
+			}
 		} else {
 			// First run ever
 			state = TrialState{InstalledAt: time.Now().Unix(), MachineID: mid}
-			data, _ := json.MarshalIndent(state, "", "  ")
-			os.WriteFile(path, data, 0644)
-			setRegistryTime(state.InstalledAt)
 			log.Printf("[TRIAL] First run — started at %s", time.Unix(state.InstalledAt, 0).Format(time.RFC3339))
 		}
 	}
-
-	// Always sync back to registry to prevent deletion tricks
+	
+	// Sync back to both file and registry
 	setRegistryTime(state.InstalledAt)
+	data, _ := json.MarshalIndent(state, "", "  ")
+	os.WriteFile(path, data, 0644)
 
 	if state.MachineID != mid {
 		return fmt.Errorf("TRIAL: hardware mismatch")
 	}
 
 	elapsed := time.Now().Unix() - state.InstalledAt
-	remaining := int64(trialHours)*3600 - elapsed
-	if remaining <= 0 {
+	if int64(trialHours)*3600 - elapsed <= 0 {
 		return fmt.Errorf("TRIAL EXPIRED — %d hours since install", elapsed/3600)
 	}
 
 	trialActive = true
-	log.Printf("[TRIAL] Active — machine=%s, remaining=%dh, max_tx=%d", mid, remaining/3600, trialMaxTx)
+	log.Printf("[TRIAL] Active — machine=%s, remaining=%dh, max_tx=%d", mid, (int64(trialHours)*3600 - elapsed)/3600, trialMaxTx)
 	return nil
 }
 
-func trialTxLimitReached() bool {
-	if !trialActive || trialDB == nil {
-		return false
-	}
+func trialTxLimitReached() (bool, error) {
+	if !trialActive || trialDB == nil { return false, nil }
 	var total int64
-	trialDB.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&total)
+	err := trialDB.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&total).Error
+	if err != nil { return true, err } // Fail closed on DB error
 	if total >= trialMaxTx {
-		log.Printf("[TRIAL] Transaction limit reached: %d / %d", total, trialMaxTx)
-		return true
+		return true, nil
 	}
-	return false
+	return false, nil
 }

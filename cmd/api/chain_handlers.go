@@ -109,8 +109,11 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 			return
 		}
 
-	if trialTxLimitReached() {
-		c.JSON(http.StatusForbidden, gin.H{"error": "TRIAL: transaction limit reached (1,000,000)"})
+	TrialMutex.Lock()
+	defer TrialMutex.Unlock()
+
+	if reached, err := trialTxLimitReached(); err != nil || reached {
+		c.JSON(http.StatusForbidden, gin.H{"error": "TRIAL: transaction limit reached or DB error"})
 		return
 	}
 

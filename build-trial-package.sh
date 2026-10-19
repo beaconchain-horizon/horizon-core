@@ -22,7 +22,7 @@ cat > "$OUT/START-TRIAL.bat" << 'BATEOF'
 cd /d "%~dp0"
 set HORIZON_TRIAL_MODE=true
 set HORIZON_TRIAL_DIR=%~dp0
-set ADMIN_TOKEN=12345678901234567890123456789012
+for /f "delims=" %%a in ('powershell -Command "[guid]::NewGuid().ToString().Replace("-","")"') do set ADMIN_TOKEN=%%a
 set SWITCH_URL=http://localhost:8091
 set HORIZON_DB_PATH=./horizon-dev.db
 set HORIZON_LICENSE_PUBLIC_KEY=cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214
