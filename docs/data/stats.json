@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-09-18T09:30:00Z",
+  "source": "horizon-switch v3.0",
+  "network": {
+    "status": "online",
+    "chain_length": 1247,
+    "tps": 572,
+    "total_readings": 128493,
+    "active_sensors": 24
+  },
+  "tenants": {
+    "total": 9,
+    "active": 9,
+    "list": [
+      "bank_markazi", "bank_melli", "bank_saderat", "bank_mellat",
+      "niordc", "igmc", "nigc", "nicico", "msc"
+    ]
+  },
+  "sensors": {
+    "total": 24,
+    "ok": 20,
+    "warn": 3,
+    "critical": 1
+  },
+  "recent_blocks": [
+    {"num": 1247, "tx": 12, "hash": "0x6eda20e975f80dec0794af183fc732ad"},
+    {"num": 1246, "tx": 8,  "hash": "0x9b1976ddb9c279ee257c828f9ea6de30"},
+    {"num": 1245, "tx": 15, "hash": "0x8247b1838140ccbeb907fd712f9c3a11"},
+    {"num": 1244, "tx": 6,  "hash": "0xc85838c1beb5602bf960275b41c5e9a2"},
+    {"num": 1243, "tx": 22, "hash": "0xabcf9d1e7f4c3a5b2e8d1f6c9b7a3e5d"}
+  ]
+}

@@ -13,3 +13,10 @@ angel-node.exe
 angel-receive.exe
 backend.exe
 switch.exe
+dist/
+logs/
+node_modules/
+*.exe~
+.horizon-dev-key.pem
+legacy-start-horizon.bat.old
+nul
