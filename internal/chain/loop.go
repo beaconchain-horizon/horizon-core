@@ -27,6 +27,9 @@ func Enqueue(tx PendingTx) error {
 	if len(pendingQueue) >= 50000 {
 		return fmt.Errorf("pending queue full")
 	}
+	if err := persistPending(tx); err != nil {
+		return fmt.Errorf("persist pending: %w", err)
+	}
 	pendingQueue = append(pendingQueue, tx)
 
 	if pendingNotify != nil {
@@ -57,6 +60,9 @@ func drainPending() []PendingTx {
 //   - flushes a new block every `interval` seconds, OR
 //   - flushes immediately when pending count reaches `maxSize`
 func StartBlockLoop(db *gorm.DB, interval time.Duration, maxSize int) {
+	if err := InitPendingStore(db); err != nil {
+		log.Printf("[chain] pending store init failed: %v", err)
+	}
 	if pendingNotify == nil {
 		pendingNotify = make(chan struct{}, 1)
 	}
@@ -123,6 +129,11 @@ func flush(db *gorm.DB, maxSize int) {
 		}
 		log.Printf("[chain] block %d created: %d tx, root=%s…",
 			block.Number, block.TxCount, block.MerkleRoot[:12])
+		ids := make([]string, len(chunk))
+		for i, tx := range chunk {
+			ids[i] = tx.TxID
+		}
+		deletePendingByIDs(ids)
 	}
 }
 

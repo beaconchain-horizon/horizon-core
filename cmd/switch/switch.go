@@ -869,14 +869,6 @@ func main() {
 	// Init Gin
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.Use(adminAuth)
-	r.Use(airgapMiddleware())
-	r.Use(chainIDMiddleware())
-	r.Use(auditMiddleware())
-	rl := NewRateLimiter(500000, 500000)
-	r.Use(SecurityHeadersMiddleware())
-	r.Use(RateLimitMiddleware(rl))
-	r.Use(SanitizeInputMiddleware())
 	r.Use(cors.New(cors.Config{
 		AllowOriginFunc: func(origin string) bool {
 			if origin == "" || origin == "null" {
@@ -891,6 +883,15 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Customer-Token", "X-Admin-Token"},
 		AllowCredentials: false,
 	}))
+	r.Use(adminAuth)
+	r.Use(airgapMiddleware())
+	r.Use(chainIDMiddleware())
+	r.Use(auditMiddleware())
+	rl := NewRateLimiter(500000, 500000)
+	r.Use(SecurityHeadersMiddleware())
+	r.Use(RateLimitMiddleware(rl))
+	r.Use(SanitizeInputMiddleware())
+
 
 	// Routes
 	api := r.Group("/api/v1")

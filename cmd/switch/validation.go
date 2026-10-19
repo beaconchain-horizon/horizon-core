@@ -23,8 +23,12 @@ func SanitizeInputMiddleware() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		b, _ := io.ReadAll(io.LimitReader(c.Request.Body, 65537))
-		if len(b) > 65536 {
+		limit := int64(65537)
+		if c.Request.URL.Path == "/api/v1/tx/batch" || c.Request.URL.Path == "/api/v1/industrial/reading/batch" {
+			limit = 100 << 20
+		}
+		b, _ := io.ReadAll(io.LimitReader(c.Request.Body, limit))
+		if int64(len(b)) == limit {
 			c.AbortWithStatus(413)
 			return
 		}
