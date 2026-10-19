@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"gorm.io/gorm"
@@ -28,6 +29,7 @@ var (
 	trialActive bool
 	trialDB     *gorm.DB
 	TrialMutex  sync.Mutex
+	TrialTotalTxs int64
 )
 
 type TrialState struct {
@@ -127,12 +129,13 @@ func checkTrial(db *gorm.DB) error {
 }
 
 func trialTxLimitReached() (bool, error) {
-	if !trialActive || trialDB == nil { return false, nil }
-	var total int64
-	err := trialDB.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&total).Error
-	if err != nil { return true, err }
-	// Include pending transactions from the chain loop
-	total += int64(chain.PendingCount())
-
-	return total >= trialMaxTx, nil
+	if !trialActive {
+		return false, nil
+	}
+	// Use atomic counter to prevent race conditions during drainPending
+	currentTotal := atomic.LoadInt64(&TrialTotalTxs)
+	if currentTotal >= trialMaxTx {
+		return true, nil
+	}
+	return false, nil
 }
