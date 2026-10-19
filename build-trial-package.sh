@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+
+if [ -n "$(git status --porcelain)" ]; then
+  echo "ERROR: Working tree is not clean. Commit changes first."
+  exit 1
+fi
+export GIT_COMMIT=$(git rev-parse --short HEAD)
+echo "Building from commit: $GIT_COMMIT"
+#!/usr/bin/env bash
 set -e
 cd "$(dirname "$0")"
 
