@@ -117,6 +117,8 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 		return
 	}
 
+		atomic.AddInt64(&TrialTotalTxs, 1)
+
 		// Persist the license.
 		lic := LicenseRecord{
 			ID:        req.LicenseID,

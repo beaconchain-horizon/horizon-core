@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ -n "$(git status --porcelain -uno)" ]; then
+if [ -n "$(git diff-index --quiet HEAD --)" ]; then
   echo "ERROR: Working tree is not clean. Commit changes first."
   exit 1
 fi

@@ -92,6 +92,9 @@ func checkTrial(db *gorm.DB) error {
 	if !isTrialMode() { return nil }
 
 	trialDB = db
+	var initTotal int64
+	db.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&initTotal)
+	atomic.StoreInt64(&TrialTotalTxs, initTotal)
 	currentMid := getMachineID()
 	path := trialStatePath()
 	var state TrialState
