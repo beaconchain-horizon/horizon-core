@@ -93,6 +93,12 @@ func checkTrial(db *gorm.DB) error {
 
 	trialDB = db
 	var initTotal int64
+	result := db.Table("blocks").Select("COALESCE(SUM(tx_count), 0)").Scan(&initTotal)
+	if result.Error != nil {
+		return fmt.Errorf("initialize trial transaction counter: %w", result.Error)
+	}
+	atomic.StoreInt64(&TrialTotalTxs, initTotal)
+	var initTotal int64
 	db.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&initTotal)
 	atomic.StoreInt64(&TrialTotalTxs, initTotal)
 	currentMid := getMachineID()
