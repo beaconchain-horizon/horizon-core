@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-
 )
 
 const (
@@ -25,9 +24,9 @@ const (
 )
 
 var (
-	trialActive bool
-	trialDB     *gorm.DB
-	TrialMutex  sync.Mutex
+	trialActive   bool
+	trialDB       *gorm.DB
+	TrialMutex    sync.Mutex
 	TrialTotalTxs int64
 )
 
@@ -60,18 +59,26 @@ func getMachineID() string {
 
 func getRegistryData() (int64, string, bool) {
 	out, err := exec.Command("reg", "query", `HKCU\Software\HorizonCore\Trial`, "/v", "InstallTime").Output()
-	if err != nil { return 0, "", false }
+	if err != nil {
+		return 0, "", false
+	}
 	parts := strings.Fields(string(out))
 	var t int64
-	if len(parts) >= 3 { fmt.Sscanf(parts[len(parts)-1], "%d", &t) }
-	
+	if len(parts) >= 3 {
+		fmt.Sscanf(parts[len(parts)-1], "%d", &t)
+	}
+
 	outM, errM := exec.Command("reg", "query", `HKCU\Software\HorizonCore\Trial`, "/v", "MachineID").Output()
 	var mid string
 	if errM == nil {
 		partsM := strings.Fields(string(outM))
-		if len(partsM) >= 3 { mid = partsM[len(partsM)-1] }
+		if len(partsM) >= 3 {
+			mid = partsM[len(partsM)-1]
+		}
 	}
-	if t > 0 && mid != "" { return t, mid, true }
+	if t > 0 && mid != "" {
+		return t, mid, true
+	}
 	return 0, "", false
 }
 
@@ -82,31 +89,26 @@ func setRegistryData(t int64, mid string) {
 
 func trialStatePath() string {
 	dir, _ := os.UserConfigDir()
-	if dir == "" { dir = "." }
+	if dir == "" {
+		dir = "."
+	}
 	dir = filepath.Join(dir, "HorizonCore")
 	os.MkdirAll(dir, 0755)
 	return filepath.Join(dir, trialFile)
 }
 
 func checkTrial(db *gorm.DB) error {
-	if !isTrialMode() { return nil }
+	if !isTrialMode() {
+		return nil
+	}
 
 	trialDB = db
-	var initTotal int64
-	result := db.Table("blocks").Select("COALESCE(SUM(tx_count), 0)").Scan(&initTotal)
-	if result.Error != nil {
-		return fmt.Errorf("initialize trial transaction counter: %w", result.Error)
-	}
-	atomic.StoreInt64(&TrialTotalTxs, initTotal)
-	var initTotal int64
-	db.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&initTotal)
-	atomic.StoreInt64(&TrialTotalTxs, initTotal)
 	currentMid := getMachineID()
 	path := trialStatePath()
 	var state TrialState
 
 	regTime, regMid, regFound := getRegistryData()
-	
+
 	if regFound {
 		state = TrialState{InstalledAt: regTime, MachineID: regMid}
 		if state.MachineID != currentMid {
@@ -114,7 +116,9 @@ func checkTrial(db *gorm.DB) error {
 		}
 	} else {
 		if data, err := os.ReadFile(path); err == nil {
-			if err := json.Unmarshal(data, &state); err != nil { return fmt.Errorf("invalid trial state") }
+			if err := json.Unmarshal(data, &state); err != nil {
+				return fmt.Errorf("invalid trial state")
+			}
 			if state.MachineID != currentMid {
 				return fmt.Errorf("TRIAL: hardware mismatch (File)")
 			}
@@ -122,17 +126,26 @@ func checkTrial(db *gorm.DB) error {
 			state = TrialState{InstalledAt: time.Now().Unix(), MachineID: currentMid}
 		}
 	}
-	
+
 	setRegistryData(state.InstalledAt, state.MachineID)
 	data, _ := json.MarshalIndent(state, "", "  ")
 	os.WriteFile(path, data, 0644)
 
 	elapsed := time.Now().Unix() - state.InstalledAt
-	if int64(trialHours)*3600 - elapsed <= 0 {
+	if int64(trialHours)*3600-elapsed <= 0 {
 		return fmt.Errorf("TRIAL EXPIRED — %d hours", elapsed/3600)
 	}
+
+	// Initialize atomic counter from DB
+	var initTotal int64
+	result := db.Table("blocks").Select("COALESCE(SUM(tx_count), 0)").Scan(&initTotal)
+	if result.Error != nil {
+		return fmt.Errorf("initialize trial transaction counter: %w", result.Error)
+	}
+	atomic.StoreInt64(&TrialTotalTxs, initTotal)
+
 	trialActive = true
-	log.Printf("[TRIAL] Active — machine=%s, remaining=%dh", currentMid, (int64(trialHours)*3600 - elapsed)/3600)
+	log.Printf("[TRIAL] Active — machine=%s, remaining=%dh, max_tx=%d", currentMid, (int64(trialHours)*3600-elapsed)/3600, trialMaxTx)
 	return nil
 }
 
@@ -140,7 +153,6 @@ func trialTxLimitReached() (bool, error) {
 	if !trialActive {
 		return false, nil
 	}
-	// Use atomic counter to prevent race conditions during drainPending
 	currentTotal := atomic.LoadInt64(&TrialTotalTxs)
 	if currentTotal >= trialMaxTx {
 		return true, nil
