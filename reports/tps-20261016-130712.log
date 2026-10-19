@@ -1,0 +1,56 @@
+═══════════════════════════════════════════════════════════
+  HORIZON CORE — TPS BENCHMARK
+  Date: 2026-10-16 13:07:12
+  CPU:  8 cores
+═══════════════════════════════════════════════════════════
+
+[Test 1] 7-Node Parallel Verification
+─────────────────────────────────────────────────────────
+tps-bench.sh: line 39: bc: command not found
+tps-bench.sh: line 41: bc: command not found
+  Iterations:    500 x 7 nodes = 3500 requests
+  Duration:      s
+  Consensus TPS: 
+
+[Test 2] Backend Full Cycle (7-node consensus + block queue)
+─────────────────────────────────────────────────────────
+tps-bench.sh: line 58: bc: command not found
+tps-bench.sh: line 59: bc: command not found
+  Latency (1 cycle): ms
+  Response: {"error":"signature verification failed"}
+
+[Test 3] Switch Raw Ledger — tx/batch TPS
+─────────────────────────────────────────────────────────
+tps-bench.sh: line 93: bc: command not found
+tps-bench.sh: line 94: bc: command not found
+tps-bench.sh: line 95: bc: command not found
+  n=10000  duration=ms  TPS=
+tps-bench.sh: line 93: bc: command not found
+tps-bench.sh: line 94: bc: command not found
+tps-bench.sh: line 95: bc: command not found
+  n=50000  duration=ms  TPS=
+tps-bench.sh: line 93: bc: command not found
+tps-bench.sh: line 94: bc: command not found
+tps-bench.sh: line 95: bc: command not found
+  n=100000  duration=ms  TPS=
+
+═══════════════════════════════════════════════════════════
+  FINAL SUMMARY
+═══════════════════════════════════════════════════════════
+
+  7-Node Consensus:     TPS
+  Full Cycle Latency:  ms (last test)
+
+  Comparison (reference — 2026):
+  ┌──────────────┬────────────────┬──────────────────┐
+  │ System       │ TPS            │ Type             │
+  ├──────────────┼────────────────┼──────────────────┤
+  │ Bitcoin      │ ~7             │ PoW L1           │
+  │ Ethereum L1  │ ~15-30         │ PoS L1           │
+  │ Solana       │ ~2,000-65,000  │ PoH L1           │
+  │ Visa         │ ~24,000 peak   │ Centralized      │
+  │ Horizon (7n) │             │ Consensus+Node   │
+  └──────────────┴────────────────┴──────────────────┘
+
+  Report: reports/tps-20261016-130712.log
+═══════════════════════════════════════════════════════════
