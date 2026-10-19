@@ -16,8 +16,13 @@ OUT="dist/beaconchain-horizon-${VERSION}"
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
-echo "Building trial package: $VERSION"
+echo "Compiling binaries from source..."
+go build -o backend.exe ./cmd/api/
+go build -o switch.exe ./cmd/switch/
+go build -o angel-node.exe ./cmd/angel-node/
+go build -o pentest.exe ./cmd/pentest/
 
+echo "Building trial package: $VERSION"
 for f in backend.exe switch.exe angel-node.exe pentest.exe; do
   if [ -f "$f" ]; then cp "$f" "$OUT/"; echo "  + $f"; fi
 done
@@ -59,29 +64,19 @@ BAT
 cat > "$OUT/README-TRIAL.txt" << 'RD'
 BEACONCHAIN HORIZON — TRIAL PACKAGE
 ====================================
-
 WHAT IS THIS
 An offline-first tamper-evident ledger. Trial is valid for 48
 hours from first launch, maximum 1,000,000 transactions.
-
 HOW TO START
 1. Extract this folder anywhere
 2. Double-click START-TRIAL.bat
 3. Wait 15 seconds
 4. Verify: curl -s localhost:8080/api/v1/health
-
 INDEPENDENT TESTS
   bash tps-report.sh
   ./pentest.exe -url http://localhost:8080
-
 AFTER 48 HOURS
 The backend will refuse to start. To continue, contact the
 maintainers for a production license bound to your hardware.
-
-NOT INCLUDED
-- Source code
-- Production license
-- Extended support
-
 (c) 2026 Beaconchain Horizon
 RD
