@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+
+	"horizon-core/internal/chain"
 )
 
 const (
@@ -129,6 +131,8 @@ func trialTxLimitReached() (bool, error) {
 	var total int64
 	err := trialDB.Table("blocks").Select("COALESCE(SUM(tx_count),0)").Scan(&total).Error
 	if err != nil { return true, err }
-	// Use an atomic counter or check pending txs if available. For now, relying on DB tx count.
+	// Include pending transactions from the chain loop
+	total += int64(chain.PendingCount())
+
 	return total >= trialMaxTx, nil
 }
