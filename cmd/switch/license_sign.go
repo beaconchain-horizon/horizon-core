@@ -32,7 +32,7 @@ type licenseSigningPayload struct {
 	MerkleRoot string `json:"merkle_root"`
 	IssuedAt   int64  `json:"issued_at"`
 	ExpiresAt  int64  `json:"expires_at"`
-	HardwareID string `json:"hardware_id,omitempty"`
+	HardwareID string `json:"hardware_id"`
 }
 
 // licenseMerkleRoot — RFC 6962 root for license fields
