@@ -22,3 +22,4 @@ legacy-start-horizon.bat.old
 nul
 .gotmp/
 cmd/fetch-tx/main.go
+*.sh
