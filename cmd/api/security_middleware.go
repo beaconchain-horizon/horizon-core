@@ -27,7 +27,7 @@ func isMalicious(input string) bool {
 }
 
 // SecurityMiddleware blocks malicious payloads in Query, Body, and Headers
-func SecurityMiddleware() gin.HandlerFunc {
+func XSSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. Check URL Query Parameters (e.g., ?q=1' OR 1=1--)
 		for _, values := range c.Request.URL.Query() {
