@@ -20,3 +20,5 @@ node_modules/
 .horizon-dev-key.pem
 legacy-start-horizon.bat.old
 nul
+*.sh
+.gotmp/
