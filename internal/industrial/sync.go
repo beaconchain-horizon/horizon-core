@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -33,11 +31,6 @@ func syncOnce(db *gorm.DB, targetURL, apiKey string) {
 		return
 	}
 	body, _ := json.Marshal(syncBatch{Readings: readings})
-	if airGapActive() {
-		log.Printf("[SYNC] AIR-GAP BLOCKED: outbound sync to %s denied", targetURL)
-		return
-	}
-
 	req, err := http.NewRequest("POST", targetURL+"/api/v1/industrial/reading/batch", bytes.NewReader(body))
 	if err != nil {
 		log.Printf("[SYNC] req build error: %v", err)
@@ -62,10 +55,4 @@ func syncOnce(db *gorm.DB, targetURL, apiKey string) {
 	} else {
 		log.Printf("[SYNC] target returned %d", resp.StatusCode)
 	}
-}
-
-// P1.4: air-gap enforcement for outbound HTTP.
-func airGapActive() bool {
-	v := strings.ToLower(strings.TrimSpace(os.Getenv("AIR_GAP_MODE")))
-	return v == "true" || v == "1" || v == "on" || v == "yes"
 }
