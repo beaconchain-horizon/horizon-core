@@ -15,9 +15,11 @@ type BlockResponse struct {
 	Number       int64  `json:"number"`
 	MerkleRoot   string `json:"merkle_root"`
 	Transactions []struct {
-		TxID      string `json:"tx_id"`
-		Signature string `json:"signature"`
-		Payload   string `json:"payload"`
+		TxID      string   `json:"tx_id"`
+		Signature string   `json:"signature"`
+		Payload   string   `json:"payload"`
+		PublicKey string   `json:"public_key"`
+		Proof     []string `json:"merkle_proof"`
 	} `json:"transactions"`
 }
 
@@ -62,13 +64,13 @@ func main() {
 
 	tx := block.Transactions[txIdx]
 
-	// محاسبه مرکل لیف برای این تراکنش
-	h := sha256.Sum256([]byte(tx.TxID + tx.Payload + tx.Signature))
+	// Calculate leaf exactly as the ledger does
+	h := sha256.Sum256([]byte(tx.Payload))
 	merkleLeaf := hex.EncodeToString(h[:])
 
-	pubKey := os.Getenv("HORIZON_LICENSE_PUBLIC_KEY")
+	pubKey := tx.PublicKey
 	if pubKey == "" {
-		pubKey = "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214"
+		pubKey = os.Getenv("HORIZON_LICENSE_PUBLIC_KEY")
 	}
 
 	out := VerifierInput{
@@ -77,7 +79,7 @@ func main() {
 		Payload:      tx.Payload,
 		PublicKey:    pubKey,
 		MerkleLeaf:   merkleLeaf,
-		MerkleProof:  []string{}, // در این پیاده‌سازی API فعلی، پروف از بک‌اند دریافت نمی‌شود
+		MerkleProof:  tx.Proof,
 		ExpectedRoot: block.MerkleRoot,
 		Index:        txIdx,
 	}
