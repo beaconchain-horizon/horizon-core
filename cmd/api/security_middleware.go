@@ -9,23 +9,51 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// XSSMiddleware blocks requests containing common XSS payloads
-func XSSMiddleware() gin.HandlerFunc {
+// isMalicious checks for common SQLi and XSS patterns
+func isMalicious(input string) bool {
+	input = strings.ToLower(input)
+	patterns := []string{
+		// XSS Patterns
+		"<script", "javascript:", "onerror=", "onload=", "<img", "alert(",
+		// SQL Injection Patterns
+		"union select", "or 1=1", "or 1 = 1", "drop table", "insert into", "delete from", "--", "/*", "xp_cmdshell",
+	}
+	for _, p := range patterns {
+		if strings.Contains(input, p) {
+			return true
+		}
+	}
+	return false
+}
+
+// SecurityMiddleware blocks malicious payloads in Query, Body, and Headers
+func SecurityMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Request.Method == "POST" || c.Request.Method == "PUT" {
-			body, err := io.ReadAll(c.Request.Body)
-			if err == nil {
-				// بررسی وجود تگ‌های خطرناک
-				bodyStr := string(body)
-				if strings.Contains(bodyStr, "<script") || strings.Contains(bodyStr, "onerror=") || strings.Contains(bodyStr, "javascript:") || strings.Contains(bodyStr, "<img") {
-					c.JSON(http.StatusForbidden, gin.H{"error": "XSS payload detected and blocked"})
+		// 1. Check URL Query Parameters (e.g., ?q=1' OR 1=1--)
+		for _, values := range c.Request.URL.Query() {
+			for _, v := range values {
+				if isMalicious(v) {
+					c.JSON(http.StatusForbidden, gin.H{"error": "Security Policy: Malicious payload detected in query"})
 					c.Abort()
 					return
 				}
-				// بازگرداندن بدنه برای ادامه پردازش
+			}
+		}
+
+		// 2. Check Request Body (for POST/PUT)
+		if c.Request.Method == http.MethodPost || c.Request.Method == http.MethodPut {
+			body, err := io.ReadAll(c.Request.Body)
+			if err == nil {
+				if isMalicious(string(body)) {
+					c.JSON(http.StatusForbidden, gin.H{"error": "Security Policy: Malicious payload detected in body"})
+					c.Abort()
+					return
+				}
+				// Restore body for the actual handler
 				c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 			}
 		}
+
 		c.Next()
 	}
 }
