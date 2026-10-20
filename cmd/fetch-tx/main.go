@@ -26,14 +26,14 @@ type BlockResponse struct {
 }
 
 type VerifierInput struct {
-	TxID         string `json:"tx_id"`
-	Signature    string `json:"signature"`
-	Payload      string `json:"payload"`
-	PublicKey    string `json:"public_key"`
-	MerkleLeaf   string `json:"merkle_leaf"`
-	MerkleProof  string `json:"merkle_proof"`
-	ExpectedRoot string `json:"expected_root"`
-	Index        int    `json:"index"`
+	TxID         string   `json:"tx_id"`
+	Signature    string   `json:"signature"`
+	Payload      string   `json:"payload"`
+	PublicKey    string   `json:"public_key"`
+	MerkleLeaf   string   `json:"merkle_leaf"`
+	MerkleProof  []string `json:"merkle_proof"`
+	ExpectedRoot string   `json:"expected_root"`
+	Index        int      `json:"index"`
 }
 
 func main() {
@@ -69,6 +69,18 @@ func main() {
 	h := sha256.Sum256([]byte(tx.Payload))
 	merkleLeaf := hex.EncodeToString(h[:])
 
+	// تبدیل رشته MerkleProof به آرایه (فرمت مورد انتظار verify-tx)
+	var proof []string
+	if tx.MerkleProof != "" {
+		if err := json.Unmarshal([]byte(tx.MerkleProof), &proof); err != nil {
+			fmt.Printf("Invalid merkle_proof from API: %v\n", err)
+			os.Exit(1)
+		}
+	}
+	if proof == nil {
+		proof = []string{}
+	}
+
 	pubKey := tx.PublicKey
 	if pubKey == "" {
 		pubKey = os.Getenv("HORIZON_LICENSE_PUBLIC_KEY")
@@ -80,7 +92,7 @@ func main() {
 		Payload:      tx.Payload,
 		PublicKey:    pubKey,
 		MerkleLeaf:   merkleLeaf,
-		MerkleProof:  tx.MerkleProof,
+		MerkleProof:  proof,
 		ExpectedRoot: block.Block.MerkleRoot,
 		Index:        txIdx,
 	}
