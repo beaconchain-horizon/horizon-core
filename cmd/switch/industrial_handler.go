@@ -55,14 +55,6 @@ func createIndustrialSite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if !ValidateTenantID(s.SiteID) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid site_id"})
-		return
-	}
-	if !ValidateType(s.Type) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid type"})
-		return
-	}
 	if s.SiteID == "" || s.Name == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "site_id and name required"})
 		return
@@ -91,14 +83,6 @@ func createIndustrialSensor(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if !ValidateTenantID(s.SensorID) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid sensor_id"})
-		return
-	}
-	if s.AgentURL != "" && !ValidateAgentURL(s.AgentURL) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid agent_url"})
-		return
-	}
 	if s.SensorID == "" || s.PublicKey == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "sensor_id and public_key required"})
 		return
@@ -121,10 +105,6 @@ func ingestReading(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	if req.SensorID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "sensor_id required"})
 		return
 	}
 	var sensor industrial.Sensor
@@ -175,27 +155,15 @@ func ingestReadingBatch(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if len(reqs) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "empty batch"})
-		return
-	}
-	if len(reqs) > 1000 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "batch too large (max 1000)"})
-		return
-	}
-	sensorCache := make(map[string]industrial.Sensor)
-	var toInsert []industrial.Reading
 	accepted, rejected := 0, 0
 	for _, r := range reqs {
-		sensor, ok := sensorCache[r.SensorID]
-		if !ok {
-			if err := db.Where("sensor_id = ?", r.SensorID).First(&sensor).Error; err != nil {
-				rejected++
-				continue
-			}
-			sensorCache[r.SensorID] = sensor
+		var sensor industrial.Sensor
+		if err := db.Where("sensor_id = ?", r.SensorID).First(&sensor).Error; err != nil {
+			rejected++
+			continue
 		}
-		sig := industrial.SignableReading{SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce, Timestamp: r.Timestamp}
+		sig := industrial.SignableReading{SensorID: r.SensorID, Value: r.Value,
+			Nonce: r.Nonce, Timestamp: r.Timestamp}
 		if !industrial.VerifyReading(sensor.PublicKey, sig, r.Signature) {
 			db.Create(&industrial.TamperEvent{SensorID: r.SensorID, Reason: "invalid_signature"})
 			rejected++
@@ -206,21 +174,16 @@ func ingestReadingBatch(c *gin.Context) {
 			rejected++
 			continue
 		}
-		toInsert = append(toInsert, industrial.Reading{
-			SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce,
-			Timestamp: r.Timestamp, Signature: r.Signature,
-			Verified: true, RecordedAt: time.Now().UTC(),
-		})
+		db.Create(&industrial.Reading{SensorID: r.SensorID, Value: r.Value, Nonce: r.Nonce,
+			Timestamp: r.Timestamp, Signature: r.Signature, Verified: true, RecordedAt: time.Now().UTC()})
+		industrial.UpdateSensorState(db, r.SensorID, r.Value)
+		if a := industrial.EvaluateReading(sensor, r.Value); a != nil {
+			db.Create(a)
+		}
+		if a2 := industrial.CheckRateOfChange(db, r.SensorID); a2 != nil {
+			db.Create(a2)
+		}
 		accepted++
-	}
-	if len(toInsert) > 0 {
-		if err := industrial.InsertReadingsBulk(db, toInsert); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		for _, r := range toInsert {
-			industrial.UpdateSensorState(db, r.SensorID, r.Value)
-		}
 	}
 	c.JSON(http.StatusOK, gin.H{"accepted": accepted, "rejected": rejected})
 }
@@ -238,9 +201,7 @@ func listIndustrialAlerts(c *gin.Context) {
 }
 
 func ackIndustrialAlert(c *gin.Context) {
-	var req struct {
-		ID uint `json:"id"`
-	}
+	var req struct{ ID uint `json:"id"` }
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
