@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"horizon-core/internal/merkle"
 	"io"
@@ -637,55 +638,52 @@ func saveLicenseHandler(c *gin.Context) {
 		Volume     int    `json:"volume"`
 		Duration   int    `json:"duration"`
 		MerkleRoot string `json:"merkle_root"`
+		Signature  string `json:"signature" binding:"required"`
+		SignedData string `json:"signed_data" binding:"required"`
+		HardwareID string `json:"hardware_id"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	stateMutex.RLock()
-	key := unlockedKey
-	stateMutex.RUnlock()
+	var sd map[string]interface{}
+	json.Unmarshal([]byte(req.SignedData), &sd)
+	
+	var issuedAt, expiresAt int64
+	var duration int
+	var merkleRoot, hardwareID string
+	
+	if val, ok := sd["issued_at"].(float64); ok { issuedAt = int64(val) }
+	if val, ok := sd["expires_at"].(float64); ok { expiresAt = int64(val) }
+	if val, ok := sd["duration"].(float64); ok { duration = int(val) }
+	if val, ok := sd["merkle_root"].(string); ok { merkleRoot = val }
+	if val, ok := sd["hardware_id"].(string); ok { hardwareID = val }
+	
+	if merkleRoot == "" { merkleRoot = req.MerkleRoot }
+	if hardwareID == "" { hardwareID = req.HardwareID }
 
-	if key == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "key is locked - call /api/v1/key/unlock first"})
-		return
-	}
-
-	now := time.Now().Unix()
 	lic := &License{
 		LicenseID:  req.LicenseID,
 		UserID:     req.UserID,
 		ProductID:  req.ProductID,
 		Volume:     req.Volume,
-		Duration:   req.Duration,
-		MerkleRoot: req.MerkleRoot,
-		IssuedAt:   now,
-		ExpiresAt:  now + int64(req.Duration*86400),
+		Duration:   duration,
+		MerkleRoot: merkleRoot,
+		IssuedAt:   issuedAt,
+		ExpiresAt:  expiresAt,
 		Status:     "active",
-		HardwareID: getHardwareIDOrEmpty(),
+		HardwareID: hardwareID,
+		Signature:  req.Signature,
 	}
-
-	if lic.MerkleRoot == "" {
-		lic.MerkleRoot = licenseMerkleRoot(lic)
-	}
-
-	msg := licenseCanonicalMessage(lic)
-	sig, err := signData(key, []byte(msg))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "sign failed: " + err.Error()})
-		return
-	}
-	lic.Signature = sig
 
 	if err := db.Create(lic).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "save failed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "save failed: " + err.Error()})
 		return
 	}
 
-	log.Printf("License signed & saved: %s for %s", lic.LicenseID, lic.UserID)
+	log.Printf("License saved: %s", lic.LicenseID)
 	go checkLicenseNow()
-
 	c.JSON(http.StatusCreated, lic)
 }
 
