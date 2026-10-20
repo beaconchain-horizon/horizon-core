@@ -12,26 +12,28 @@ import (
 )
 
 type BlockResponse struct {
-	Number       int64  `json:"number"`
-	MerkleRoot   string `json:"merkle_root"`
+	Block struct {
+		Number     int64  `json:"number"`
+		MerkleRoot string `json:"merkle_root"`
+	} `json:"block"`
 	Transactions []struct {
-		TxID      string   `json:"tx_id"`
-		Signature string   `json:"signature"`
-		Payload   string   `json:"payload"`
-		PublicKey string   `json:"public_key"`
-		Proof     []string `json:"merkle_proof"`
+		TxID        string `json:"tx_id"`
+		Signature   string `json:"signature"`
+		Payload     string `json:"payload"`
+		PublicKey   string `json:"public_key"`
+		MerkleProof string `json:"merkle_proof"`
 	} `json:"transactions"`
 }
 
 type VerifierInput struct {
-	TxID         string   `json:"tx_id"`
-	Signature    string   `json:"signature"`
-	Payload      string   `json:"payload"`
-	PublicKey    string   `json:"public_key"`
-	MerkleLeaf   string   `json:"merkle_leaf"`
-	MerkleProof  []string `json:"merkle_proof"`
-	ExpectedRoot string   `json:"expected_root"`
-	Index        int      `json:"index"`
+	TxID         string `json:"tx_id"`
+	Signature    string `json:"signature"`
+	Payload      string `json:"payload"`
+	PublicKey    string `json:"public_key"`
+	MerkleLeaf   string `json:"merkle_leaf"`
+	MerkleProof  string `json:"merkle_proof"`
+	ExpectedRoot string `json:"expected_root"`
+	Index        int    `json:"index"`
 }
 
 func main() {
@@ -64,7 +66,6 @@ func main() {
 
 	tx := block.Transactions[txIdx]
 
-	// Calculate leaf exactly as the ledger does
 	h := sha256.Sum256([]byte(tx.Payload))
 	merkleLeaf := hex.EncodeToString(h[:])
 
@@ -79,8 +80,8 @@ func main() {
 		Payload:      tx.Payload,
 		PublicKey:    pubKey,
 		MerkleLeaf:   merkleLeaf,
-		MerkleProof:  tx.Proof,
-		ExpectedRoot: block.MerkleRoot,
+		MerkleProof:  tx.MerkleProof,
+		ExpectedRoot: block.Block.MerkleRoot,
 		Index:        txIdx,
 	}
 
