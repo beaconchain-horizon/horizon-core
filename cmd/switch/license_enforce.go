@@ -391,11 +391,16 @@ type licenseExpiredResponse struct {
 // buildLicenseBlockedResponse creates the standard expired
 // license response.
 func buildLicenseBlockedResponse() licenseExpiredResponse {
-	valid, license, _ := getLicenseState()
+	valid, license, lastErr := getLicenseState()
+
+	errMsg := "License invalid or expired"
+	if lastErr != nil {
+		errMsg = lastErr.Error() // حالا خطای واقعی را نشان می‌دهد
+	}
 
 	if valid || license == nil {
 		return licenseExpiredResponse{
-			Error:     "License expired",
+			Error:     errMsg,
 			ExpiresAt: 0,
 			DaysLeft:  0,
 		}
@@ -403,11 +408,10 @@ func buildLicenseBlockedResponse() licenseExpiredResponse {
 
 	now := time.Now()
 	expiresAt := time.Unix(license.ExpiresAt, 0)
-
 	daysLeft := int(expiresAt.Sub(now).Hours() / 24)
 
 	return licenseExpiredResponse{
-		Error:     "License expired",
+		Error:     errMsg,
 		ExpiresAt: license.ExpiresAt,
 		DaysLeft:  daysLeft,
 	}
