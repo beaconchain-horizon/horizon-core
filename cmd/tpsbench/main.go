@@ -20,10 +20,6 @@ type stats struct {
 }
 
 func main() {
-	adminToken := os.Getenv("ADMIN_TOKEN")
-	if adminToken == "" {
-		adminToken = "12345678901234567890123456789012"
-	}
 	nodes := flag.Int("nodes", 1000, "iterations for 7-node test")
 	batch := flag.Int("batch", 50000, "batch size for switch test")
 	conc := flag.Int("c", 50, "concurrency")
@@ -152,4 +148,14 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// adminToken is read from the environment.
+// Fallback is provided for local testing only.
+var adminToken = os.Getenv("ADMIN_TOKEN")
+
+func init() {
+	if adminToken == "" {
+		adminToken = "12345678901234567890123456789012"
+	}
 }
