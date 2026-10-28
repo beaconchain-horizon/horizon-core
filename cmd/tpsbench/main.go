@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -19,6 +20,10 @@ type stats struct {
 }
 
 func main() {
+	adminToken := os.Getenv("ADMIN_TOKEN")
+	if adminToken == "" {
+		adminToken = "12345678901234567890123456789012"
+	}
 	nodes := flag.Int("nodes", 1000, "iterations for 7-node test")
 	batch := flag.Int("batch", 50000, "batch size for switch test")
 	conc := flag.Int("c", 50, "concurrency")
@@ -93,12 +98,17 @@ func runNodes(n, conc int) {
 
 func runSwitch(n int) {
 	// setup
-	adminHdr := map[string]string{"X-Admin-Token": "12345678901234567890123456789012", "Content-Type": "application/json"}
+	adminHdr := map[string]string{"X-Admin-Token": adminToken, "Content-Type": "application/json"}
 	post := func(url, body string) {
 		req, _ := http.NewRequest("POST", url, bytes.NewReader([]byte(body)))
-		for k, v := range adminHdr { req.Header.Set(k, v) }
+		for k, v := range adminHdr {
+			req.Header.Set(k, v)
+		}
 		resp, _ := http.DefaultClient.Do(req)
-		if resp != nil { io.Copy(io.Discard, resp.Body); resp.Body.Close() }
+		if resp != nil {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+		}
 	}
 	post("http://localhost:8091/api/v1/key/setup", `{"private_key":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","password":"bench"}`)
 	post("http://localhost:8091/api/v1/key/unlock", `{"password":"bench"}`)
@@ -118,7 +128,7 @@ func runSwitch(n int) {
 
 	req, _ := http.NewRequest("POST", "http://localhost:8091/api/v1/tx/batch", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Admin-Token", "12345678901234567890123456789012")
+	req.Header.Set("X-Admin-Token", adminToken)
 
 	start := time.Now()
 	resp, err := http.DefaultClient.Do(req)
@@ -137,4 +147,9 @@ func runSwitch(n int) {
 	fmt.Printf("    ✅ SWITCH TPS: %.0f\n", tps)
 }
 
-func min(a, b int) int { if a < b { return a }; return b }
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}

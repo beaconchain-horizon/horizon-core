@@ -21,3 +21,8 @@ node_modules/
 legacy-start-horizon.bat.old
 nul
 .gotmp/
+guardian-live.log
+*.gotmp/
+keys/
+*.pem
+test-keys/
