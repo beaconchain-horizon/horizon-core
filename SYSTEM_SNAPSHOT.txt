@@ -1,0 +1,273 @@
+============================================================
+  HORIZON CORE - SYSTEM SNAPSHOT & ARCHITECTURE
+  Date: 2026-10-28 12:55:23
+  Dir:  /c/Users/NIL STORE/Beaconchain/horizon-core
+============================================================
+
+--- [GIT STATE] ---
+Go Version: go version go1.24.4 windows/amd64
+Git Branch: main
+Last Commit: 7864cbd - docs: update README with 348K TPS, 199 attack vectors, and global benchmarks (3 days ago)
+Uncommitted Changes: 31
+
+--- [TOP-LEVEL STRUCTURE] ---
+ANGEL-NODE-LAW.md
+AUDIT-REPORT.md
+Architecture_License
+BENCHMARK.md
+CODE_OF_CONDUCT.md
+COMMERCIAL_LICENSE.md
+Dockerfile
+Dockerfile.api
+Dockerfile.backend
+Dockerfile.frontend
+Dockerfile.switch
+Dockerfile.switch-prod
+Fetching
+LICENSE
+Preparing
+README.md
+README.md.bak
+README.md.pre-links-1791723787122
+RELEASE-v3.0.0.md
+SECURITY.md
+STORE/
+SYSTEM_SNAPSHOT.txt
+_angel_auth_backup_20260925_143041/
+_angel_backup_20260925_142336/
+advanced_stuxnet_test.sh*
+angel-consensus.sh*
+angel-node.exe*
+angel-receive.exe*
+angel-receive.sh*
+angel.html
+api-linux
+api.exe*
+backend-test.exe*
+backend.exe*
+bank-node.exe*
+bash
+bench.sh*
+benchmark/
+benchmark_tps.sh*
+bin/
+build-trial-package.sh*
+chainbench.exe*
+client-agent.exe*
+cloudflare-horizon-backend-patch.sh*
+cmd/
+commit-and-push.sh*
+config/
+data/
+db-fix.exe*
+deliveries/
+deploy-license-panel.sh*
+dist/
+docker-benchmark.sh*
+docker-compose.yml
+docs/
+ebe4e0721205
+ecosystem_audit.sh*
+final_tps_test.sh*
+fix-angel-frontend.sh*
+fix-audit-bugs.sh*
+fix-hash.js
+fix.sh*
+frontend/
+frontend.backup-20260925-121236/
+full_system_audit.sh*
+go.mod
+go.sum
+guardian-live.log
+horizon-angel/
+horizon-angel-node-patch.sh*
+horizon-angel-node-test.sh*
+horizon-bank-proof.sh*
+horizon-benchmark/
+horizon-deploy-now.sh*
+horizon-deploy.sh*
+horizon-dev.db
+horizon-fix-now.sh*
+horizon-guardian.sh*
+horizon-keygen.exe*
+horizon-pubkey.exe*
+horizon-usbkey.exe*
+hz-tx.exe*
+install.sh*
+installer/
+internal/
+keys/
+legacy-start-horizon.bat.old
+liara-backend.json
+liara-switch.json
+liara.json
+license-signer.exe*
+licensegen.exe*
+logs/
+merkle-v2-upgrade.sh*
+migrations/
+node_modules/
+nul
+package-lock.json
+package.json
+parallel_tps_test.sh*
+pentest.exe*
+pentest_199.sh*
+pentest_suite.sh*
+prepare-horizon.sh*
+pure_tps_test.sh*
+pure_tps_test_500k.sh*
+ratelimit_test/
+real_tps_test.sh*
+regen-license.exe*
+reports/
+restore_blocks.sh*
+run-all.sh*
+run-guardian.vbs
+run-pentest.sh*
+run-switch.bat
+run_tps.sh*
+schedule-task.bat
+scripts/
+security_attack_test.sh*
+sensortool.exe*
+setup-mine-branches.sh*
+smart_security_test.sh*
+start-all-silent.bat
+start-all.sh*
+start-angel-nodes.bat
+start-angel-nodes.sh*
+start-backend.sh*
+start-everything.bat
+start-guardian.vbs
+start-switch.sh*
+start.js
+start.sh*
+startup.vbs
+stop-horizon.bat
+switch-test.exe*
+switch.exe*
+templates/
+test-current-frontend.sh*
+test-horizon.sh*
+test-keys/
+test_attacks.sh*
+test_speed.sh*
+test_tps.sh*
+tore-install-temp
+tps-bench.sh*
+tps-final.sh*
+tps-full.sh*
+tps-intl.sh*
+tps-report.sh*
+tps-test.sh*
+tps_benchmark.sh*
+tpsbench-go.exe*
+tpsbench.exe*
+txt
+verify-lic.exe*
+verify-tx.exe*
+vuln_report_20261006_221730.txt
+webhook.exe*
+
+--- [CMD FOLDER (Executables/Entrypoints)] ---
+angel-node/
+angel-receive/
+api/
+authority-keygen/
+bank-node/
+chainbench/
+client-agent/
+db-fix/
+fetch-tx/
+horizon-keygen/
+horizon-pubkey/
+horizon-usbkey/
+hz-tx/
+license-signer/
+licensegen/
+licenseverify/
+loadtest/
+pentest/
+pubkey-hex/
+purge/
+regen-license/
+sensortool/
+switch/
+tpsbench/
+verify-lic/
+verify-tx/
+webhook/
+
+--- [INTERNAL FOLDER (Core Logic Modules)] ---
+auditlog/
+chain/
+crypto/
+db/
+industrial/
+intersect/
+license/
+merkle/
+migration/
+mtls/
+network/
+ratelimit/
+switchclient/
+tenant/
+
+--- [ARCHITECTURE ROLES DETECTED] ---
+Backend Entrypoint : cmd/api/main.go (Runs on :8080)
+Node Entrypoint    : Not explicitly found as a separate binary (may be embedded)
+
+--- [TRIAL MODE & LICENSING ASSETS] ---
+./build-trial-package.sh
+./dist/beaconchain-horizon-trial-v1.4.zip
+./frontend/install-into-horizon.sh
+./frontend/package-lock.json
+./install.sh
+./installer
+./installer/install.sh
+./node_modules/.package-lock.json
+./package-lock.json
+./package.json
+License Files Found:
+./.horizon-dev-key.pem
+./horizon-benchmark/test-keys/private.pem
+./horizon-benchmark/test-keys/public.pem
+./keys/new-master/private.pem
+./keys/new-master/public.pem
+./keys/temp-001/private.pem
+./keys/temp-001/public.pem
+./test-keys/private.pem
+./test-keys/public.pem
+
+--- [DATABASES FOUND] ---
+21:58 (197121)
+11:40 (197121)
+12:14 (197121)
+16:09 (197121)
+
+--- [LIVE SERVICES & PORTS] ---
+Backend (:8080)   : ONLINE
+Switch (:8091)    : ONLINE
+Nodes (9001-9007):
+  :9001 -> 3ac449e02f8e6410...
+  :9002 -> 3ac449e02f8e6410...
+  :9003 -> 3ac449e02f8e6410...
+  :9004 -> 3ac449e02f8e6410...
+  :9005 -> 3ac449e02f8e6410...
+  :9006 -> 3ac449e02f8e6410...
+  :9007 -> 3ac449e02f8e6410...
+CONSENSUS: 7/7 Nodes in Perfect Sync
+
+--- [SECURITY & SECRETS CHECK] ---
+.gitignore: DBs protected
+.gitignore: WARNING - Keys not protected
+WARNING: Found 2 hardcoded test tokens in .go files
+
+--- [CHAIN STATE] ---
+{"chain_id":"horizon-core-v1.4","height":4,"latest_hash":"2f35fe46022941b4d1e5b2705c1f5a4f899fa066343da2b1588998bcc24f824d","latest_root":"ad19aa3d1c3eb2e24ace9687176696ab39d0910c77e4f27c2f3c7cd86acaaf21","tx_total":4}
+
+============================================================
+  END OF SNAPSHOT
+============================================================
