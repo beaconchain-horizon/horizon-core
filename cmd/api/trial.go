@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	trialHours = 48
+	trialHours = 96
 	trialMaxTx = 1000000
 	trialFile  = "trial-state.json"
 )
