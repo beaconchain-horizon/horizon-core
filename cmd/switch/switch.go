@@ -439,6 +439,11 @@ func createTxHandler(c *gin.Context) {
 		return
 	}
 
+	if err := ReserveLicenseUsage(1); err != nil {
+		c.JSON(http.StatusPaymentRequired, gin.H{"error": err.Error()})
+		return
+	}
+
 	// === Grace Period Check ===
 	if allowed, reason := isTransactionAllowedInGrace(); !allowed {
 		c.JSON(http.StatusPaymentRequired, gin.H{
@@ -1183,7 +1188,7 @@ func createTxBatchHandler(c *gin.Context) {
 	}
 
 	if len(processed) > 0 {
-		if err := IncrementLicenseUsage(len(processed)); err != nil {
+		if err := ReserveLicenseUsage(len(processed)); err != nil {
 			fmt.Printf("WARN: usage increment failed: %v\n", err)
 		}
 	}
