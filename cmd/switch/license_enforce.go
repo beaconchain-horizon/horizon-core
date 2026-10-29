@@ -416,3 +416,19 @@ func buildLicenseBlockedResponse() licenseExpiredResponse {
 		DaysLeft:  daysLeft,
 	}
 }
+
+// IncrementLicenseUsage increases the 'Used' field in the DB for the active license.
+func IncrementLicenseUsage(count int) error {
+	if count <= 0 {
+		return nil
+	}
+	if db == nil {
+		return fmt.Errorf("database not initialized")
+	}
+	res := db.Model(&License{}).Where("status = ?", "active").UpdateColumn("used", gorm.Expr("used + ?", count))
+	if res.Error != nil {
+		fmt.Printf("WARN: failed to increment license usage: %v\n", res.Error)
+		return res.Error
+	}
+	return nil
+}
