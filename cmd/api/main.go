@@ -150,8 +150,8 @@ func adminTokenValid(c *gin.Context) bool {
 
 func apiKeyValid(c *gin.Context) bool {
 	expected := os.Getenv("API_KEY")
-	if expected == "" {
-		return true
+	if expected == "" || len(expected) < 32 {
+		return false
 	}
 	return c.GetHeader("X-API-Key") == expected
 }
