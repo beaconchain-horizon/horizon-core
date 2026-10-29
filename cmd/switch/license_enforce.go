@@ -417,18 +417,25 @@ func buildLicenseBlockedResponse() licenseExpiredResponse {
 	}
 }
 
-// IncrementLicenseUsage increases the 'Used' field in the DB for the active license.
-func IncrementLicenseUsage(count int) error {
+// ReserveLicenseUsage atomically checks if there is enough capacity and reserves it.
+// It returns an error if the volume is exceeded or no active license exists.
+func ReserveLicenseUsage(count int) error {
 	if count <= 0 {
 		return nil
 	}
 	if db == nil {
 		return fmt.Errorf("database not initialized")
 	}
-	res := db.Model(&License{}).Where("status = ?", "active").UpdateColumn("used", gorm.Expr("used + ?", count))
+	// Atomically increment ONLY if there is enough volume
+	res := db.Model(&License{}).
+		Where("status = ? AND used + ? <= volume", "active", count).
+		UpdateColumn("used", gorm.Expr("used + ?", count))
+
 	if res.Error != nil {
-		fmt.Printf("WARN: failed to increment license usage: %v\n", res.Error)
 		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return fmt.Errorf("license volume exceeded or no active license")
 	}
 	return nil
 }
