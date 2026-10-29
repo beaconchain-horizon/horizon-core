@@ -1182,6 +1182,12 @@ func createTxBatchHandler(c *gin.Context) {
 		processed = append(processed, tx)
 	}
 
+	if len(processed) > 0 {
+		if err := IncrementLicenseUsage(len(processed)); err != nil {
+			fmt.Printf("WARN: usage increment failed: %v\n", err)
+		}
+	}
+
 	// Chain: batch payload
 	stateMutex.RLock()
 	key := unlockedKey
