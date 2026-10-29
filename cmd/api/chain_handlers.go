@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -78,6 +77,10 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 	// from a USB key). Backend verifies the signature, persists the license,
 	// and enqueues a transaction for the next block.
 	api.POST("/license/register", func(c *gin.Context) {
+		if !requireAdmin(c) {
+			return
+		}
+
 		var req struct {
 			LicenseID  string `json:"license_id" binding:"required"`
 			UserID     string `json:"user_id" binding:"required"`
@@ -144,8 +147,6 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "enqueue: " + err.Error()})
 			return
 		}
-
-		atomic.AddInt64(&TrialTotalTxs, 1)
 
 		c.JSON(http.StatusCreated, gin.H{
 			"license_id": req.LicenseID,
