@@ -649,19 +649,33 @@ func saveLicenseHandler(c *gin.Context) {
 
 	var sd map[string]interface{}
 	json.Unmarshal([]byte(req.SignedData), &sd)
-	
+
 	var issuedAt, expiresAt int64
 	var duration int
 	var merkleRoot, hardwareID string
-	
-	if val, ok := sd["issued_at"].(float64); ok { issuedAt = int64(val) }
-	if val, ok := sd["expires_at"].(float64); ok { expiresAt = int64(val) }
-	if val, ok := sd["duration"].(float64); ok { duration = int(val) }
-	if val, ok := sd["merkle_root"].(string); ok { merkleRoot = val }
-	if val, ok := sd["hardware_id"].(string); ok { hardwareID = val }
-	
-	if merkleRoot == "" { merkleRoot = req.MerkleRoot }
-	if hardwareID == "" { hardwareID = req.HardwareID }
+
+	if val, ok := sd["issued_at"].(float64); ok {
+		issuedAt = int64(val)
+	}
+	if val, ok := sd["expires_at"].(float64); ok {
+		expiresAt = int64(val)
+	}
+	if val, ok := sd["duration"].(float64); ok {
+		duration = int(val)
+	}
+	if val, ok := sd["merkle_root"].(string); ok {
+		merkleRoot = val
+	}
+	if val, ok := sd["hardware_id"].(string); ok {
+		hardwareID = val
+	}
+
+	if merkleRoot == "" {
+		merkleRoot = req.MerkleRoot
+	}
+	if hardwareID == "" {
+		hardwareID = req.HardwareID
+	}
 
 	lic := &License{
 		LicenseID:  req.LicenseID,
@@ -889,7 +903,6 @@ func main() {
 	r.Use(SecurityHeadersMiddleware())
 	r.Use(RateLimitMiddleware(rl))
 	r.Use(SanitizeInputMiddleware())
-
 
 	// Routes
 	api := r.Group("/api/v1")
