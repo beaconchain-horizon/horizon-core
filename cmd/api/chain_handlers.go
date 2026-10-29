@@ -118,8 +118,6 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 			return
 		}
 
-		atomic.AddInt64(&TrialTotalTxs, 1)
-
 		// Persist the license.
 		lic := LicenseRecord{
 			ID:        req.LicenseID,
@@ -146,6 +144,8 @@ func registerChainHandlers(r *gin.Engine, db *gorm.DB) {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "enqueue: " + err.Error()})
 			return
 		}
+
+		atomic.AddInt64(&TrialTotalTxs, 1)
 
 		c.JSON(http.StatusCreated, gin.H{
 			"license_id": req.LicenseID,
