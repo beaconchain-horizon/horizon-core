@@ -142,8 +142,8 @@ func switchEnabled() bool {
 
 func adminTokenValid(c *gin.Context) bool {
 	expected := os.Getenv("ADMIN_TOKEN")
-	if expected == "" {
-		return true
+	if expected == "" || len(expected) < 32 {
+		return false
 	}
 	return c.GetHeader("X-Admin-Key") == expected
 }
@@ -282,12 +282,12 @@ func main() {
 	registerPricingHandlers(r)
 	registerIntersectHandlers(r)
 	registerMigrationHandlers(r)
-    registerLicenseStats(r, pgDB)
+	registerLicenseStats(r, pgDB)
 
 	r.GET("/api/v1/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "online", "service": "horizon-backend"}) })
 	r.StaticFile("/panel", "./cmd/api/static/panel.html")
-    r.StaticFile("/explorer", "./cmd/api/static/explorer.html")
-    r.StaticFile("/pricing", "./cmd/api/static/pricing.html")
+	r.StaticFile("/explorer", "./cmd/api/static/explorer.html")
+	r.StaticFile("/pricing", "./cmd/api/static/pricing.html")
 
 	r.POST("/api/v1/license/generate", func(c *gin.Context) {
 		if !apiKeyValid(c) && !adminTokenValid(c) {
