@@ -26,3 +26,16 @@ guardian-live.log
 keys/
 *.pem
 test-keys/
+HorizonCore-backups/
+*.sh.bak
+*_fix*.sh
+build_*.sh
+api.exe
+horizon-trial-*
+release_*.md
+patch_*.go
+patch_*.sh
+horizon-core-engine/
+final_*.sh
+fix_*.sh
+force_*.sh

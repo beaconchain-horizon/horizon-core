@@ -273,7 +273,6 @@ func main() {
 
 	r := gin.Default()
 	r.Use(SecurityMiddleware())
-	r.Use(SecurityMiddleware())
 	r.Use(cors.New(cors.Config{AllowOriginFunc: corsOriginAllowed, AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "X-API-Key", "X-Admin-Key", "X-License-Key"}, AllowCredentials: false, MaxAge: 12 * time.Hour}))
 	r.Use(bodyLimitMiddleware())
 	r.Use(ratelimit.New(60, 120).Middleware())
