@@ -439,3 +439,21 @@ func ReserveLicenseUsage(count int) error {
 	}
 	return nil
 }
+
+// ReleaseLicenseUsage decrements the 'Used' field when a transaction fails.
+func ReleaseLicenseUsage(count int) error {
+	if count <= 0 {
+		return nil
+	}
+	if db == nil {
+		return fmt.Errorf("database not initialized")
+	}
+	res := db.Model(&License{}).
+		Where("status = ?", "active").
+		UpdateColumn("used", gorm.Expr("used - ?", count))
+
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}

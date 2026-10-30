@@ -439,11 +439,6 @@ func createTxHandler(c *gin.Context) {
 		return
 	}
 
-	if err := ReserveLicenseUsage(1); err != nil {
-		c.JSON(http.StatusPaymentRequired, gin.H{"error": err.Error()})
-		return
-	}
-
 	// === Grace Period Check ===
 	if allowed, reason := isTransactionAllowedInGrace(); !allowed {
 		c.JSON(http.StatusPaymentRequired, gin.H{
@@ -543,9 +538,19 @@ func createTxHandler(c *gin.Context) {
 	}
 
 	// ═══ Actual transaction ═══
+	// Reserve capacity before execution
+	if err := ReserveLicenseUsage(1); err != nil {
+		c.JSON(http.StatusPaymentRequired, gin.H{"error": "license volume exceeded", "details": err.Error()})
+		return
+	}
+
 	if err := ledger.Transfer(req.From, req.To, req.Amount); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+	// Release capacity on failure
+	if err := ReleaseLicenseUsage(1); err != nil {
+		fmt.Printf("WARN: failed to release license usage: %v\n", err)
 	}
 
 	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixNano(), hashData([]byte(req.From + req.To))[:8])
@@ -1185,6 +1190,13 @@ func createTxBatchHandler(c *gin.Context) {
 		}
 		queueTransaction(tx)
 		processed = append(processed, tx)
+	}
+
+	// Release capacity for failed transactions
+	if failed > 0 {
+		if err := ReleaseLicenseUsage(failed); err != nil {
+			fmt.Printf("WARN: failed to release license usage: %v\n", err)
+		}
 	}
 
 	if len(processed) > 0 {
