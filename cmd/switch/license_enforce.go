@@ -78,6 +78,7 @@ func getActiveLicense() (*License, error) {
 	err := db.
 		Where("status = ?", licenseStatusActive).
 		Order("issued_at DESC").
+		Order("id DESC").
 		First(&license).Error
 
 	if err != nil {
@@ -419,41 +420,57 @@ func buildLicenseBlockedResponse() licenseExpiredResponse {
 
 // ReserveLicenseUsage atomically checks if there is enough capacity and reserves it.
 // It returns an error if the volume is exceeded or no active license exists.
-func ReserveLicenseUsage(count int) error {
+func ReserveLicenseUsage(count int) (string, error) {
 	if count <= 0 {
-		return nil
+		return "", nil
 	}
 	if db == nil {
-		return fmt.Errorf("database not initialized")
+		return "", fmt.Errorf("database not initialized")
 	}
-	// Atomically increment ONLY if there is enough volume
+
+	var lic License
+	if err := db.Where("status = ?", "active").
+		Order("issued_at DESC").
+		Order("id DESC").
+		First(&lic).Error; err != nil {
+		return "", fmt.Errorf("no active license: %w", err)
+	}
+
 	res := db.Model(&License{}).
-		Where("status = ? AND used + ? <= volume", "active", count).
+		Where("id = ? AND license_id = ? AND status = ? AND used + ? <= volume",
+			lic.ID, lic.LicenseID, "active", count).
 		UpdateColumn("used", gorm.Expr("used + ?", count))
 
 	if res.Error != nil {
-		return res.Error
+		return "", res.Error
 	}
-	if res.RowsAffected == 0 {
-		return fmt.Errorf("license volume exceeded or no active license")
+	if res.RowsAffected != 1 {
+		return "", fmt.Errorf("license volume exceeded or selected license unavailable")
 	}
-	return nil
+	return lic.LicenseID, nil
 }
 
 // ReleaseLicenseUsage decrements the 'Used' field when a transaction fails.
-func ReleaseLicenseUsage(count int) error {
+func ReleaseLicenseUsage(licenseID string, count int) error {
 	if count <= 0 {
 		return nil
 	}
 	if db == nil {
 		return fmt.Errorf("database not initialized")
 	}
+	if licenseID == "" {
+		return fmt.Errorf("empty license ID for usage release")
+	}
+
 	res := db.Model(&License{}).
-		Where("status = ? AND used >= ?", "active", count).
+		Where("license_id = ? AND used >= ?", licenseID, count).
 		UpdateColumn("used", gorm.Expr("used - ?", count))
 
 	if res.Error != nil {
 		return res.Error
+	}
+	if res.RowsAffected != 1 {
+		return fmt.Errorf("could not release %d units from license %s", count, licenseID)
 	}
 	return nil
 }
