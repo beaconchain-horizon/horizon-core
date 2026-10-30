@@ -544,7 +544,14 @@ func createTxHandler(c *gin.Context) {
 		return
 	}
 
+	// ATOMIC RESERVATION BEFORE EXECUTION
+	if err := ReserveLicenseUsage(1); err != nil {
+		c.JSON(http.StatusPaymentRequired, gin.H{"error": "license volume exceeded", "details": err.Error()})
+		return
+	}
+
 	if err := ledger.Transfer(req.From, req.To, req.Amount); err != nil {
+		ReleaseLicenseUsage(1) // Release on failure
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -1163,6 +1170,12 @@ func createTxBatchHandler(c *gin.Context) {
 		return
 	}
 
+	// ATOMIC RESERVATION BEFORE EXECUTION
+	if err := ReserveLicenseUsage(len(req.Txs)); err != nil {
+		c.JSON(http.StatusPaymentRequired, gin.H{"error": "license volume exceeded", "details": err.Error()})
+		return
+	}
+
 	// Process all txs in ledger
 	processed := make([]*Transaction, 0, len(req.Txs))
 	failed := 0
@@ -1196,12 +1209,6 @@ func createTxBatchHandler(c *gin.Context) {
 	if failed > 0 {
 		if err := ReleaseLicenseUsage(failed); err != nil {
 			fmt.Printf("WARN: failed to release license usage: %v\n", err)
-		}
-	}
-
-	if len(processed) > 0 {
-		if err := ReserveLicenseUsage(len(processed)); err != nil {
-			fmt.Printf("WARN: usage increment failed: %v\n", err)
 		}
 	}
 

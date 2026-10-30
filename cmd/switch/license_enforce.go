@@ -449,7 +449,7 @@ func ReleaseLicenseUsage(count int) error {
 		return fmt.Errorf("database not initialized")
 	}
 	res := db.Model(&License{}).
-		Where("status = ?", "active").
+		Where("status = ? AND used >= ?", "active", count).
 		UpdateColumn("used", gorm.Expr("used - ?", count))
 
 	if res.Error != nil {
