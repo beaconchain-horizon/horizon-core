@@ -538,26 +538,27 @@ func createTxHandler(c *gin.Context) {
 	}
 
 	// ═══ Actual transaction ═══
-	// Reserve capacity before execution
-	if err := ReserveLicenseUsage(1); err != nil {
-		c.JSON(http.StatusPaymentRequired, gin.H{"error": "license volume exceeded", "details": err.Error()})
-		return
-	}
-
-	// ATOMIC RESERVATION BEFORE EXECUTION
-	if err := ReserveLicenseUsage(1); err != nil {
-		c.JSON(http.StatusPaymentRequired, gin.H{"error": "license volume exceeded", "details": err.Error()})
+	// Reserve exactly one unit against one specific license.
+	licenseID, reserveErr := ReserveLicenseUsage(1)
+	if reserveErr != nil {
+		c.JSON(http.StatusPaymentRequired, gin.H{
+			"error":   "license volume exceeded",
+			"details": reserveErr.Error(),
+		})
 		return
 	}
 
 	if err := ledger.Transfer(req.From, req.To, req.Amount); err != nil {
-		ReleaseLicenseUsage(1) // Release on failure
+		if releaseErr := ReleaseLicenseUsage(licenseID, 1); releaseErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":          "transfer failed and license usage release failed",
+				"transfer_error": err.Error(),
+				"release_error":  releaseErr.Error(),
+			})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	}
-	// Release capacity on failure
-	if err := ReleaseLicenseUsage(1); err != nil {
-		fmt.Printf("WARN: failed to release license usage: %v\n", err)
 	}
 
 	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixNano(), hashData([]byte(req.From + req.To))[:8])
@@ -1170,9 +1171,13 @@ func createTxBatchHandler(c *gin.Context) {
 		return
 	}
 
-	// ATOMIC RESERVATION BEFORE EXECUTION
-	if err := ReserveLicenseUsage(len(req.Txs)); err != nil {
-		c.JSON(http.StatusPaymentRequired, gin.H{"error": "license volume exceeded", "details": err.Error()})
+	// Reserve the whole batch against one specific license.
+	licenseID, reserveErr := ReserveLicenseUsage(len(req.Txs))
+	if reserveErr != nil {
+		c.JSON(http.StatusPaymentRequired, gin.H{
+			"error":   "license volume exceeded",
+			"details": reserveErr.Error(),
+		})
 		return
 	}
 
@@ -1205,10 +1210,12 @@ func createTxBatchHandler(c *gin.Context) {
 		processed = append(processed, tx)
 	}
 
-	// Release capacity for failed transactions
+	// Release capacity for failed transactions against the same license.
+	accountingErr := ""
 	if failed > 0 {
-		if err := ReleaseLicenseUsage(failed); err != nil {
-			fmt.Printf("WARN: failed to release license usage: %v\n", err)
+		if err := ReleaseLicenseUsage(licenseID, failed); err != nil {
+			accountingErr = err.Error()
+			fmt.Printf("CRITICAL: license usage reconciliation failed: %v\n", err)
 		}
 	}
 
@@ -1233,8 +1240,9 @@ func createTxBatchHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"processed": len(processed),
-		"failed":    failed,
-		"chain":     chainInfo,
+		"processed":                len(processed),
+		"failed":                   failed,
+		"chain":                    chainInfo,
+		"license_accounting_error": accountingErr,
 	})
 }
