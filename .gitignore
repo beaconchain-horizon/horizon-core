@@ -39,3 +39,9 @@ horizon-core-engine/
 final_*.sh
 fix_*.sh
 force_*.sh
+run_license_patch.sh
+scientific_audit.sh
+send_*.sh
+show_*.sh
+ultimate_*.sh
+verify_network.sh
