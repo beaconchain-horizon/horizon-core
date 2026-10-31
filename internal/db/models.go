@@ -2,7 +2,6 @@ package db
 
 import "time"
 
-// Block represents a block in the chain
 type Block struct {
 	Number       uint64    `gorm:"primaryKey" json:"number"`
 	PreviousHash string    `json:"previous_hash"`
@@ -14,7 +13,6 @@ type Block struct {
 	AuthoritySig string    `json:"authority_signature,omitempty"`
 }
 
-// Transaction represents a license or a transaction in the chain
 type Transaction struct {
 	TxID       string    `gorm:"primaryKey" json:"tx_id"`
 	BlockNum   uint64    `json:"block_number"`
@@ -29,18 +27,16 @@ type Transaction struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// Agent represents an agent in the network
+// Agent DB (Separate table for agents)
 type Agent struct {
 	AgentID       string    `gorm:"primaryKey" json:"agent_id"`
-	NetworkUser   string    `json:"network_user"`
-	APIKey        string    `json:"api_key"`
+	UserID        string    `json:"user_id"` // The generated UserID for the agent
+	Role          string    `json:"role"`    // e.g., frontend, backend, product
 	LicenseID     string    `json:"license_id"`
-	CreditBalance int64     `json:"credit_balance"`
-	Status        string    `json:"status"`
+	Status        string    `json:"status"`  // Active, Inactive
 	LastSeen      time.Time `json:"last_seen"`
 }
 
-// SystemLaw represents immutable laws in the database
 type SystemLaw struct {
 	LawID       string    `gorm:"primaryKey" json:"law_id"`
 	Title       string    `json:"title"`

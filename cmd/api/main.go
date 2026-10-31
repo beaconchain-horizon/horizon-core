@@ -26,7 +26,15 @@ type LicenseReq struct {
 	IssuedAt   int64  `json:"issued_at"`
 	ExpiresAt  int64  `json:"expires_at"`
 	HardwareID string `json:"hardware_id"`
+	SignedData string `json:"signed_data"`
 	TxID       string `json:"tx_id"`
+}
+
+type AgentRegisterReq struct {
+	AgentID   string `json:"agent_id"`
+	UserID    string `json:"user_id"`
+	Role      string `json:"role"`
+	LicenseID string `json:"license_id"`
 }
 
 func main() {
@@ -37,6 +45,9 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]string{"status": "online", "version": "v2"})
 	})
 
+	http.HandleFunc("/agent-explorer", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "cmd/api/static/agent-explorer.html")
+	})
 	http.HandleFunc("/api/v1/agents", func(w http.ResponseWriter, r *http.Request) {
 		var agents []db.Agent
 		db.DB.Find(&agents)
@@ -44,11 +55,23 @@ func main() {
 		json.NewEncoder(w).Encode(agents)
 	})
 
-	http.HandleFunc("/api/v1/transactions", func(w http.ResponseWriter, r *http.Request) {
-		var txs []db.Transaction
-		db.DB.Find(&txs)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(txs)
+	http.HandleFunc("/api/v1/agents/register", func(w http.ResponseWriter, r *http.Request) {
+		var req AgentRegisterReq
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid json", 400)
+			return
+		}
+		agent := db.Agent{
+			AgentID:   req.AgentID,
+			UserID:    req.UserID,
+			Role:      req.Role,
+			LicenseID: req.LicenseID,
+			Status:    "Active",
+			LastSeen:  time.Now(),
+		}
+		db.DB.Create(&agent)
+		w.WriteHeader(201)
+		json.NewEncoder(w).Encode(map[string]string{"status": "registered", "agent_id": req.AgentID})
 	})
 
 	http.HandleFunc("/api/v1/laws", func(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +81,13 @@ func main() {
 		json.NewEncoder(w).Encode(laws)
 	})
 
+	http.HandleFunc("/api/v1/transactions", func(w http.ResponseWriter, r *http.Request) {
+		var txs []db.Transaction
+		db.DB.Find(&txs)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(txs)
+	})
+
 	http.HandleFunc("/api/v1/license/register", func(w http.ResponseWriter, r *http.Request) {
 		var req LicenseReq
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -65,11 +95,9 @@ func main() {
 			return
 		}
 
-		// Generate Transaction ID
 		h := sha256.Sum256([]byte(fmt.Sprintf("%s|%d", req.Signature, time.Now().UnixNano())))
 		req.TxID = "tx_" + hex.EncodeToString(h[:])
 
-		// Send to 7 nodes (Strict Consensus)
 		votes := 0
 		body, _ := json.Marshal(req)
 		for p := 9001; p <= 9007; p++ {
