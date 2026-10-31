@@ -1,19 +1,8 @@
-# Binaries
 bin/
 *.exe
-
-# Databases and logs
 *.db
 *.db-shm
 *.db-wal
 *.log
-
-# Frontend/Node junk
 node_modules/
 frontend/
-package-lock.json
-yarn.lock
-
-# OS files
-.DS_Store
-Thumbs.db
