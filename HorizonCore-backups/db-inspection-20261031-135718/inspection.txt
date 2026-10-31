@@ -1,0 +1,64 @@
+============================================================
+ HORIZON CORE - READ-ONLY SQLITE INSPECTION
+============================================================
+Repository: C:/Users/NIL STORE/Beaconchain/horizon-core
+Timestamp:  20261031-135718
+go version go1.24.4 windows/amd64
+Branch: main
+HEAD:   b8662960fa8ca8bdcd3ce5e502ea0a9c4aecbddc
+
+===== 1. DATABASE FILE INVENTORY (NO FILES MODIFIED) =====
+DB_CANDIDATE	./backup_dbs/bank-node.db	24576 bytes
+DB_CANDIDATE	./backup_dbs/horizon-backend.db	114688 bytes
+DB_CANDIDATE	./backup_dbs/horizon-chain.db	21921792 bytes
+DB_CANDIDATE	./backup_dbs/horizon-switch.db	4841377792 bytes
+DB_CANDIDATE	./data/horizon-switch.db	233472 bytes
+DB_CANDIDATE	./data/horizon-switch.db-shm	32768 bytes
+DB_CANDIDATE	./data/horizon-switch.db-wal	0 bytes
+DB_CANDIDATE	./horizon-dev.db	122880 bytes
+DB_CANDIDATE	./horizon-switch.db	4841377792 bytes
+
+===== 2. ACTIVE DB CONFIGURATION REFERENCES =====
+cmd/switch/switch.go:836:	dbPath := os.Getenv("SWITCH_DB")
+cmd/switch/switch.go:841:	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+cmd/switch/switch.go:872:	if err := initLicenseChain(db); err != nil {
+cmd/switch/license_chain.go:83:func migrateChain(db *gorm.DB) error {
+cmd/switch/license_chain.go:119:func createGenesisBlock(db *gorm.DB, ownerKey *ecdsa.PrivateKey) (*ChainBlock, error) {
+cmd/switch/license_chain.go:151:func addChainBlock(db *gorm.DB, ownerKey *ecdsa.PrivateKey, txs []ChainTx) (*ChainBlock, error) {
+cmd/switch/license_chain.go:233:	block, err := addChainBlock(db, ownerKey, []ChainTx{tx})
+cmd/switch/license_chain.go:361:func initLicenseChain(db *gorm.DB) error {
+cmd/switch/license_chain.go:362:	if err := migrateChain(db); err != nil {
+cmd/switch/license_chain.go:376:		_, err := createGenesisBlock(db, k)
+cmd/switch/license_chain.go:388:		_, gerr := createGenesisBlock(db, ownerKey)
+cmd/api/main.go:172:		dbPath := os.Getenv("HORIZON_DB_PATH")
+cmd/api/main.go:176:		pgDB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+internal/chain/append.go:22:// AppendBlock creates a new block containing the given transactions,
+internal/chain/append.go:25:func AppendBlock(db *gorm.DB, txs []PendingTx) (*Block, error) {
+internal/chain/loop.go:121:		block, err := AppendBlock(db, chunk)
+
+===== 3. POSSIBLE ISSUE ID 1555 / DELETION REFERENCES =====
+23-		panic(err)
+24-	}
+25-	defer db.Close()
+26-
+27:	res, err := db.Exec("DELETE FROM license_records WHERE id = 1555")
+28-	if err != nil {
+29:		fmt.Println("Error deleting ID 1555:", err)
+30-	} else {
+31-		rows, _ := res.RowsAffected()
+32:		fmt.Printf("✅ Deleted stuck record ID 1555 (rows: %d)\n", rows)
+33-	}
+34-
+35:	db.Exec("DELETE FROM license_records WHERE license_id = 'HORIZON-GOLD-005'")
+36-	fmt.Println("✅ Cleared old HORIZON-GOLD-005 (if existed).")
+37-}
+38-GO_CODE
+39-
+
+===== 4. READ-ONLY SQLITE TABLE / BLOCK / LICENSE INSPECTION =====
+C:\Users\NILSTO~1\AppData\Local\Temp\horizon-sqlite-ro-WnBuls.go:14:5: cannot find module providing package gorm.io/driver/sqlite: import lookup disabled by -mod=readonly
+READONLY_MODULE_ATTEMPT_FAILED: retrying with temporary module metadata only.
+go: parsing $GOFLAGS: non-flag "STORE/Beaconchain/horizon-core/.horizon-audit-20261031-135718.mod"
+SQLITE_INSPECTION_FAILED: no database writes performed.
+The real go.mod/go.sum were not changed; temporary module files will be removed on exit.
+This usually means the SQLite driver is not present in the local Go module cache.

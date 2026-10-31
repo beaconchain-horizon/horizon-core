@@ -1,47 +1,19 @@
+# Binaries
+bin/
 *.exe
-*.bak*
 
-# Local databases and backups
+# Databases and logs
 *.db
 *.db-shm
 *.db-wal
-*.pre-*
-*.backup-*
-cmd/verifytest/
-horizon-*.exe
-angel-node.exe
-angel-receive.exe
-backend.exe
-switch.exe
-dist/
-logs/
+*.log
+
+# Frontend/Node junk
 node_modules/
-*.exe~
-.horizon-dev-key.pem
-legacy-start-horizon.bat.old
-nul
-.gotmp/
-guardian-live.log
-*.gotmp/
-keys/
-*.pem
-test-keys/
-HorizonCore-backups/
-*.sh.bak
-*_fix*.sh
-build_*.sh
-api.exe
-horizon-trial-*
-release_*.md
-patch_*.go
-patch_*.sh
-horizon-core-engine/
-final_*.sh
-fix_*.sh
-force_*.sh
-run_license_patch.sh
-scientific_audit.sh
-send_*.sh
-show_*.sh
-ultimate_*.sh
-verify_network.sh
+frontend/
+package-lock.json
+yarn.lock
+
+# OS files
+.DS_Store
+Thumbs.db

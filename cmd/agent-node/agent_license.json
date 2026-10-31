@@ -1,0 +1,16 @@
+{
+  "license_id": "HORIZON-AGENT-358",
+  "user_id": "horizon_angel_ai",
+  "product_id": "horizon-core",
+  "volume": 1000000000,
+  "used": 0,
+  "duration": 365,
+  "merkle_root": "d925216119d79545d795497065bca96b97c8fe7436057be88e2e4a0e7bc93561",
+  "issued_at": 1793423891,
+  "expires_at": 1824959891,
+  "status": "active",
+  "hardware_id": "",
+  "signature": "3ce0ea4460f71dea89bc056a6a9b020feba3ddae96983f006a75857b0de07016463711dd512c36745a90ed444a91ef1af7f18d2137e529b1bdafef51ef9b250b",
+  "signed_data": "{\"license_id\":\"HORIZON-AGENT-358\",\"user_id\":\"horizon_angel_ai\",\"product_id\":\"horizon-core\",\"volume\":1000000000,\"duration\":365,\"merkle_root\":\"d925216119d79545d795497065bca96b97c8fe7436057be88e2e4a0e7bc93561\",\"issued_at\":1793423891,\"expires_at\":1824959891,\"hardware_id\":\"\"}",
+  "public_key": "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214"
+}

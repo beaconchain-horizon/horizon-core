@@ -1,0 +1,2150 @@
+[
+  {
+    "id": "PULL_REQUEST_TEMPLATE",
+    "name": " What does this PR do?",
+    "description": "",
+    "file_path": "./.github/PULL_REQUEST_TEMPLATE.md"
+  },
+  {
+    "id": "academic-anthropologist",
+    "name": " Anthropologist Agent Personality",
+    "description": "",
+    "file_path": "./academic/academic-anthropologist.md"
+  },
+  {
+    "id": "academic-geographer",
+    "name": " Geographer Agent Personality",
+    "description": "",
+    "file_path": "./academic/academic-geographer.md"
+  },
+  {
+    "id": "academic-historian",
+    "name": " Historian Agent Personality",
+    "description": "",
+    "file_path": "./academic/academic-historian.md"
+  },
+  {
+    "id": "academic-narratologist",
+    "name": " Narratologist Agent Personality",
+    "description": "",
+    "file_path": "./academic/academic-narratologist.md"
+  },
+  {
+    "id": "academic-psychologist",
+    "name": " Psychologist Agent Personality",
+    "description": "",
+    "file_path": "./academic/academic-psychologist.md"
+  },
+  {
+    "id": "academic-statistician",
+    "name": " Statistician Agent Personality",
+    "description": "",
+    "file_path": "./academic/academic-statistician.md"
+  },
+  {
+    "id": "design-brand-guardian",
+    "name": " Brand Guardian Agent Personality",
+    "description": "",
+    "file_path": "./design/design-brand-guardian.md"
+  },
+  {
+    "id": "design-image-prompt-engineer",
+    "name": " Image Prompt Engineer Agent",
+    "description": "",
+    "file_path": "./design/design-image-prompt-engineer.md"
+  },
+  {
+    "id": "design-inclusive-visuals-specialist",
+    "name": " 📸 Inclusive Visuals Specialist",
+    "description": "",
+    "file_path": "./design/design-inclusive-visuals-specialist.md"
+  },
+  {
+    "id": "design-persona-walkthrough",
+    "name": " Persona Walkthrough Specialist",
+    "description": "",
+    "file_path": "./design/design-persona-walkthrough.md"
+  },
+  {
+    "id": "design-ui-designer",
+    "name": " UI Designer Agent Personality",
+    "description": "",
+    "file_path": "./design/design-ui-designer.md"
+  },
+  {
+    "id": "design-ux-architect",
+    "name": " ArchitectUX Agent Personality",
+    "description": "",
+    "file_path": "./design/design-ux-architect.md"
+  },
+  {
+    "id": "design-ux-researcher",
+    "name": " UX Researcher Agent Personality",
+    "description": "",
+    "file_path": "./design/design-ux-researcher.md"
+  },
+  {
+    "id": "design-visual-storyteller",
+    "name": " Visual Storyteller Agent",
+    "description": "",
+    "file_path": "./design/design-visual-storyteller.md"
+  },
+  {
+    "id": "design-whimsy-injector",
+    "name": " Whimsy Injector Agent Personality",
+    "description": "",
+    "file_path": "./design/design-whimsy-injector.md"
+  },
+  {
+    "id": "AGENT_REGISTRY",
+    "name": " Horizon Angel Agent Registry",
+    "description": "",
+    "file_path": "./docs/AGENT_REGISTRY.md"
+  },
+  {
+    "id": "HORIZON_AGENT_CAPABILITY_MAP",
+    "name": " Horizon Angel Capability Map",
+    "description": "",
+    "file_path": "./docs/HORIZON_AGENT_CAPABILITY_MAP.md"
+  },
+  {
+    "id": "HORIZON_AGENT_OPERATING_POLICY",
+    "name": " Horizon Angel Agent Operating Policy",
+    "description": "",
+    "file_path": "./docs/HORIZON_AGENT_OPERATING_POLICY.md"
+  },
+  {
+    "id": "engineering-ai-data-remediation-engineer",
+    "name": " AI Data Remediation Engineer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-ai-data-remediation-engineer.md"
+  },
+  {
+    "id": "engineering-ai-engineer",
+    "name": " AI Engineer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-ai-engineer.md"
+  },
+  {
+    "id": "engineering-api-platform-engineer",
+    "name": " API Platform Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-api-platform-engineer.md"
+  },
+  {
+    "id": "engineering-autonomous-optimization-architect",
+    "name": " ⚙️ Autonomous Optimization Architect",
+    "description": "",
+    "file_path": "./engineering/engineering-autonomous-optimization-architect.md"
+  },
+  {
+    "id": "engineering-backend-architect",
+    "name": " Backend Architect Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-backend-architect.md"
+  },
+  {
+    "id": "engineering-cms-developer",
+    "name": " 🧱 CMS Developer",
+    "description": "",
+    "file_path": "./engineering/engineering-cms-developer.md"
+  },
+  {
+    "id": "engineering-code-reviewer",
+    "name": " Code Reviewer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-code-reviewer.md"
+  },
+  {
+    "id": "engineering-codebase-onboarding-engineer",
+    "name": " Codebase Onboarding Engineer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-codebase-onboarding-engineer.md"
+  },
+  {
+    "id": "engineering-data-engineer",
+    "name": " Data Engineer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-data-engineer.md"
+  },
+  {
+    "id": "engineering-database-optimizer",
+    "name": " 🗄️ Database Optimizer",
+    "description": "",
+    "file_path": "./engineering/engineering-database-optimizer.md"
+  },
+  {
+    "id": "engineering-database-reliability-engineer",
+    "name": " Database Reliability Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-database-reliability-engineer.md"
+  },
+  {
+    "id": "engineering-desktop-app-engineer",
+    "name": " Desktop App Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-desktop-app-engineer.md"
+  },
+  {
+    "id": "engineering-developer-tooling-engineer",
+    "name": " Developer Tooling Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-developer-tooling-engineer.md"
+  },
+  {
+    "id": "engineering-devops-automator",
+    "name": " DevOps Automator Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-devops-automator.md"
+  },
+  {
+    "id": "engineering-drupal-performance",
+    "name": " ⚡ Drupal Performance Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-drupal-performance.md"
+  },
+  {
+    "id": "engineering-drupal-shopping-cart",
+    "name": " 🛒 Drupal Shopping Cart Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-drupal-shopping-cart.md"
+  },
+  {
+    "id": "engineering-email-intelligence-engineer",
+    "name": " Email Intelligence Engineer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-email-intelligence-engineer.md"
+  },
+  {
+    "id": "engineering-embedded-firmware-engineer",
+    "name": " Embedded Firmware Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-embedded-firmware-engineer.md"
+  },
+  {
+    "id": "engineering-feishu-integration-developer",
+    "name": " Feishu Integration Developer",
+    "description": "",
+    "file_path": "./engineering/engineering-feishu-integration-developer.md"
+  },
+  {
+    "id": "engineering-filament-optimization-specialist",
+    "name": " Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-filament-optimization-specialist.md"
+  },
+  {
+    "id": "engineering-finops-engineer",
+    "name": " FinOps Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-finops-engineer.md"
+  },
+  {
+    "id": "engineering-frontend-developer",
+    "name": " Frontend Developer Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-frontend-developer.md"
+  },
+  {
+    "id": "engineering-gaussdb-expert",
+    "name": " 🗄️ GaussDB OLTP Expert",
+    "description": "",
+    "file_path": "./engineering/engineering-gaussdb-expert.md"
+  },
+  {
+    "id": "engineering-git-workflow-master",
+    "name": " Git Workflow Master Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-git-workflow-master.md"
+  },
+  {
+    "id": "engineering-i18n-engineer",
+    "name": " Internationalization Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-i18n-engineer.md"
+  },
+  {
+    "id": "engineering-identity-access-engineer",
+    "name": " Identity & Access Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-identity-access-engineer.md"
+  },
+  {
+    "id": "engineering-incident-response-commander",
+    "name": " Incident Response Commander Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-incident-response-commander.md"
+  },
+  {
+    "id": "engineering-iot-fleet-engineer",
+    "name": " IoT Fleet Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-iot-fleet-engineer.md"
+  },
+  {
+    "id": "engineering-it-service-manager",
+    "name": " 🖧 IT Service Manager",
+    "description": "",
+    "file_path": "./engineering/engineering-it-service-manager.md"
+  },
+  {
+    "id": "engineering-minimal-change-engineer",
+    "name": " Minimal Change Engineer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-minimal-change-engineer.md"
+  },
+  {
+    "id": "engineering-mobile-app-builder",
+    "name": " Mobile App Builder Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-mobile-app-builder.md"
+  },
+  {
+    "id": "engineering-mobile-release-engineer",
+    "name": " Mobile Release Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-mobile-release-engineer.md"
+  },
+  {
+    "id": "engineering-multi-agent-systems-architect",
+    "name": " 🕸️ Multi-Agent Systems Architect Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-multi-agent-systems-architect.md"
+  },
+  {
+    "id": "engineering-network-engineer",
+    "name": " Network Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-network-engineer.md"
+  },
+  {
+    "id": "engineering-orgscript-engineer",
+    "name": " OrgScript Engineer Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-orgscript-engineer.md"
+  },
+  {
+    "id": "engineering-payments-billing-engineer",
+    "name": " Payments & Billing Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-payments-billing-engineer.md"
+  },
+  {
+    "id": "engineering-privacy-engineer",
+    "name": " Privacy Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-privacy-engineer.md"
+  },
+  {
+    "id": "engineering-prompt-engineer",
+    "name": " Prompt Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-prompt-engineer.md"
+  },
+  {
+    "id": "engineering-rag-pipeline-engineer",
+    "name": " RAG Pipeline Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-rag-pipeline-engineer.md"
+  },
+  {
+    "id": "engineering-rapid-prototyper",
+    "name": " Rapid Prototyper Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-rapid-prototyper.md"
+  },
+  {
+    "id": "engineering-realtime-collaboration-engineer",
+    "name": " Realtime Collaboration Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-realtime-collaboration-engineer.md"
+  },
+  {
+    "id": "engineering-search-relevance-engineer",
+    "name": " Search Relevance Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-search-relevance-engineer.md"
+  },
+  {
+    "id": "engineering-section-508-specialist",
+    "name": " ♿ Section 508 Accessibility Specialist",
+    "description": "",
+    "file_path": "./engineering/engineering-section-508-specialist.md"
+  },
+  {
+    "id": "engineering-senior-developer",
+    "name": " Developer Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-senior-developer.md"
+  },
+  {
+    "id": "engineering-software-architect",
+    "name": " Software Architect Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-software-architect.md"
+  },
+  {
+    "id": "engineering-solidity-smart-contract-engineer",
+    "name": " Solidity Smart Contract Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-solidity-smart-contract-engineer.md"
+  },
+  {
+    "id": "engineering-sre",
+    "name": " SRE (Site Reliability Engineer) Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-sre.md"
+  },
+  {
+    "id": "engineering-technical-writer",
+    "name": " Technical Writer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-technical-writer.md"
+  },
+  {
+    "id": "engineering-uswds-developer",
+    "name": " 🏛️ USWDS Developer",
+    "description": "",
+    "file_path": "./engineering/engineering-uswds-developer.md"
+  },
+  {
+    "id": "engineering-video-streaming-engineer",
+    "name": " Video Streaming Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-video-streaming-engineer.md"
+  },
+  {
+    "id": "engineering-voice-ai-integration-engineer",
+    "name": " 🎙️ Voice AI Integration Engineer Agent",
+    "description": "",
+    "file_path": "./engineering/engineering-voice-ai-integration-engineer.md"
+  },
+  {
+    "id": "engineering-webassembly-engineer",
+    "name": " WebAssembly Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-webassembly-engineer.md"
+  },
+  {
+    "id": "engineering-wechat-mini-program-developer",
+    "name": " WeChat Mini Program Developer Agent Personality",
+    "description": "",
+    "file_path": "./engineering/engineering-wechat-mini-program-developer.md"
+  },
+  {
+    "id": "engineering-wordpress-performance",
+    "name": " ⚡ WordPress Performance Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-wordpress-performance.md"
+  },
+  {
+    "id": "engineering-wordpress-shopping-cart",
+    "name": " 🛍️ WordPress Shopping Cart Engineer",
+    "description": "",
+    "file_path": "./engineering/engineering-wordpress-shopping-cart.md"
+  },
+  {
+    "id": "nexus-spatial-discovery",
+    "name": " Nexus Spatial: Full Agency Discovery Exercise",
+    "description": "",
+    "file_path": "./examples/nexus-spatial-discovery.md"
+  },
+  {
+    "id": "workflow-book-chapter",
+    "name": " Workflow Example: Book Chapter Development",
+    "description": "",
+    "file_path": "./examples/workflow-book-chapter.md"
+  },
+  {
+    "id": "workflow-landing-page",
+    "name": " Multi-Agent Workflow: Landing Page Sprint",
+    "description": "",
+    "file_path": "./examples/workflow-landing-page.md"
+  },
+  {
+    "id": "workflow-startup-mvp",
+    "name": " Multi-Agent Workflow: Startup MVP",
+    "description": "",
+    "file_path": "./examples/workflow-startup-mvp.md"
+  },
+  {
+    "id": "workflow-with-memory",
+    "name": " Multi-Agent Workflow: Startup MVP with Persistent Memory",
+    "description": "",
+    "file_path": "./examples/workflow-with-memory.md"
+  },
+  {
+    "id": "finance-bookkeeper-controller",
+    "name": " 📒 Bookkeeper & Controller Agent",
+    "description": "",
+    "file_path": "./finance/finance-bookkeeper-controller.md"
+  },
+  {
+    "id": "finance-financial-analyst",
+    "name": " 📊 Financial Analyst Agent",
+    "description": "",
+    "file_path": "./finance/finance-financial-analyst.md"
+  },
+  {
+    "id": "finance-fpa-analyst",
+    "name": " 📈 FP&A Analyst Agent",
+    "description": "",
+    "file_path": "./finance/finance-fpa-analyst.md"
+  },
+  {
+    "id": "finance-investment-researcher",
+    "name": " 🔍 Investment Researcher Agent",
+    "description": "",
+    "file_path": "./finance/finance-investment-researcher.md"
+  },
+  {
+    "id": "finance-tax-strategist",
+    "name": " 🏛️ Tax Strategist Agent",
+    "description": "",
+    "file_path": "./finance/finance-tax-strategist.md"
+  },
+  {
+    "id": "blender-addon-engineer",
+    "name": " Blender Add-on Engineer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/blender/blender-addon-engineer.md"
+  },
+  {
+    "id": "game-audio-engineer",
+    "name": " Game Audio Engineer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/game-audio-engineer.md"
+  },
+  {
+    "id": "game-designer",
+    "name": " Game Designer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/game-designer.md"
+  },
+  {
+    "id": "godot-gameplay-scripter",
+    "name": " Godot Gameplay Scripter Agent Personality",
+    "description": "",
+    "file_path": "./game-development/godot/godot-gameplay-scripter.md"
+  },
+  {
+    "id": "godot-multiplayer-engineer",
+    "name": " Godot Multiplayer Engineer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/godot/godot-multiplayer-engineer.md"
+  },
+  {
+    "id": "godot-shader-developer",
+    "name": " Godot Shader Developer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/godot/godot-shader-developer.md"
+  },
+  {
+    "id": "level-designer",
+    "name": " Level Designer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/level-designer.md"
+  },
+  {
+    "id": "narrative-designer",
+    "name": " Narrative Designer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/narrative-designer.md"
+  },
+  {
+    "id": "roblox-avatar-creator",
+    "name": " Roblox Avatar Creator Agent Personality",
+    "description": "",
+    "file_path": "./game-development/roblox-studio/roblox-avatar-creator.md"
+  },
+  {
+    "id": "roblox-experience-designer",
+    "name": " Roblox Experience Designer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/roblox-studio/roblox-experience-designer.md"
+  },
+  {
+    "id": "roblox-systems-scripter",
+    "name": " Roblox Systems Scripter Agent Personality",
+    "description": "",
+    "file_path": "./game-development/roblox-studio/roblox-systems-scripter.md"
+  },
+  {
+    "id": "technical-artist",
+    "name": " Technical Artist Agent Personality",
+    "description": "",
+    "file_path": "./game-development/technical-artist.md"
+  },
+  {
+    "id": "unity-architect",
+    "name": " Unity Architect Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unity/unity-architect.md"
+  },
+  {
+    "id": "unity-editor-tool-developer",
+    "name": " Unity Editor Tool Developer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unity/unity-editor-tool-developer.md"
+  },
+  {
+    "id": "unity-multiplayer-engineer",
+    "name": " Unity Multiplayer Engineer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unity/unity-multiplayer-engineer.md"
+  },
+  {
+    "id": "unity-shader-graph-artist",
+    "name": " Unity Shader Graph Artist Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unity/unity-shader-graph-artist.md"
+  },
+  {
+    "id": "unreal-multiplayer-architect",
+    "name": " Unreal Multiplayer Architect Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unreal-engine/unreal-multiplayer-architect.md"
+  },
+  {
+    "id": "unreal-systems-engineer",
+    "name": " Unreal Systems Engineer Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unreal-engine/unreal-systems-engineer.md"
+  },
+  {
+    "id": "unreal-technical-artist",
+    "name": " Unreal Technical Artist Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unreal-engine/unreal-technical-artist.md"
+  },
+  {
+    "id": "unreal-world-builder",
+    "name": " Unreal World Builder Agent Personality",
+    "description": "",
+    "file_path": "./game-development/unreal-engine/unreal-world-builder.md"
+  },
+  {
+    "id": "gis-3d-scene-developer",
+    "name": " 3DSceneDeveloper Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-3d-scene-developer.md"
+  },
+  {
+    "id": "gis-analyst",
+    "name": " GISAnalyst Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-analyst.md"
+  },
+  {
+    "id": "gis-bim-specialist",
+    "name": " BIMGISS Specialist Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-bim-specialist.md"
+  },
+  {
+    "id": "gis-cartography-designer",
+    "name": " CartographyDesigner Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-cartography-designer.md"
+  },
+  {
+    "id": "gis-drone-reality-mapping",
+    "name": " DroneRealityMapping Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-drone-reality-mapping.md"
+  },
+  {
+    "id": "gis-geoai-ml-engineer",
+    "name": " GeoAIMLEngineer Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-geoai-ml-engineer.md"
+  },
+  {
+    "id": "gis-geoprocessing-specialist",
+    "name": " GeoprocessingSpecialist Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-geoprocessing-specialist.md"
+  },
+  {
+    "id": "gis-qa-engineer",
+    "name": " GISQAEngineer Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-qa-engineer.md"
+  },
+  {
+    "id": "gis-solution-engineer",
+    "name": " GISSolutionEngineer Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-solution-engineer.md"
+  },
+  {
+    "id": "gis-spatial-data-engineer",
+    "name": " SpatialDataEngineer Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-spatial-data-engineer.md"
+  },
+  {
+    "id": "gis-spatial-data-scientist",
+    "name": " SpatialDataScientist Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-spatial-data-scientist.md"
+  },
+  {
+    "id": "gis-technical-consultant",
+    "name": " GISTechnicalConsultant Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-technical-consultant.md"
+  },
+  {
+    "id": "gis-web-gis-developer",
+    "name": " WebGISDeveloper Agent Personality",
+    "description": "",
+    "file_path": "./gis/gis-web-gis-developer.md"
+  },
+  {
+    "id": "healthcare-clinical-evidence-agent",
+    "name": " Clinical Evidence Agent",
+    "description": "",
+    "file_path": "./healthcare/healthcare-clinical-evidence-agent.md"
+  },
+  {
+    "id": "healthcare-innovation-strategist",
+    "name": " Healthcare Innovation Strategist",
+    "description": "",
+    "file_path": "./healthcare/healthcare-innovation-strategist.md"
+  },
+  {
+    "id": "healthcare-sovereign-health-systems-agent",
+    "name": " Sovereign Health Systems Agent",
+    "description": "",
+    "file_path": "./healthcare/healthcare-sovereign-health-systems-agent.md"
+  },
+  {
+    "id": "HORIZON_ANGEL",
+    "name": " Horizon Angel",
+    "description": "",
+    "file_path": "./HORIZON_ANGEL.md"
+  },
+  {
+    "id": "backend-architect-with-memory",
+    "name": " Backend Architect Agent Personality",
+    "description": "",
+    "file_path": "./integrations/mcp-memory/backend-architect-with-memory.md"
+  },
+  {
+    "id": "marketing-aeo-foundations",
+    "name": " AEO Foundations Architect",
+    "description": "",
+    "file_path": "./marketing/marketing-aeo-foundations.md"
+  },
+  {
+    "id": "marketing-agentic-search-optimizer",
+    "name": " Agentic Search Optimizer",
+    "description": "",
+    "file_path": "./marketing/marketing-agentic-search-optimizer.md"
+  },
+  {
+    "id": "marketing-ai-citation-strategist",
+    "name": " AI Citation Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-ai-citation-strategist.md"
+  },
+  {
+    "id": "marketing-app-store-optimizer",
+    "name": " App Store Optimizer Agent Personality",
+    "description": "",
+    "file_path": "./marketing/marketing-app-store-optimizer.md"
+  },
+  {
+    "id": "marketing-baidu-seo-specialist",
+    "name": " Marketing Baidu SEO Specialist",
+    "description": "",
+    "file_path": "./marketing/marketing-baidu-seo-specialist.md"
+  },
+  {
+    "id": "marketing-bilibili-content-strategist",
+    "name": " Marketing Bilibili Content Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-bilibili-content-strategist.md"
+  },
+  {
+    "id": "marketing-book-co-author",
+    "name": " Book Co-Author",
+    "description": "",
+    "file_path": "./marketing/marketing-book-co-author.md"
+  },
+  {
+    "id": "marketing-carousel-growth-engine",
+    "name": " Marketing Carousel Growth Engine",
+    "description": "",
+    "file_path": "./marketing/marketing-carousel-growth-engine.md"
+  },
+  {
+    "id": "marketing-china-ecommerce-operator",
+    "name": " Marketing China E-Commerce Operator",
+    "description": "",
+    "file_path": "./marketing/marketing-china-ecommerce-operator.md"
+  },
+  {
+    "id": "marketing-china-market-localization-strategist",
+    "name": " China Market Localization Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-china-market-localization-strategist.md"
+  },
+  {
+    "id": "marketing-content-creator",
+    "name": " Marketing Content Creator Agent",
+    "description": "",
+    "file_path": "./marketing/marketing-content-creator.md"
+  },
+  {
+    "id": "marketing-cross-border-ecommerce",
+    "name": " Marketing Cross-Border E-Commerce Specialist",
+    "description": "",
+    "file_path": "./marketing/marketing-cross-border-ecommerce.md"
+  },
+  {
+    "id": "marketing-douyin-strategist",
+    "name": " Marketing Douyin Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-douyin-strategist.md"
+  },
+  {
+    "id": "marketing-email-strategist",
+    "name": " Email Marketing Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-email-strategist.md"
+  },
+  {
+    "id": "marketing-global-podcast-strategist",
+    "name": " Marketing Global Podcast Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-global-podcast-strategist.md"
+  },
+  {
+    "id": "marketing-growth-hacker",
+    "name": " Marketing Growth Hacker Agent",
+    "description": "",
+    "file_path": "./marketing/marketing-growth-hacker.md"
+  },
+  {
+    "id": "marketing-instagram-curator",
+    "name": " Marketing Instagram Curator",
+    "description": "",
+    "file_path": "./marketing/marketing-instagram-curator.md"
+  },
+  {
+    "id": "marketing-kuaishou-strategist",
+    "name": " Marketing Kuaishou Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-kuaishou-strategist.md"
+  },
+  {
+    "id": "marketing-linkedin-content-creator",
+    "name": " LinkedIn Content Creator",
+    "description": "",
+    "file_path": "./marketing/marketing-linkedin-content-creator.md"
+  },
+  {
+    "id": "marketing-livestream-commerce-coach",
+    "name": " Marketing Livestream Commerce Coach",
+    "description": "",
+    "file_path": "./marketing/marketing-livestream-commerce-coach.md"
+  },
+  {
+    "id": "marketing-multi-platform-publisher",
+    "name": " Multi-Platform Publisher",
+    "description": "",
+    "file_path": "./marketing/marketing-multi-platform-publisher.md"
+  },
+  {
+    "id": "marketing-podcast-strategist",
+    "name": " Marketing Podcast Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-podcast-strategist.md"
+  },
+  {
+    "id": "marketing-pr-communications-manager",
+    "name": " 📣 PR & Communications Manager",
+    "description": "",
+    "file_path": "./marketing/marketing-pr-communications-manager.md"
+  },
+  {
+    "id": "marketing-private-domain-operator",
+    "name": " Marketing Private Domain Operator",
+    "description": "",
+    "file_path": "./marketing/marketing-private-domain-operator.md"
+  },
+  {
+    "id": "marketing-reddit-community-builder",
+    "name": " Marketing  Community Builder",
+    "description": "",
+    "file_path": "./marketing/marketing-reddit-community-builder.md"
+  },
+  {
+    "id": "marketing-seo-specialist",
+    "name": " Marketing SEO Specialist",
+    "description": "",
+    "file_path": "./marketing/marketing-seo-specialist.md"
+  },
+  {
+    "id": "marketing-short-video-editing-coach",
+    "name": " Marketing Short-Video Editing Coach",
+    "description": "",
+    "file_path": "./marketing/marketing-short-video-editing-coach.md"
+  },
+  {
+    "id": "marketing-social-media-strategist",
+    "name": " Social Media Strategist Agent",
+    "description": "",
+    "file_path": "./marketing/marketing-social-media-strategist.md"
+  },
+  {
+    "id": "marketing-tiktok-strategist",
+    "name": " Marketing TikTok Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-tiktok-strategist.md"
+  },
+  {
+    "id": "marketing-twitter-engager",
+    "name": " Marketing Twitter Engager",
+    "description": "",
+    "file_path": "./marketing/marketing-twitter-engager.md"
+  },
+  {
+    "id": "marketing-video-optimization-specialist",
+    "name": " Marketing Video Optimization Specialist Agent",
+    "description": "",
+    "file_path": "./marketing/marketing-video-optimization-specialist.md"
+  },
+  {
+    "id": "marketing-wechat-official-account",
+    "name": " Marketing WeChat Official Account Manager",
+    "description": "",
+    "file_path": "./marketing/marketing-wechat-official-account.md"
+  },
+  {
+    "id": "marketing-weibo-strategist",
+    "name": " Marketing Weibo Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-weibo-strategist.md"
+  },
+  {
+    "id": "marketing-x-twitter-intelligence-analyst",
+    "name": " Marketing X/Twitter Intelligence Analyst",
+    "description": "",
+    "file_path": "./marketing/marketing-x-twitter-intelligence-analyst.md"
+  },
+  {
+    "id": "marketing-xiaohongshu-specialist",
+    "name": " Marketing Xiaohongshu Specialist",
+    "description": "",
+    "file_path": "./marketing/marketing-xiaohongshu-specialist.md"
+  },
+  {
+    "id": "marketing-zhihu-strategist",
+    "name": " Marketing Zhihu Strategist",
+    "description": "",
+    "file_path": "./marketing/marketing-zhihu-strategist.md"
+  },
+  {
+    "id": "paid-media-auditor",
+    "name": " Paid Media Auditor Agent",
+    "description": "",
+    "file_path": "./paid-media/paid-media-auditor.md"
+  },
+  {
+    "id": "paid-media-creative-strategist",
+    "name": " Paid Media Ad Creative Strategist Agent",
+    "description": "",
+    "file_path": "./paid-media/paid-media-creative-strategist.md"
+  },
+  {
+    "id": "paid-media-paid-social-strategist",
+    "name": " Paid Media Paid Social Strategist Agent",
+    "description": "",
+    "file_path": "./paid-media/paid-media-paid-social-strategist.md"
+  },
+  {
+    "id": "paid-media-ppc-strategist",
+    "name": " Paid Media PPC Campaign Strategist Agent",
+    "description": "",
+    "file_path": "./paid-media/paid-media-ppc-strategist.md"
+  },
+  {
+    "id": "paid-media-programmatic-buyer",
+    "name": " Paid Media Programmatic & Display Buyer Agent",
+    "description": "",
+    "file_path": "./paid-media/paid-media-programmatic-buyer.md"
+  },
+  {
+    "id": "paid-media-search-query-analyst",
+    "name": " Paid Media Search Query Analyst Agent",
+    "description": "",
+    "file_path": "./paid-media/paid-media-search-query-analyst.md"
+  },
+  {
+    "id": "paid-media-tracking-specialist",
+    "name": " Paid Media Tracking & Measurement Specialist Agent",
+    "description": "",
+    "file_path": "./paid-media/paid-media-tracking-specialist.md"
+  },
+  {
+    "id": "product-behavioral-nudge-engine",
+    "name": " 🧠 Behavioral Nudge Engine",
+    "description": "",
+    "file_path": "./product/product-behavioral-nudge-engine.md"
+  },
+  {
+    "id": "product-feedback-synthesizer",
+    "name": " Product Feedback Synthesizer Agent",
+    "description": "",
+    "file_path": "./product/product-feedback-synthesizer.md"
+  },
+  {
+    "id": "product-manager",
+    "name": " 🧭 Product Manager Agent",
+    "description": "",
+    "file_path": "./product/product-manager.md"
+  },
+  {
+    "id": "product-sprint-prioritizer",
+    "name": " Product Sprint Prioritizer Agent",
+    "description": "",
+    "file_path": "./product/product-sprint-prioritizer.md"
+  },
+  {
+    "id": "product-trend-researcher",
+    "name": " Product Trend Researcher Agent",
+    "description": "",
+    "file_path": "./product/product-trend-researcher.md"
+  },
+  {
+    "id": "project-management-experiment-tracker",
+    "name": " Experiment Tracker Agent Personality",
+    "description": "",
+    "file_path": "./project-management/project-management-experiment-tracker.md"
+  },
+  {
+    "id": "project-management-jira-workflow-steward",
+    "name": " Jira Workflow Steward Agent",
+    "description": "",
+    "file_path": "./project-management/project-management-jira-workflow-steward.md"
+  },
+  {
+    "id": "project-management-meeting-notes-specialist",
+    "name": " Meeting Notes Specialist",
+    "description": "",
+    "file_path": "./project-management/project-management-meeting-notes-specialist.md"
+  },
+  {
+    "id": "project-management-project-shepherd",
+    "name": " Project Shepherd Agent Personality",
+    "description": "",
+    "file_path": "./project-management/project-management-project-shepherd.md"
+  },
+  {
+    "id": "project-management-studio-operations",
+    "name": " Studio Operations Agent Personality",
+    "description": "",
+    "file_path": "./project-management/project-management-studio-operations.md"
+  },
+  {
+    "id": "project-management-studio-producer",
+    "name": " Studio Producer Agent Personality",
+    "description": "",
+    "file_path": "./project-management/project-management-studio-producer.md"
+  },
+  {
+    "id": "project-manager-senior",
+    "name": " Project Manager Agent Personality",
+    "description": "",
+    "file_path": "./project-management/project-manager-senior.md"
+  },
+  {
+    "id": "sales-account-strategist",
+    "name": " Account Strategist Agent",
+    "description": "",
+    "file_path": "./sales/sales-account-strategist.md"
+  },
+  {
+    "id": "sales-coach",
+    "name": " Sales Coach Agent",
+    "description": "",
+    "file_path": "./sales/sales-coach.md"
+  },
+  {
+    "id": "sales-deal-strategist",
+    "name": " Deal Strategist Agent",
+    "description": "",
+    "file_path": "./sales/sales-deal-strategist.md"
+  },
+  {
+    "id": "sales-discovery-coach",
+    "name": " Discovery Coach Agent",
+    "description": "",
+    "file_path": "./sales/sales-discovery-coach.md"
+  },
+  {
+    "id": "sales-engineer",
+    "name": " Sales Engineer Agent",
+    "description": "",
+    "file_path": "./sales/sales-engineer.md"
+  },
+  {
+    "id": "sales-offer-lead-gen-strategist",
+    "name": " Offer & Lead Gen Strategist",
+    "description": "",
+    "file_path": "./sales/sales-offer-lead-gen-strategist.md"
+  },
+  {
+    "id": "sales-outbound-strategist",
+    "name": " Outbound Strategist Agent",
+    "description": "",
+    "file_path": "./sales/sales-outbound-strategist.md"
+  },
+  {
+    "id": "sales-pipeline-analyst",
+    "name": " Pipeline Analyst Agent",
+    "description": "",
+    "file_path": "./sales/sales-pipeline-analyst.md"
+  },
+  {
+    "id": "sales-proposal-strategist",
+    "name": " Proposal Strategist Agent",
+    "description": "",
+    "file_path": "./sales/sales-proposal-strategist.md"
+  },
+  {
+    "id": "security-ai-generated-code-auditor",
+    "name": " AI-Generated Code Security Auditor",
+    "description": "",
+    "file_path": "./security/security-ai-generated-code-auditor.md"
+  },
+  {
+    "id": "security-appsec-engineer",
+    "name": " Application Security Engineer",
+    "description": "",
+    "file_path": "./security/security-appsec-engineer.md"
+  },
+  {
+    "id": "security-architect",
+    "name": " Security Architect Agent",
+    "description": "",
+    "file_path": "./security/security-architect.md"
+  },
+  {
+    "id": "security-blockchain-security-auditor",
+    "name": " Blockchain Security Auditor",
+    "description": "",
+    "file_path": "./security/security-blockchain-security-auditor.md"
+  },
+  {
+    "id": "security-cloud-security-architect",
+    "name": " Cloud Security Architect",
+    "description": "",
+    "file_path": "./security/security-cloud-security-architect.md"
+  },
+  {
+    "id": "security-compliance-auditor",
+    "name": " Compliance Auditor Agent",
+    "description": "",
+    "file_path": "./security/security-compliance-auditor.md"
+  },
+  {
+    "id": "security-incident-responder",
+    "name": " Incident Responder",
+    "description": "",
+    "file_path": "./security/security-incident-responder.md"
+  },
+  {
+    "id": "security-penetration-tester",
+    "name": " Penetration Tester",
+    "description": "",
+    "file_path": "./security/security-penetration-tester.md"
+  },
+  {
+    "id": "security-secrets-credential-engineer",
+    "name": " Secrets & Credential Hygiene Engineer",
+    "description": "",
+    "file_path": "./security/security-secrets-credential-engineer.md"
+  },
+  {
+    "id": "security-senior-secops",
+    "name": " Senior SecOps Engineer",
+    "description": "",
+    "file_path": "./security/security-senior-secops.md"
+  },
+  {
+    "id": "security-threat-detection-engineer",
+    "name": " Threat Detection Engineer Agent",
+    "description": "",
+    "file_path": "./security/security-threat-detection-engineer.md"
+  },
+  {
+    "id": "security-threat-intelligence-analyst",
+    "name": " Threat Intelligence Analyst",
+    "description": "",
+    "file_path": "./security/security-threat-intelligence-analyst.md"
+  },
+  {
+    "id": "macos-spatial-metal-engineer",
+    "name": " macOS Spatial/Metal Engineer Agent Personality",
+    "description": "",
+    "file_path": "./spatial-computing/macos-spatial-metal-engineer.md"
+  },
+  {
+    "id": "terminal-integration-specialist",
+    "name": " Terminal Integration Specialist",
+    "description": "",
+    "file_path": "./spatial-computing/terminal-integration-specialist.md"
+  },
+  {
+    "id": "visionos-spatial-engineer",
+    "name": " visionOS Spatial Engineer",
+    "description": "",
+    "file_path": "./spatial-computing/visionos-spatial-engineer.md"
+  },
+  {
+    "id": "xr-cockpit-interaction-specialist",
+    "name": " XR Cockpit Interaction Specialist Agent Personality",
+    "description": "",
+    "file_path": "./spatial-computing/xr-cockpit-interaction-specialist.md"
+  },
+  {
+    "id": "xr-immersive-developer",
+    "name": " XR Immersive Developer Agent Personality",
+    "description": "",
+    "file_path": "./spatial-computing/xr-immersive-developer.md"
+  },
+  {
+    "id": "xr-interface-architect",
+    "name": " XR Interface Architect Agent Personality",
+    "description": "",
+    "file_path": "./spatial-computing/xr-interface-architect.md"
+  },
+  {
+    "id": "accounts-payable-agent",
+    "name": " Accounts Payable Agent Personality",
+    "description": "",
+    "file_path": "./specialized/accounts-payable-agent.md"
+  },
+  {
+    "id": "agentic-identity-trust",
+    "name": " Agentic Identity & Trust Architect",
+    "description": "",
+    "file_path": "./specialized/agentic-identity-trust.md"
+  },
+  {
+    "id": "agents-orchestrator",
+    "name": " AgentsOrchestrator Agent Personality",
+    "description": "",
+    "file_path": "./specialized/agents-orchestrator.md"
+  },
+  {
+    "id": "automation-governance-architect",
+    "name": " Automation Governance Architect",
+    "description": "",
+    "file_path": "./specialized/automation-governance-architect.md"
+  },
+  {
+    "id": "business-strategist",
+    "name": " ♟️ Business Strategist",
+    "description": "",
+    "file_path": "./specialized/business-strategist.md"
+  },
+  {
+    "id": "change-management-consultant",
+    "name": " 🔄 Change Management Consultant",
+    "description": "",
+    "file_path": "./specialized/change-management-consultant.md"
+  },
+  {
+    "id": "chief-financial-officer",
+    "name": " 💼 Chief Financial Officer Agent",
+    "description": "",
+    "file_path": "./specialized/chief-financial-officer.md"
+  },
+  {
+    "id": "corporate-training-designer",
+    "name": " Corporate Training Designer",
+    "description": "",
+    "file_path": "./specialized/corporate-training-designer.md"
+  },
+  {
+    "id": "customer-service",
+    "name": " 🎧 Customer Service Agent",
+    "description": "",
+    "file_path": "./specialized/customer-service.md"
+  },
+  {
+    "id": "customer-success-manager",
+    "name": " 🌟 Customer Success Manager",
+    "description": "",
+    "file_path": "./specialized/customer-success-manager.md"
+  },
+  {
+    "id": "data-consolidation-agent",
+    "name": " Data Consolidation Agent",
+    "description": "",
+    "file_path": "./specialized/data-consolidation-agent.md"
+  },
+  {
+    "id": "data-privacy-officer",
+    "name": " 🔐 Data Privacy Officer Agent",
+    "description": "",
+    "file_path": "./specialized/data-privacy-officer.md"
+  },
+  {
+    "id": "esg-sustainability-officer",
+    "name": " 🌱 ESG & Sustainability Officer Agent",
+    "description": "",
+    "file_path": "./specialized/esg-sustainability-officer.md"
+  },
+  {
+    "id": "government-digital-presales-consultant",
+    "name": " Government Digital Presales Consultant",
+    "description": "",
+    "file_path": "./specialized/government-digital-presales-consultant.md"
+  },
+  {
+    "id": "grant-writer",
+    "name": " 📝 Grant Writer",
+    "description": "",
+    "file_path": "./specialized/grant-writer.md"
+  },
+  {
+    "id": "healthcare-aging-parent-care-companion",
+    "name": " 🧡 Aging Parent Care Companion",
+    "description": "",
+    "file_path": "./specialized/healthcare-aging-parent-care-companion.md"
+  },
+  {
+    "id": "healthcare-customer-service",
+    "name": " 🏥 Healthcare Customer Service Agent",
+    "description": "",
+    "file_path": "./specialized/healthcare-customer-service.md"
+  },
+  {
+    "id": "healthcare-marketing-compliance",
+    "name": " Healthcare Marketing Compliance Specialist",
+    "description": "",
+    "file_path": "./specialized/healthcare-marketing-compliance.md"
+  },
+  {
+    "id": "hospitality-guest-services",
+    "name": " 🏨 Hospitality Guest Services Agent",
+    "description": "",
+    "file_path": "./specialized/hospitality-guest-services.md"
+  },
+  {
+    "id": "hr-onboarding",
+    "name": " 🤝 HR Onboarding Agent",
+    "description": "",
+    "file_path": "./specialized/hr-onboarding.md"
+  },
+  {
+    "id": "identity-graph-operator",
+    "name": " Identity Graph Operator",
+    "description": "",
+    "file_path": "./specialized/identity-graph-operator.md"
+  },
+  {
+    "id": "language-translator",
+    "name": " 🌐 Language Translator",
+    "description": "",
+    "file_path": "./specialized/language-translator.md"
+  },
+  {
+    "id": "legal-billing-time-tracking",
+    "name": " ⏱️ Legal Billing & Time Tracking Agent",
+    "description": "",
+    "file_path": "./specialized/legal-billing-time-tracking.md"
+  },
+  {
+    "id": "legal-client-intake",
+    "name": " 📋 Legal Client Intake Agent",
+    "description": "",
+    "file_path": "./specialized/legal-client-intake.md"
+  },
+  {
+    "id": "legal-document-review",
+    "name": " ⚖️ Legal Document Review Agent",
+    "description": "",
+    "file_path": "./specialized/legal-document-review.md"
+  },
+  {
+    "id": "loan-officer-assistant",
+    "name": " 🏦 Loan Officer Assistant Agent",
+    "description": "",
+    "file_path": "./specialized/loan-officer-assistant.md"
+  },
+  {
+    "id": "lsp-index-engineer",
+    "name": " LSP/Index Engineer Agent Personality",
+    "description": "",
+    "file_path": "./specialized/lsp-index-engineer.md"
+  },
+  {
+    "id": "ma-integration-manager",
+    "name": " 🤝 M&A Integration Manager Agent",
+    "description": "",
+    "file_path": "./specialized/ma-integration-manager.md"
+  },
+  {
+    "id": "medical-billing-coding-specialist",
+    "name": " 🏥 Medical Billing & Coding Specialist",
+    "description": "",
+    "file_path": "./specialized/medical-billing-coding-specialist.md"
+  },
+  {
+    "id": "operations-manager",
+    "name": " ⚙️ Operations Manager Agent",
+    "description": "",
+    "file_path": "./specialized/operations-manager.md"
+  },
+  {
+    "id": "organizational-psychologist",
+    "name": " 🧠 Organizational Psychologist Agent",
+    "description": "",
+    "file_path": "./specialized/organizational-psychologist.md"
+  },
+  {
+    "id": "personal-growth-mentor",
+    "name": " 🌱 Personal Growth Mentor",
+    "description": "",
+    "file_path": "./specialized/personal-growth-mentor.md"
+  },
+  {
+    "id": "real-estate-buyer-seller",
+    "name": " 🏠 Real Estate Buyer & Seller Agent",
+    "description": "",
+    "file_path": "./specialized/real-estate-buyer-seller.md"
+  },
+  {
+    "id": "recruitment-specialist",
+    "name": " Recruitment Specialist Agent",
+    "description": "",
+    "file_path": "./specialized/recruitment-specialist.md"
+  },
+  {
+    "id": "report-distribution-agent",
+    "name": " Report Distribution Agent",
+    "description": "",
+    "file_path": "./specialized/report-distribution-agent.md"
+  },
+  {
+    "id": "resume-tailor",
+    "name": " Resume Tailor Agent",
+    "description": "",
+    "file_path": "./specialized/resume-tailor.md"
+  },
+  {
+    "id": "retail-customer-returns",
+    "name": " 🛒 Retail Customer Returns Agent",
+    "description": "",
+    "file_path": "./specialized/retail-customer-returns.md"
+  },
+  {
+    "id": "sales-data-extraction-agent",
+    "name": " Sales Data Extraction Agent",
+    "description": "",
+    "file_path": "./specialized/sales-data-extraction-agent.md"
+  },
+  {
+    "id": "sales-outreach",
+    "name": " 🎯 Sales Outreach Agent",
+    "description": "",
+    "file_path": "./specialized/sales-outreach.md"
+  },
+  {
+    "id": "specialized-chief-of-staff",
+    "name": " 🧭 Chief of Staff",
+    "description": "",
+    "file_path": "./specialized/specialized-chief-of-staff.md"
+  },
+  {
+    "id": "specialized-civil-engineer",
+    "name": " Civil Engineer Agent",
+    "description": "",
+    "file_path": "./specialized/specialized-civil-engineer.md"
+  },
+  {
+    "id": "specialized-codebase-archaeologist",
+    "name": " Codebase Archaeologist Agent Personality",
+    "description": "",
+    "file_path": "./specialized/specialized-codebase-archaeologist.md"
+  },
+  {
+    "id": "specialized-cultural-intelligence-strategist",
+    "name": " 🌍 Cultural Intelligence Strategist",
+    "description": "",
+    "file_path": "./specialized/specialized-cultural-intelligence-strategist.md"
+  },
+  {
+    "id": "specialized-developer-advocate",
+    "name": " Developer Advocate Agent",
+    "description": "",
+    "file_path": "./specialized/specialized-developer-advocate.md"
+  },
+  {
+    "id": "specialized-document-generator",
+    "name": " Document Generator Agent",
+    "description": "",
+    "file_path": "./specialized/specialized-document-generator.md"
+  },
+  {
+    "id": "specialized-fedramp-rmf-compliance",
+    "name": " 🛡️ FedRAMP & RMF Compliance Engineer",
+    "description": "",
+    "file_path": "./specialized/specialized-fedramp-rmf-compliance.md"
+  },
+  {
+    "id": "specialized-french-consulting-market",
+    "name": " French Consulting Market Navigator",
+    "description": "",
+    "file_path": "./specialized/specialized-french-consulting-market.md"
+  },
+  {
+    "id": "specialized-korean-business-navigator",
+    "name": " 🧠 Your Identity & Memory",
+    "description": "",
+    "file_path": "./specialized/specialized-korean-business-navigator.md"
+  },
+  {
+    "id": "specialized-mcp-builder",
+    "name": " MCP Builder Agent",
+    "description": "",
+    "file_path": "./specialized/specialized-mcp-builder.md"
+  },
+  {
+    "id": "specialized-model-qa",
+    "name": " Model QA Specialist",
+    "description": "",
+    "file_path": "./specialized/specialized-model-qa.md"
+  },
+  {
+    "id": "specialized-pricing-analyst",
+    "name": " Pricing Analyst Agent",
+    "description": "",
+    "file_path": "./specialized/specialized-pricing-analyst.md"
+  },
+  {
+    "id": "specialized-salesforce-architect",
+    "name": " Salesforce Architect",
+    "description": "",
+    "file_path": "./specialized/specialized-salesforce-architect.md"
+  },
+  {
+    "id": "specialized-strategy-duel-agent",
+    "name": " Strategy Duel Agent",
+    "description": "",
+    "file_path": "./specialized/specialized-strategy-duel-agent.md"
+  },
+  {
+    "id": "specialized-workflow-architect",
+    "name": " Workflow Architect Agent Personality",
+    "description": "",
+    "file_path": "./specialized/specialized-workflow-architect.md"
+  },
+  {
+    "id": "study-abroad-advisor",
+    "name": " Study Abroad Advisor",
+    "description": "",
+    "file_path": "./specialized/study-abroad-advisor.md"
+  },
+  {
+    "id": "supply-chain-strategist",
+    "name": " Supply Chain Strategist Agent",
+    "description": "",
+    "file_path": "./specialized/supply-chain-strategist.md"
+  },
+  {
+    "id": "zk-steward",
+    "name": " ZK Steward Agent",
+    "description": "",
+    "file_path": "./specialized/zk-steward.md"
+  },
+  {
+    "id": "agent-activation-prompts",
+    "name": " 🎯 NEXUS Agent Activation Prompts",
+    "description": "",
+    "file_path": "./strategy/coordination/agent-activation-prompts.md"
+  },
+  {
+    "id": "handoff-templates",
+    "name": " 📋 NEXUS Handoff Templates",
+    "description": "",
+    "file_path": "./strategy/coordination/handoff-templates.md"
+  },
+  {
+    "id": "EXECUTIVE-BRIEF",
+    "name": " 📑 NEXUS Executive Brief",
+    "description": "",
+    "file_path": "./strategy/EXECUTIVE-BRIEF.md"
+  },
+  {
+    "id": "nexus-strategy",
+    "name": " 🌐 NEXUS — Network of EXperts, Unified in Strategy",
+    "description": "",
+    "file_path": "./strategy/nexus-strategy.md"
+  },
+  {
+    "id": "phase-0-discovery",
+    "name": " 🔍 Phase 0 Playbook — Intelligence & Discovery",
+    "description": "",
+    "file_path": "./strategy/playbooks/phase-0-discovery.md"
+  },
+  {
+    "id": "phase-1-strategy",
+    "name": " 🏗️ Phase 1 Playbook — Strategy & Architecture",
+    "description": "",
+    "file_path": "./strategy/playbooks/phase-1-strategy.md"
+  },
+  {
+    "id": "phase-2-foundation",
+    "name": " ⚙️ Phase 2 Playbook — Foundation & Scaffolding",
+    "description": "",
+    "file_path": "./strategy/playbooks/phase-2-foundation.md"
+  },
+  {
+    "id": "phase-3-build",
+    "name": " 🔨 Phase 3 Playbook — Build & Iterate",
+    "description": "",
+    "file_path": "./strategy/playbooks/phase-3-build.md"
+  },
+  {
+    "id": "phase-4-hardening",
+    "name": " 🛡️ Phase 4 Playbook — Quality & Hardening",
+    "description": "",
+    "file_path": "./strategy/playbooks/phase-4-hardening.md"
+  },
+  {
+    "id": "phase-5-launch",
+    "name": " 🚀 Phase 5 Playbook — Launch & Growth",
+    "description": "",
+    "file_path": "./strategy/playbooks/phase-5-launch.md"
+  },
+  {
+    "id": "phase-6-operate",
+    "name": " 🔄 Phase 6 Playbook — Operate & Evolve",
+    "description": "",
+    "file_path": "./strategy/playbooks/phase-6-operate.md"
+  },
+  {
+    "id": "QUICKSTART",
+    "name": " ⚡ NEXUS Quick-Start Guide",
+    "description": "",
+    "file_path": "./strategy/QUICKSTART.md"
+  },
+  {
+    "id": "scenario-enterprise-feature",
+    "name": " 🏢 Runbook: Enterprise Feature Development",
+    "description": "",
+    "file_path": "./strategy/runbooks/scenario-enterprise-feature.md"
+  },
+  {
+    "id": "scenario-incident-response",
+    "name": " 🚨 Runbook: Incident Response",
+    "description": "",
+    "file_path": "./strategy/runbooks/scenario-incident-response.md"
+  },
+  {
+    "id": "scenario-marketing-campaign",
+    "name": " 📢 Runbook: Multi-Channel Marketing Campaign",
+    "description": "",
+    "file_path": "./strategy/runbooks/scenario-marketing-campaign.md"
+  },
+  {
+    "id": "scenario-startup-mvp",
+    "name": " 🚀 Runbook: Startup MVP Build",
+    "description": "",
+    "file_path": "./strategy/runbooks/scenario-startup-mvp.md"
+  },
+  {
+    "id": "support-analytics-reporter",
+    "name": " Analytics Reporter Agent Personality",
+    "description": "",
+    "file_path": "./support/support-analytics-reporter.md"
+  },
+  {
+    "id": "support-executive-summary-generator",
+    "name": " Executive Summary Generator Agent Personality",
+    "description": "",
+    "file_path": "./support/support-executive-summary-generator.md"
+  },
+  {
+    "id": "support-finance-tracker",
+    "name": " Finance Tracker Agent Personality",
+    "description": "",
+    "file_path": "./support/support-finance-tracker.md"
+  },
+  {
+    "id": "support-infrastructure-maintainer",
+    "name": " Infrastructure Maintainer Agent Personality",
+    "description": "",
+    "file_path": "./support/support-infrastructure-maintainer.md"
+  },
+  {
+    "id": "support-legal-compliance-checker",
+    "name": " Legal Compliance Checker Agent Personality",
+    "description": "",
+    "file_path": "./support/support-legal-compliance-checker.md"
+  },
+  {
+    "id": "support-support-responder",
+    "name": " Support Responder Agent Personality",
+    "description": "",
+    "file_path": "./support/support-support-responder.md"
+  },
+  {
+    "id": "testing-accessibility-auditor",
+    "name": " Accessibility Auditor Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-accessibility-auditor.md"
+  },
+  {
+    "id": "testing-api-tester",
+    "name": " API Tester Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-api-tester.md"
+  },
+  {
+    "id": "testing-evidence-collector",
+    "name": " QA Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-evidence-collector.md"
+  },
+  {
+    "id": "testing-performance-benchmarker",
+    "name": " Performance Benchmarker Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-performance-benchmarker.md"
+  },
+  {
+    "id": "testing-reality-checker",
+    "name": " Integration Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-reality-checker.md"
+  },
+  {
+    "id": "testing-test-automation-engineer",
+    "name": " Test Automation Engineer",
+    "description": "",
+    "file_path": "./testing/testing-test-automation-engineer.md"
+  },
+  {
+    "id": "testing-test-results-analyzer",
+    "name": " Test Results Analyzer Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-test-results-analyzer.md"
+  },
+  {
+    "id": "testing-tool-evaluator",
+    "name": " Tool Evaluator Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-tool-evaluator.md"
+  },
+  {
+    "id": "testing-workflow-optimizer",
+    "name": " Workflow Optimizer Agent Personality",
+    "description": "",
+    "file_path": "./testing/testing-workflow-optimizer.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/accepts/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/body-parser/HISTORY.md"
+  },
+  {
+    "id": "History",
+    "name": "History",
+    "description": "",
+    "file_path": "./web/node_modules/bytes/History.md"
+  },
+  {
+    "id": "Readme",
+    "name": " Bytes utility",
+    "description": "",
+    "file_path": "./web/node_modules/bytes/Readme.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/call-bind-apply-helpers/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/call-bound/CHANGELOG.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/content-disposition/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/content-type/HISTORY.md"
+  },
+  {
+    "id": "History",
+    "name": "History",
+    "description": "",
+    "file_path": "./web/node_modules/cookie-signature/History.md"
+  },
+  {
+    "id": "Readme",
+    "name": " cookie-signature",
+    "description": "",
+    "file_path": "./web/node_modules/cookie-signature/Readme.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": "CHANGELOG",
+    "description": "",
+    "file_path": "./web/node_modules/debug/CHANGELOG.md"
+  },
+  {
+    "id": "History",
+    "name": "History",
+    "description": "",
+    "file_path": "./web/node_modules/depd/History.md"
+  },
+  {
+    "id": "Readme",
+    "name": " depd",
+    "description": "",
+    "file_path": "./web/node_modules/depd/Readme.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/dunder-proto/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/es-define-property/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/es-errors/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/es-object-atoms/CHANGELOG.md"
+  },
+  {
+    "id": "Readme",
+    "name": " escape-html",
+    "description": "",
+    "file_path": "./web/node_modules/escape-html/Readme.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/etag/HISTORY.md"
+  },
+  {
+    "id": "History",
+    "name": "History",
+    "description": "",
+    "file_path": "./web/node_modules/express/History.md"
+  },
+  {
+    "id": "Readme",
+    "name": " Table of contents",
+    "description": "",
+    "file_path": "./web/node_modules/express/Readme.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/finalhandler/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/forwarded/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/fresh/HISTORY.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/function-bind/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/get-intrinsic/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/get-proto/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/gopd/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/has-symbols/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/hasown/CHANGELOG.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/http-errors/HISTORY.md"
+  },
+  {
+    "id": "Changelog",
+    "name": " 0.4.24 / 2018-08-22",
+    "description": "",
+    "file_path": "./web/node_modules/iconv-lite/Changelog.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/math-intrinsics/CHANGELOG.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/media-typer/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/merge-descriptors/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/methods/HISTORY.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/mime/CHANGELOG.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/mime-db/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/mime-types/HISTORY.md"
+  },
+  {
+    "id": "license",
+    "name": "license",
+    "description": "",
+    "file_path": "./web/node_modules/ms/license.md"
+  },
+  {
+    "id": "readme",
+    "name": " ms",
+    "description": "",
+    "file_path": "./web/node_modules/ms/readme.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/negotiator/HISTORY.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/object-inspect/CHANGELOG.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/on-finished/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/parseurl/HISTORY.md"
+  },
+  {
+    "id": "Readme",
+    "name": " Path-to-RegExp",
+    "description": "",
+    "file_path": "./web/node_modules/path-to-regexp/Readme.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/proxy-addr/HISTORY.md"
+  },
+  {
+    "id": "THREAT_MODEL",
+    "name": " Threat Model for qs (querystring parsing library)",
+    "description": "",
+    "file_path": "./web/node_modules/qs/.github/THREAT_MODEL.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " **6.16.0**",
+    "description": "",
+    "file_path": "./web/node_modules/qs/CHANGELOG.md"
+  },
+  {
+    "id": "LICENSE",
+    "name": "LICENSE",
+    "description": "",
+    "file_path": "./web/node_modules/qs/LICENSE.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/range-parser/HISTORY.md"
+  },
+  {
+    "id": "Porting-Buffer",
+    "name": " Porting to the Buffer.from/Buffer.alloc API",
+    "description": "",
+    "file_path": "./web/node_modules/safer-buffer/Porting-Buffer.md"
+  },
+  {
+    "id": "Readme",
+    "name": " safer-buffer [![travis][travis-image]][travis-url] [![npm][npm-image]][npm-url] [![javascript style guide][standard-image]][standard-url] [![Security Responsible Disclosure][secuirty-image]][secuirty-url]",
+    "description": "",
+    "file_path": "./web/node_modules/safer-buffer/Readme.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/send/HISTORY.md"
+  },
+  {
+    "id": "license",
+    "name": "license",
+    "description": "",
+    "file_path": "./web/node_modules/send/node_modules/ms/license.md"
+  },
+  {
+    "id": "readme",
+    "name": " ms",
+    "description": "",
+    "file_path": "./web/node_modules/send/node_modules/ms/readme.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/serve-static/HISTORY.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/side-channel/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/side-channel-list/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/side-channel-map/CHANGELOG.md"
+  },
+  {
+    "id": "CHANGELOG",
+    "name": " Changelog",
+    "description": "",
+    "file_path": "./web/node_modules/side-channel-weakmap/CHANGELOG.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/statuses/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/toidentifier/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/type-is/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/unpipe/HISTORY.md"
+  },
+  {
+    "id": "HISTORY",
+    "name": "HISTORY",
+    "description": "",
+    "file_path": "./web/node_modules/vary/HISTORY.md"
+  }
+]

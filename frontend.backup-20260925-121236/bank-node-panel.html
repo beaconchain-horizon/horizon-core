@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل بانک نود · Horizon Angel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{font-family:Tahoma;box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(135deg,#020617,#0f172a,#1e1b4b);color:#eef2ff;min-height:100vh;padding:2rem}
+.cont{max-width:1300px;margin:0 auto}
+.card{background:rgba(15,23,42,.85);backdrop-filter:blur(20px);border:1px solid rgba(79,158,255,.2);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem}
+.hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+.hdr h1{font-size:1.5rem;background:linear-gradient(135deg,#4f9eff,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.conn{font-size:.8rem;color:#8fa2dc;margin-top:.3rem}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:.3rem}
+.dot.on{background:#4ade80;box-shadow:0 0 10px #4ade80}
+.dot.off{background:#f87171;box-shadow:0 0 10px #f87171}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat{padding:1.2rem;background:rgba(0,0,0,.35);border-radius:1rem;border:1px solid rgba(79,158,255,.15);text-align:center}
+.stat .num{font-size:1.6rem;font-weight:900;font-family:monospace}
+.stat .lbl{font-size:.75rem;color:#8fa2dc;margin-top:.3rem}
+.stat.green .num{color:#4ade80}
+.stat.yellow .num{color:#facc15}
+.stat.blue .num{color:#4f9eff}
+.stat.red .num{color:#f87171}
+.stat.purple .num{color:#c084fc}
+.grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:1.5rem}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+h3{color:#4f9eff;margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:.5rem}
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:.75rem;color:#8fa2dc;margin-bottom:.4rem}
+.fg input,.fg select{width:100%;background:#020617;border:1px solid #334155;border-radius:.8rem;padding:.9rem;color:#fff;font-size:.9rem;font-family:monospace;outline:none}
+.fg input:focus,.fg select:focus{border-color:#4f9eff;box-shadow:0 0 20px rgba(79,158,255,.3)}
+.btn{background:linear-gradient(135deg,#4f9eff,#c084fc);color:#fff;border:none;padding:.8rem 1.5rem;border-radius:.8rem;font-weight:700;cursor:pointer;font-size:.85rem;font-family:Tahoma;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(79,158,255,.4)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.full{width:100%}
+.btn.outline{background:transparent;border:1px solid #4f9eff;color:#4f9eff}
+.tbl{width:100%;border-collapse:collapse;border-radius:1rem;overflow:hidden;margin-top:.5rem}
+.tbl th{background:linear-gradient(135deg,#1e293b,#0f172a);color:#4f9eff;padding:.7rem;text-align:right;font-size:.7rem}
+.tbl td{padding:.7rem;border-bottom:1px solid rgba(255,255,255,.05);font-size:.78rem}
+.tbl tr:hover td{background:rgba(79,158,255,.05)}
+.mono{font-family:monospace;font-size:.72rem;word-break:break-all}
+.badge{padding:.25rem .7rem;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-block}
+.badge.pending{background:rgba(250,204,21,.15);color:#facc15}
+.badge.synced{background:rgba(74,222,128,.15);color:#4ade80}
+.badge.rejected{background:rgba(248,113,113,.15);color:#f87171}
+.bar{height:8px;background:rgba(255,255,255,.05);border-radius:10px;overflow:hidden;margin-top:.5rem;display:flex}
+.bar-conf{background:linear-gradient(90deg,#4ade80,#22c55e)}
+.bar-res{background:linear-gradient(90deg,#facc15,#f59e0b)}
+.toast{position:fixed;top:2rem;left:50%;transform:translateX(-50%);background:#1e293b;padding:1rem 2rem;border-radius:1rem;border:1px solid #4f9eff;color:#fff;z-index:9999;display:none;font-size:.9rem;max-width:90vw}
+.toast.success{border-color:#4ade80;color:#4ade80}
+.toast.error{border-color:#f87171;color:#f87171}
+.empty{text-align:center;color:#94a3b8;padding:2rem;font-size:.85rem}
+.help{font-size:.72rem;color:#8fa2dc;margin-top:.5rem;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="cont">
+
+<div class="hdr">
+<div>
+<h1><i class="fas fa-building-columns"></i> پنل بانک نود</h1>
+<div class="conn">
+<span id="conn-indicator"><span class="dot off"></span>در حال اتصال...</span>
+&nbsp;·&nbsp; <span class="mono" id="node-url">—</span>
+&nbsp;·&nbsp; بانک: <b id="bank-id-show">—</b>
+</div>
+</div>
+<button class="btn outline" onclick="refreshAll()"><i class="fas fa-rotate"></i> رفرش</button>
+</div>
+
+<!-- BALANCE -->
+<div class="card">
+<h3><i class="fas fa-wallet"></i> موجودی محلی</h3>
+<div class="stats">
+<div class="stat green"><div class="num" id="b-confirmed">—</div><div class="lbl">تأییدشده (confirmed)</div></div>
+<div class="stat yellow"><div class="num" id="b-reserved">—</div><div class="lbl">رزروشده (reserved)</div></div>
+<div class="stat blue"><div class="num" id="b-available">—</div><div class="lbl">قابل استفاده</div></div>
+</div>
+<div class="bar">
+<div class="bar-conf" id="bar-conf" style="width:0%"></div>
+<div class="bar-res" id="bar-res" style="width:0%"></div>
+</div>
+<div class="help">
+<b>تأییدشده</b> = آخرین موجودی که از سوئیچ مرکزی گرفته شد ·
+<b>رزروشده</b> = مجموع تراکنش‌های pending ·
+<b>قابل استفاده</b> = تأییدشده - رزروشده
+</div>
+</div>
+
+<!-- STATUS COUNTERS -->
+<div class="card">
+<h3><i class="fas fa-chart-simple"></i> وضعیت تراکنش‌های محلی</h3>
+<div class="stats" style="margin-bottom:0">
+<div class="stat blue"><div class="num" id="s-total">—</div><div class="lbl">کل</div></div>
+<div class="stat yellow"><div class="num" id="s-pending">—</div><div class="lbl">در انتظار sync</div></div>
+<div class="stat green"><div class="num" id="s-synced">—</div><div class="lbl">sync شده</div></div>
+<div class="stat red"><div class="num" id="s-rejected">—</div><div class="lbl">رد شده</div></div>
+</div>
+</div>
+
+<div class="grid2">
+
+<!-- NEW TX FORM -->
+<div class="card">
+<h3><i class="fas fa-paper-plane"></i> تراکنش آفلاین جدید</h3>
+<div class="fg">
+<label>به بانک</label>
+<select id="tx-to">
+<option value="bank_saderat">bank_saderat</option>
+<option value="bank_markazi">bank_markazi</option>
+<option value="bank_keshavarzi">bank_keshavarzi</option>
+</select>
+</div>
+<div class="fg">
+<label>مبلغ</label>
+<input id="tx-amount" type="number" placeholder="1000000" min="1">
+</div>
+<div class="fg">
+<label>نوع</label>
+<select id="tx-type">
+<option value="transfer">transfer</option>
+<option value="deposit">deposit</option>
+<option value="withdrawal">withdrawal</option>
+</select>
+</div>
+<button class="btn full" id="btn-submit" onclick="submitTx()"><i class="fas fa-signature"></i> ساخت تراکنش</button>
+<div id="tx-result" style="margin-top:1rem"></div>
+</div>
+
+<!-- MANUAL SYNC -->
+<div class="card">
+<h3><i class="fas fa-cloud-arrow-up"></i> Sync دستی</h3>
+<p class="help" style="margin-bottom:1rem">Bank node به صورت خودکار هر ۱۵ ثانیه سعی می‌کنه تراکنش‌های pending رو به سوئیچ مرکزی بفرسته. اگه می‌خوای فوری sync کنی، این دکمه رو بزن.</p>
+<button class="btn full" id="btn-sync" onclick="manualSync()"><i class="fas fa-rotate"></i> Sync الان</button>
+<div id="sync-result" style="margin-top:1rem"></div>
+</div>
+
+</div>
+
+<!-- TX LIST -->
+<div class="card">
+<h3><i class="fas fa-list"></i> تراکنش‌های محلی</h3>
+<div id="tx-list"><div class="empty">در حال بارگذاری...</div></div>
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+var NODE_URL = 'https://beaconchain-horizon.github.io';
+
+function toast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (type || '');
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3500);
+}
+
+function fmt(n) {
+    return (n || 0).toLocaleString('fa-IR');
+}
+
+function setConn(online) {
+    var el = document.getElementById('conn-indicator');
+    if (online) {
+        el.innerHTML = '<span class="dot on"></span>متصل';
+    } else {
+        el.innerHTML = '<span class="dot off"></span>قطع';
+    }
+}
+
+// ============================================================
+// LOADERS
+// ============================================================
+
+function refreshAll() {
+    loadStatus();
+    loadTx();
+}
+
+function loadStatus() {
+    fetch(NODE_URL + '/status')
+        .then(r => r.json())
+        .then(d => {
+            setConn(true);
+            document.getElementById('bank-id-show').textContent = d.bank_id || '—';
+            document.getElementById('node-url').textContent = NODE_URL;
+            document.getElementById('s-total').textContent = fmt(d.total_local);
+            document.getElementById('s-pending').textContent = fmt(d.pending_sync);
+            document.getElementById('s-synced').textContent = fmt(d.synced);
+            document.getElementById('s-rejected').textContent = fmt(d.rejected);
+
+            var b = d.balance || {};
+            document.getElementById('b-confirmed').textContent = fmt(b.confirmed);
+            document.getElementById('b-reserved').textContent = fmt(b.reserved);
+            document.getElementById('b-available').textContent = fmt(b.available);
+
+            // progress bar
+            var total = (b.confirmed || 0);
+            if (total > 0) {
+                var cPct = ((total - (b.reserved || 0)) / total) * 100;
+                var rPct = ((b.reserved || 0) / total) * 100;
+                document.getElementById('bar-conf').style.width = cPct + '%';
+                document.getElementById('bar-res').style.width = rPct + '%';
+            } else {
+                document.getElementById('bar-conf').style.width = '0%';
+                document.getElementById('bar-res').style.width = '0%';
+            }
+        })
+        .catch(e => {
+            setConn(false);
+            document.getElementById('bank-id-show').textContent = '—';
+        });
+}
+
+function loadTx() {
+    fetch(NODE_URL + '/tx/list')
+        .then(r => r.json())
+        .then(d => {
+            var el = document.getElementById('tx-list');
+            var list = d.transactions || [];
+            if (list.length === 0) {
+                el.innerHTML = '<div class="empty">هیچ تراکنشی نیست. اولین تراکنش رو بساز.</div>';
+                return;
+            }
+            var html = '<table class="tbl"><thead><tr>' +
+                '<th>زمان</th><th>به</th><th>مبلغ</th><th>نوع</th><th>وضعیت</th><th>TX ID</th>' +
+                '</tr></thead><tbody>';
+            list.forEach(t => {
+                var time = new Date(t.timestamp * 1000).toLocaleString('fa-IR');
+                html += '<tr>';
+                html += '<td style="font-size:.72rem">' + time + '</td>';
+                html += '<td>' + (t.to || '—') + '</td>';
+                html += '<td class="mono" style="color:#4ade80">' + fmt(t.amount) + '</td>';
+                html += '<td style="font-size:.72rem">' + (t.type || '—') + '</td>';
+                html += '<td><span class="badge ' + t.status + '">' + t.status + '</span></td>';
+                html += '<td class="mono" style="font-size:.65rem">' + (t.tx_id || '').slice(0, 24) + '...</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            el.innerHTML = html;
+        })
+        .catch(() => {
+            document.getElementById('tx-list').innerHTML =
+                '<div class="empty" style="color:#f87171">خطا در اتصال به بانک نود</div>';
+        });
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+
+function submitTx() {
+    var to = document.getElementById('tx-to').value;
+    var amount = parseFloat(document.getElementById('tx-amount').value);
+    var type = document.getElementById('tx-type').value;
+    var el = document.getElementById('tx-result');
+    var btn = document.getElementById('btn-submit');
+
+    if (!to || !amount || amount <= 0) {
+        toast('مبلغ معتبر وارد کن', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    el.innerHTML = '⏳ در حال ساخت تراکنش...';
+
+    fetch(NODE_URL + '/tx', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({to: to, amount: amount, type: type})
+    })
+    .then(r => r.json().then(data => ({ok: r.ok, data: data})))
+    .then(res => {
+        if (!res.ok) {
+            el.innerHTML = '<div style="background:rgba(248,113,113,.1);border:1px solid #f87171;padding:1rem;border-radius:.8rem;font-size:.8rem;color:#f87171">❌ ' +
+                (res.data.error || 'خطا') + '</div>';
+            toast('رد شد: ' + (res.data.error || ''), 'error');
+            return;
+        }
+        var d = res.data;
+        el.innerHTML = '<div style="background:rgba(74,222,128,.1);border:1px solid #4ade80;padding:1rem;border-radius:.8rem;font-size:.8rem">' +
+            '<div>✅ تراکنش ساخته شد</div>' +
+            '<div class="mono" style="margin-top:.5rem;color:#4ade80">' + (d.tx.tx_id || '').slice(0, 32) + '...</div>' +
+            '<div style="margin-top:.5rem;color:#8fa2dc">' +
+                'قابل استفاده: <b style="color:#4ade80">' + fmt(d.balance.available) + '</b>' +
+                ' · رزرو: <b style="color:#facc15">' + fmt(d.balance.reserved) + '</b>' +
+            '</div>' +
+            '</div>';
+        toast('✅ تراکنش ساخته شد', 'success');
+        document.getElementById('tx-amount').value = '';
+        refreshAll();
+    })
+    .catch(e => {
+        el.innerHTML = '<div style="color:#f87171;font-size:.8rem">❌ ' + e.message + '</div>';
+        toast('خطا: ' + e.message, 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+    });
+}
+
+function manualSync() {
+    var el = document.getElementById('sync-result');
+    var btn = document.getElementById('btn-sync');
+    btn.disabled = true;
+    el.innerHTML = '⏳ در حال sync...';
+
+    fetch(NODE_URL + '/sync', {method: 'POST'})
+        .then(r => r.json())
+        .then(d => {
+            el.innerHTML = '<div style="background:rgba(79,158,255,.1);border:1px solid #4f9eff;padding:1rem;border-radius:.8rem;font-size:.8rem">' +
+                '✅ پذیرفته: <b style="color:#4ade80">' + d.accepted + '</b>' +
+                ' · تکراری: <b>' + d.duplicates + '</b>' +
+                ' · رد: <b style="color:#f87171">' + d.rejected + '</b>' +
+                '</div>';
+            toast('sync انجام شد', 'success');
+            refreshAll();
+        })
+        .catch(e => {
+            el.innerHTML = '<div style="color:#f87171;font-size:.8rem">❌ ' + e.message + '</div>';
+            toast('sync شکست خورد', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+        });
+}
+
+// ============================================================
+// AUTO REFRESH
+// ============================================================
+
+refreshAll();
+setInterval(refreshAll, 5000);
+</script>
+</body>
+</html>

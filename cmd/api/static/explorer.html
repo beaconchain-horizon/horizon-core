@@ -98,5 +98,75 @@
         fetchData();
         setInterval(fetchData, 5000);
     </script>
+
+    <div id="agent-network-section" style="display:none; padding:20px; max-width:1200px; margin:0 auto;">
+        <h2 style="color:#58a6ff;">👼 Horizon Agent Network</h2>
+        
+        <div style="display:flex; gap:20px; margin-bottom:30px;">
+            <div style="background:#161b22; padding:20px; border-radius:8px; flex:1; border:1px solid #30363d; text-align:center;">
+                <h3 style="margin:0; color:#8b949e; font-size:13px; text-transform:uppercase;">Registered Agents</h3>
+                <div id="agent-total" style="font-size:32px; font-weight:bold; color:#3fb950; margin-top:10px;">--</div>
+            </div>
+            <div style="background:#161b22; padding:20px; border-radius:8px; flex:1; border:1px solid #30363d; text-align:center;">
+                <h3 style="margin:0; color:#8b949e; font-size:13px; text-transform:uppercase;">Consensus Nodes</h3>
+                <div style="font-size:32px; font-weight:bold; color:#3fb950; margin-top:10px;">7</div>
+            </div>
+            <div style="background:#161b22; padding:20px; border-radius:8px; flex:1; border:1px solid #30363d; text-align:center;">
+                <h3 style="margin:0; color:#8b949e; font-size:13px; text-transform:uppercase;">Consensus Hash</h3>
+                <div id="consensus-hash" style="font-size:18px; font-weight:bold; color:#3fb950; margin-top:16px;">--</div>
+            </div>
+        </div>
+        
+        <h3 style="color:#fff; border-bottom:1px solid #30363d; padding-bottom:10px;">Agent Registry</h3>
+        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:14px;">
+            <thead>
+                <tr style="border-bottom:1px solid #30363d; color:#8b949e;">
+                    <th style="padding:12px;">Agent ID</th>
+                    <th style="padding:12px;">Name</th>
+                    <th style="padding:12px;">Role / Description</th>
+                    <th style="padding:12px;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="agent-list" style="color:#c9d1d9;"></tbody>
+        </table>
+        <div style="text-align:center; margin-top:20px; color:#8b949e; font-size:12px;">
+            Showing first 50 agents for security and performance.
+        </div>
+    </div>
+
+    <script>
+        async function showAgents() {
+            // مخفی کردن تمام بخش‌های اصلی صفحه
+            document.querySelectorAll('section, .cards, .blocks-container').forEach(el => el.style.display = 'none');
+            
+            // نمایش بخش ایجنت‌ها
+            document.getElementById('agent-network-section').style.display = 'block';
+            
+            try {
+                const res = await fetch('http://localhost:8080/api/v1/agents/status');
+                const data = await res.json();
+                
+                document.getElementById('agent-total').innerText = data.total_registered;
+                const h = data.consensus_hash || '--';
+                const h16 = h.length > 16 ? h.slice(0,16) + '...' : h;
+                const hashEl = document.getElementById('consensus-hash');
+                if (hashEl) hashEl.innerText = h16;
+                
+                let html = '';
+                // نمایش 50 ایجنت اول برای جلوگیری از سنگین شدن صفحه
+                data.agents.slice(0, 50).forEach(a => {
+                    html += '<tr style="border-bottom:1px solid #21262d; transition:background 0.2s;">' +
+                        '<td style="padding:12px; font-family:monospace;">' + a.id + '</td>' +
+                        '<td style="padding:12px; font-weight:bold;">' + a.name + '</td>' +
+                        '<td style="padding:12px; color:#8b949e;">' + (a.description || "Specialized AI Agent") + '</td>' +
+                        '<td style="padding:12px; color:#3fb950; font-weight:bold;">● Active</td></tr>';
+                });
+                document.getElementById('agent-list').innerHTML = html;
+            } catch(e) {
+                document.getElementById('agent-list').innerHTML = '<tr><td colspan="4" style="color:#f85149; text-align:center; padding:20px;">❌ Failed to connect to Agent API.</td></tr>';
+            }
+        }
+    </script>
+
 </body>
 </html>

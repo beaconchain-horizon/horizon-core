@@ -1,0 +1,167 @@
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"os"
+	"path"
+	"strings"
+	"sync"
+
+	"github.com/gin-gonic/gin"
+)
+
+// ─── Canonical Law (7 consensus nodes) ────────────────────────
+// Must stay byte-for-byte in sync with cmd/angel-node/law.go.
+// LawVersion and the rule order/fields must match exactly.
+const lawVersion = "1.0"
+
+var canonicalLawRules = [][4]string{
+	{"merkle", "9001", "SHA256(left||right)", "CRITICAL"},
+	{"hash", "9002", "SHA256(header)", "CRITICAL"},
+	{"ecdsa", "9003", "secp256k1.Verify", "CRITICAL"},
+	{"type", "9004", "type in binary or ternary", "CRITICAL"},
+	{"volume", "9005", "used < volume", "IMPORTANT"},
+	{"time", "9006", "issued <= now < expires", "IMPORTANT"},
+	{"user", "9007", "user_id match", "IMPORTANT"},
+}
+
+func computeLawHash() string {
+	var sb strings.Builder
+	sb.WriteString("v=" + lawVersion + "\n")
+	for _, r := range canonicalLawRules {
+		sb.WriteString(fmt.Sprintf("%s|%s|%s|%s\n", r[0], r[1], r[2], r[3]))
+	}
+	h := sha256.Sum256([]byte(sb.String()))
+	return hex.EncodeToString(h[:])
+}
+
+// ─── Agent registry types ────────────────────────────────────
+type AgentSummary struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Category    string `json:"category"`
+	Status      string `json:"status"`
+}
+
+type rawAgent struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	FilePath    string `json:"file_path"`
+}
+
+var skipNames = map[string]bool{
+	"PULL_REQUEST_TEMPLATE": true,
+	"README":                true,
+	"LICENSE":               true,
+	"CONTRIBUTING":          true,
+	"CODE_OF_CONDUCT":       true,
+	"SECURITY":              true,
+}
+
+func isAgentCandidate(id, filePath string) bool {
+	if skipNames[id] {
+		return false
+	}
+	if strings.Contains(filePath, "/.github/") || strings.HasPrefix(filePath, "./.github/") {
+		return false
+	}
+	base := path.Base(filePath)
+	base = strings.TrimSuffix(base, path.Ext(base))
+	if skipNames[base] {
+		return false
+	}
+	return true
+}
+
+func deriveCategory(filePath string) string {
+	clean := strings.TrimPrefix(filePath, "./")
+	parts := strings.Split(clean, "/")
+	if len(parts) >= 2 {
+		return parts[0]
+	}
+	return "general"
+}
+
+// ─── Cached registry load ────────────────────────────────────
+var (
+	agentsCache     []AgentSummary
+	agentsCacheOnce sync.Once
+	agentsCacheErr  error
+)
+
+func loadAgents() ([]AgentSummary, error) {
+	agentsCacheOnce.Do(func() {
+		paths := []string{"./data/agents_registry.json", "./cmd/agent-node/agents_registry.json"}
+		var data []byte
+		var err error
+		for _, p := range paths {
+			data, err = os.ReadFile(p)
+			if err == nil {
+				break
+			}
+		}
+		if err != nil {
+			agentsCacheErr = err
+			return
+		}
+		var raw []rawAgent
+		if err := json.Unmarshal(data, &raw); err != nil {
+			agentsCacheErr = err
+			return
+		}
+		out := make([]AgentSummary, 0, len(raw))
+		for _, a := range raw {
+			if !isAgentCandidate(a.ID, a.FilePath) {
+				continue
+			}
+			desc := strings.TrimSpace(a.Description)
+			if desc == "" {
+				desc = "Specialized " + deriveCategory(a.FilePath) + " agent"
+			}
+			out = append(out, AgentSummary{
+				ID:          a.ID,
+				Name:        strings.TrimSpace(a.Name),
+				Description: desc,
+				Category:    deriveCategory(a.FilePath),
+				Status:      "Active",
+			})
+		}
+		agentsCache = out
+	})
+	return agentsCache, agentsCacheErr
+}
+
+// ─── Route registration ──────────────────────────────────────
+func setupAgentRoutes(r *gin.Engine) error {
+	if r == nil {
+		return fmt.Errorf("gin engine is nil")
+	}
+
+	r.GET("/api/v1/agents/status", func(c *gin.Context) {
+		agents, err := loadAgents()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Registry unavailable"})
+			return
+		}
+		cats := map[string]int{}
+		for _, a := range agents {
+			cats[a.Category]++
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"total_registered": len(agents),
+			"consensus_nodes":  len(canonicalLawRules),
+			"consensus_hash":   computeLawHash(),
+			"law_version":      lawVersion,
+			"categories":       cats,
+			"agents":           agents,
+		})
+	})
+
+	return nil
+}
