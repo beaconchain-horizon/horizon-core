@@ -43,7 +43,6 @@ func main() {
 
 		var vote bool
 
-		// STRICT LAW: Every node does ONLY ONE job.
 		switch role {
 		case "merkle-type":
 			vote = (req.MerkleType == "binary" || req.MerkleType == "ternary")
@@ -52,7 +51,9 @@ func main() {
 		case "ecdsa":
 			pub, err := crypto.Secp256k1PublicKeyFromHex(req.PublicKey)
 			if err == nil {
-				payload := fmt.Sprintf("%s|%s|%s|%d|%s|%s", req.LicenseID, req.ProductID, req.UserID, req.Volume, req.MerkleRoot, req.HardwareID)
+				// EXACT format matching the Offline Dashboard
+				expTime := time.Unix(req.ExpiresAt, 0).UTC().Format(time.RFC3339)
+				payload := fmt.Sprintf("%s|%s|%s|%d|%s|active|%s", req.LicenseID, req.ProductID, req.UserID, req.Volume, req.MerkleRoot, expTime)
 				vote, _ = crypto.VerifyData(pub, []byte(payload), req.Signature)
 			}
 		case "txid":
