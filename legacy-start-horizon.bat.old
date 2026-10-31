@@ -1,0 +1,14 @@
+@echo off
+chcp 65001 >nul
+cd /d "%~dp0"
+
+echo Starting Horizon Angel (hidden)...
+start "HorizonAngel-Watchdog" /MIN cmd /c watchdog.bat
+start "HorizonAngel-Updater" /MIN cmd /c updater.bat
+echo.
+echo ✅ سرور در پس‌زمینه اجرا شد
+echo    http://localhost:8000/monitor
+echo.
+echo برای توقف: taskkill /F /IM node.exe
+echo.
+pause

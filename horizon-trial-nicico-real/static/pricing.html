@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing — Beaconchain Horizon</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        .pricing-header { text-align: center; margin: 40px 0 60px; }
+        .pricing-header h1 { font-size: 36px; color: var(--accent); margin-bottom: 10px; }
+        .pricing-header p { color: var(--muted); font-size: 16px; }
+        
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        
+        .price-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 30px; text-align: center; transition: transform 0.3s, border-color 0.3s; position: relative; }
+        .price-card:hover { transform: translateY(-5px); border-color: var(--accent2); }
+        
+        .price-card.popular { border-color: var(--accent); box-shadow: 0 0 20px rgba(126, 231, 135, 0.1); }
+        .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        
+        .plan-name { font-size: 20px; color: var(--fg); margin-bottom: 10px; font-weight: 600; }
+        .plan-price { font-size: 32px; color: var(--accent2); font-weight: bold; margin-bottom: 20px; }
+        .plan-price span { font-size: 14px; color: var(--muted); font-weight: normal; }
+        
+        .plan-features { list-style: none; padding: 0; margin: 0 0 30px; text-align: left; }
+        .plan-features li { padding: 10px 0; border-bottom: 1px solid var(--border); color: var(--fg); font-size: 14px; }
+        .plan-features li:last-child { border-bottom: none; }
+        .plan-features li::before { content: '✓'; color: var(--accent); margin-right: 10px; font-weight: bold; }
+        
+        .btn-buy { display: inline-block; width: 100%; padding: 12px; background: transparent; border: 1px solid var(--accent2); color: var(--accent2); border-radius: 6px; text-decoration: none; font-weight: 600; transition: 0.3s; }
+        .btn-buy:hover { background: var(--accent2); color: var(--bg); }
+        .popular .btn-buy { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+        .popular .btn-buy:hover { background: var(--accent2); border-color: var(--accent2); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="brand">🔭 BEACONCHAIN HORIZON</div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="monitor.html">Monitor</a></li>
+            <li><a href="pricing.html" style="color: var(--accent);">Pricing</a></li>
+            <li><a href="verify.html">Verify</a></li>
+            <li><a href="https://github.com/beaconchain-horizon" target="_blank">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <div class="pricing-header">
+        <h1>Enterprise Blockchain Pricing</h1>
+        <p>Secure your industry with our offline-first, tamper-evident ledger.</p>
+    </div>
+
+    <div class="pricing-grid">
+        <!-- STANDARD -->
+        <div class="price-card">
+            <div class="plan-name">STANDARD</div>
+            <div class="plan-price">80,000 IRT <span>/ tx</span></div>
+            <ul class="plan-features">
+                <li>20,000 Transactions</li>
+                <li>1 Dedicated Switch</li>
+                <li>Standard Support</li>
+                <li>Local Deployment</li>
+            </ul>
+            <a href="#" class="btn-buy" onclick="alert('Contact us to purchase.')">Select Plan</a>
+        </div>
+
+        <!-- BUSINESS -->
+        <div class="price-card">
+            <div class="plan-name">BUSINESS</div>
+            <div class="plan-price">120,000 IRT <span>/ tx</span></div>
+            <ul class="plan-features">
+                <li>30,000 Transactions</li>
+                <li>Multi-Room Setup</li>
+                <li>Priority Support</li>
+                <li>Air-Gap Ready</li>
+            </ul>
+            <a href="#" class="btn-buy" onclick="alert('Contact us to purchase.')">Select Plan</a>
+        </div>
+
+        <!-- PREMIUM -->
+        <div class="price-card popular">
+            <div class="popular-badge">MOST POPULAR</div>
+            <div class="plan-name">PREMIUM</div>
+            <div class="plan-price">160,000 IRT <span>/ tx</span></div>
+            <ul class="plan-features">
+                <li>40,000 Transactions</li>
+                <li>Full 7-Node Consensus</li>
+                <li>24/7 Dedicated Support</li>
+                <li>Custom Merkle Type</li>
+            </ul>
+            <a href="#" class="btn-buy" onclick="alert('Contact us to purchase.')">Select Plan</a>
+        </div>
+
+        <!-- ENTERPRISE -->
+        <div class="price-card">
+            <div class="plan-name">ENTERPRISE</div>
+            <div class="plan-price">200,000 IRT <span>/ tx</span></div>
+            <ul class="plan-features">
+                <li>50,000 Transactions</li>
+                <li>Unlimited Customization</li>
+                <li>On-Site Installation</li>
+                <li>Government Grade</li>
+            </ul>
+            <a href="#" class="btn-buy" onclick="alert('Contact us to purchase.')">Contact Sales</a>
+        </div>
+    </div>
+
+    <footer style="margin-top: 60px;">
+        <p>© 2026 Beaconchain Horizon · Offline · Verifiable · Industrial-Grade</p>
+    </footer>
+</body>
+</html>
