@@ -1,0 +1,272 @@
+===== DATABASE INVENTORY =====
+./HorizonCore-backups/pre-recovery-audit-20261031-134625/db-snapshots/backup_dbs/bank-node.db	24576 bytes	2026-09-12 21:58:54.7826456000
+./HorizonCore-backups/pre-recovery-audit-20261031-134625/db-snapshots/backup_dbs/horizon-backend.db	114688 bytes	2026-10-30 16:56:09.4185972000
+./HorizonCore-backups/pre-recovery-audit-20261031-134625/db-snapshots/backup_dbs/horizon-chain.db	21921792 bytes	2026-10-15 11:40:30.2583254000
+./HorizonCore-backups/pre-recovery-audit-20261031-134625/db-snapshots/backup_dbs/horizon-switch.db	4841377792 bytes	2026-10-30 17:25:33.7916152000
+./HorizonCore-backups/pre-recovery-audit-20261031-134625/db-snapshots/data/horizon-switch.db	233472 bytes	2026-10-30 21:09:23.0484411000
+./HorizonCore-backups/pre-recovery-audit-20261031-134625/db-snapshots/horizon-dev.db	122880 bytes	2026-10-31 10:29:55.0463674000
+./HorizonCore-backups/pre-recovery-audit-20261031-134625/db-snapshots/horizon-switch.db	4841377792 bytes	2026-10-30 20:23:11.4810494000
+./backup_dbs/bank-node.db	24576 bytes	2026-09-12 21:58:54.7826456000
+./backup_dbs/horizon-backend.db	114688 bytes	2026-10-30 16:56:09.4185972000
+./backup_dbs/horizon-chain.db	21921792 bytes	2026-10-15 11:40:30.2583254000
+./backup_dbs/horizon-switch.db	4841377792 bytes	2026-10-30 17:25:33.7916152000
+./data/horizon-switch.db	233472 bytes	2026-10-30 21:09:23.0484411000
+./horizon-dev.db	122880 bytes	2026-10-31 10:29:55.0463674000
+./horizon-switch.db	4841377792 bytes	2026-10-30 20:23:11.4810494000
+
+===== DB PATH CONFIGURATION =====
+cmd/switch/switch.go:836:	dbPath := os.Getenv("SWITCH_DB")
+cmd/switch/switch.go:841:	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+cmd/switch/switch.go:872:	if err := initLicenseChain(db); err != nil {
+cmd/api/main.go:172:		dbPath := os.Getenv("HORIZON_DB_PATH")
+cmd/api/main.go:176:		pgDB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+
+===== API DB INITIALIZATION CONTEXT =====
+
+func apiKeyValid(c *gin.Context) bool {
+	expected := os.Getenv("API_KEY")
+	if expected == "" || len(expected) < 32 {
+		return false
+	}
+	return c.GetHeader("X-API-Key") == expected
+}
+
+func requireAdmin(c *gin.Context) bool {
+	if !adminTokenValid(c) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid admin key"})
+		return false
+	}
+	return true
+}
+
+func connectPostgres() error {
+	var err error
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Println("DATABASE_URL not set - falling back to SQLite at ./horizon-dev.db")
+		dbPath := os.Getenv("HORIZON_DB_PATH")
+		if dbPath == "" {
+			dbPath = "/tmp/horizon.db"
+		}
+		pgDB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	} else {
+		pgDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	}
+	if err != nil {
+		return fmt.Errorf("open database: %w", err)
+	}
+	return nil
+}
+
+func canonicalLicenseData(l LicenseRecord) []byte {
+	return []byte(fmt.Sprintf("%s|%s|%s|%d|%s|%s|%s", l.ID, l.ProductID, l.UserID, l.Volume, l.Root, l.Status, timeString(l.ExpiresAt)))
+}
+func timeString(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.UTC().Format(time.RFC3339)
+}
+
+
+===== SWITCH DB INITIALIZATION CONTEXT =====
+	if adminToken == "" {
+		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN (or API_KEY) must be set. Refusing to start with open auth.")
+	}
+	if len(adminToken) < 32 {
+		log.Fatal("P0.4 FAIL-CLOSED: ADMIN_TOKEN must be at least 32 characters.")
+	}
+	log.Printf("P0.4: auth enabled (token length=%d)", len(adminToken))
+	// ──────────────────────────────────────────────────────────────
+
+	// Init SQLite
+	var err error
+	dbPath := os.Getenv("SWITCH_DB")
+	if dbPath == "" {
+		dbPath = "./data/horizon-switch.db"
+	}
+
+	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to open database:", err)
+	}
+	if err := configureSQLite(db); err != nil {
+		log.Printf("configureSQLite failed: %v", err)
+	}
+
+	// Auto migrate
+	if err := db.AutoMigrate(&Block{}, &Transaction{}, &License{}, &KeyVault{}, &BankAccount{}, &Account{}, &Invoice{}, &Customer{}); err != nil {
+		log.Fatal("Migration failed:", err)
+	}
+	log.Println("SQLite database ready:", dbPath)
+
+	// Auto-setup key from env if present
+	autoSetupKeyFromEnv()
+
+	// === License Enforcement ===
+	licenseStopCh := make(chan struct{})
+	go startLicenseChecker(licenseStopCh)
+	log.Println("License enforcement started")
+	CheckKeyRotation()
+	startAutoLock(30)
+	initDualControl()
+	initSigningSessions()
+
+	// === In-Memory Ledger ===
+	ledger = NewLedger()
+	initAirGap()
+
+	// init license chain (blockchain registry)
+	if err := initLicenseChain(db); err != nil {
+
+		log.Printf("⚠️  license chain init: %v", err)
+	}
+	initChainConfig()
+	initCustomers()
+
+	// init adaptive chain batcher (async batching)
+	InitBatcher(db, BatcherConfig{
+		MaxSize:       50000,
+		FlushInterval: 200 * time.Millisecond,
+	})
+
+	// start industrial anchor worker
+
+===== POSSIBLE 1555 DELETION SCRIPT (READ ONLY) =====
+#!/usr/bin/env bash
+set -e
+
+echo "1) Stopping all services..."
+taskkill //F //IM horizon-api.exe //T 2>/dev/null || true
+taskkill //F //IM horizon-switch.exe //T 2>/dev/null || true
+taskkill //F //IM go.exe //T 2>/dev/null || true
+sleep 2
+
+echo "2) Directly cleaning horizon-dev.db (with Busy Timeout)..."
+cat > direct_clean.go << 'GO_CODE'
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	_ "modernc.org/sqlite"
+)
+
+func main() {
+	db, err := sql.Open("sqlite", "horizon-dev.db?_busy_timeout=5000")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	res, err := db.Exec("DELETE FROM license_records WHERE id = 1555")
+	if err != nil {
+		fmt.Println("Error deleting ID 1555:", err)
+	} else {
+		rows, _ := res.RowsAffected()
+		fmt.Printf("✅ Deleted stuck record ID 1555 (rows: %d)\n", rows)
+	}
+
+	db.Exec("DELETE FROM license_records WHERE license_id = 'HORIZON-GOLD-005'")
+	fmt.Println("✅ Cleared old HORIZON-GOLD-005 (if existed).")
+}
+GO_CODE
+
+go run direct_clean.go
+rm direct_clean.go
+
+echo "3) Starting Backend..."
+export ADMIN_TOKEN="12345678901234567890123456789012"
+export HORIZON_LICENSE_PUBLIC_KEY="cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214"
+export SERVER_PORT=8080
+nohup go run ./cmd/api > api.log 2>&1 &
+sleep 5
+
+echo "4) Starting Switch..."
+export SWITCH_PORT=8091
+nohup go run ./cmd/switch > switch.log 2>&1 &
+sleep 5
+
+echo "5) Unlocking Switch Key..."
+curl -s -X POST http://localhost:8091/api/v1/key/setup \
+  -H "Content-Type: application/json" \
+  -H "X-Admin-Token: 12345678901234567890123456789012" \
+  -d '{"private_key":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","password":"bench"}' > /dev/null || true
+
+curl -s -X POST http://localhost:8091/api/v1/key/unlock \
+  -H "Content-Type: application/json" \
+  -H "X-Admin-Token: 12345678901234567890123456789012" \
+  -d '{"password":"bench"}' > /dev/null || true
+
+echo "6) Registering EXACT Original Block 5 (user_id: nicico)..."
+curl -s -X POST http://localhost:8080/api/v1/license/register \
+  -H "Content-Type: application/json" \
+  -H "X-Admin-Key: 12345678901234567890123456789012" \
+  -d '{
+    "license_id": "HORIZON-GOLD-005",
+    "user_id": "nicico",
+    "product_id": "horizon-core",
+    "volume": 1000000,
+    "used": 0,
+    "duration": 4,
+    "merkle_root": "b395f34ddf5da832eb477f3a81bc1e7d03b0011795c8896f18bf6d2382a22c9a",
+    "issued_at": 1793298061,
+    "expires_at": 1793643661,
+    "status": "active",
+    "hardware_id": "",
+    "signature": "91d98bafb73207445f40d0eb38c0ac66cec226e66e3e41f9b99d17f135476c58057169ab7a8b499f503c1e9e42cbdcbbd38244699c8c1a2abcd9ed255a6cb4d8",
+    "signed_data": "{\"license_id\":\"HORIZON-GOLD-005\",\"user_id\":\"nicico\",\"product_id\":\"horizon-core\",\"volume\":1000000,\"duration\":4,\"merkle_root\":\"b395f34ddf5da832eb477f3a81bc1e7d03b0011795c8896f18bf6d2382a22c9a\",\"issued_at\":1793298061,\"expires_at\":1793643661,\"hardware_id\":\"\"}",
+    "public_key": "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214"
+  }'
+echo ""
+
+echo "7) Sending test transaction to trigger batcher..."
+SESS=$(curl -s -X POST http://localhost:8091/api/v1/signing/session \
+  -H "Content-Type: application/json" \
+  -H "X-Admin-Token: 12345678901234567890123456789012" \
+  -d '{}' | grep -o '"session_token":"[^"]*"' | cut -d'"' -f4)
+
+curl -s -X POST http://localhost:8091/api/v1/tx/batch \
+  -H "Content-Type: application/json" \
+  -H "X-Admin-Token: 12345678901234567890123456789012" \
+  -d "{\"session_token\":\"$SESS\",\"txs\":[{\"from\":\"bank_markazi\",\"to\":\"bank_melli\",\"amount\":1}]}"
+echo ""
+
+sleep 3
+
+===== WORKTREE STATUS (NOT STAGED OR MODIFIED BY THIS SCRIPT) =====
+ M cmd/api/chain_handlers.go
+?? api.log
+?? backup_dbs/
+?? check_logs.sh
+?? check_real_height.sh
+?? check_trial_package.sh
+?? check_trial_package_final.sh
+?? cmd/agent-node/
+?? cmd/api/static/TEST-AGENTS.html
+?? cmd/api/static/angel-agents.html
+?? diagnose.sh
+?? full_ecosystem_check.sh
+?? inject_and_mine.sh
+?? node_9001.log
+?? node_9002.log
+?? node_9003.log
+?? node_9004.log
+?? node_9005.log
+?? node_9006.log
+?? node_9007.log
+?? rebuild_clean_db.sh
+?? restore_block5.sh
+?? restore_original_dbs.sh
+?? run_horizon_background.vbs
+?? start_ecosystem.bat
+?? start_ecosystem_final.bat
+?? start_nodes.bat
+?? start_nodes_correctly.sh
+?? start_nodes_final.bat
+?? start_nodes_final.sh
+?? switch.log
+?? unlock_and_create_block5.sh
+?? unlock_seed_and_mine.sh
+?? verify_architecture.sh
+SQLITE_INSPECTION: FAILED (exit 1)

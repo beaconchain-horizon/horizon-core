@@ -40,6 +40,9 @@ type AgentRegisterReq struct {
 func main() {
 	db.Init()
 
+	http.HandleFunc("/super-app", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "cmd/api/static/super-app.html")
+	})
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{"status": "online", "version": "v2"})

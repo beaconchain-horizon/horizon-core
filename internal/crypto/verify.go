@@ -4,12 +4,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"math/big"
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
+	secp256k1ecdsa "github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 )
 
-// Secp256k1PublicKeyFromHex decodes the uncompressed 65-byte public key (04...)
 func Secp256k1PublicKeyFromHex(hexKey string) (*secp256k1.PublicKey, error) {
 	if len(hexKey) == 0 {
 		return nil, fmt.Errorf("empty key")
@@ -22,12 +21,11 @@ func Secp256k1PublicKeyFromHex(hexKey string) (*secp256k1.PublicKey, error) {
 		return nil, err
 	}
 	if len(b) != 65 || b[0] != 0x04 {
-		return nil, fmt.Errorf("invalid key format")
+		return nil, fmt.Errorf("invalid key format (need 65 bytes with 0x04 prefix)")
 	}
 	return secp256k1.ParsePubKey(b)
 }
 
-// VerifyData strictly verifies the ECDSA signature using secp256k1 curve
 func VerifyData(pub *secp256k1.PublicKey, data []byte, sigHex string) (bool, error) {
 	if pub == nil {
 		return false, fmt.Errorf("nil pub")
@@ -37,12 +35,15 @@ func VerifyData(pub *secp256k1.PublicKey, data []byte, sigHex string) (bool, err
 		return false, fmt.Errorf("invalid signature hex length")
 	}
 
-	r := new(big.Int).SetBytes(sigBytes[:32])
-	s := new(big.Int).SetBytes(sigBytes[32:])
+	var rScalar, sScalar secp256k1.ModNScalar
+	if overflow := rScalar.SetByteSlice(sigBytes[:32]); overflow {
+		return false, fmt.Errorf("r overflow")
+	}
+	if overflow := sScalar.SetByteSlice(sigBytes[32:]); overflow {
+		return false, fmt.Errorf("s overflow")
+	}
 
-	// Construct the secp256k1 signature from R and S
-	sig := secp256k1.NewSignature(r, s)
-
+	sig := secp256k1ecdsa.NewSignature(&rScalar, &sScalar)
 	hash := sha256.Sum256(data)
 	return sig.Verify(hash[:], pub), nil
 }
