@@ -1,8 +1,20 @@
+# Binaries
 bin/
 *.exe
+
+# Databases & Logs
 *.db
 *.db-shm
 *.db-wal
 *.log
+
+# Junk & Backups
 node_modules/
 frontend/
+.backups/
+HorizonCore-backups/
+*.bak
+*.pem
+.env
+env
+dist/
