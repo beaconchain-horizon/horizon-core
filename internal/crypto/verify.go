@@ -1,16 +1,16 @@
 package crypto
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"math/big"
+
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// Secp256k1PublicKeyFromHex decodes the public key from the offline dashboard
-func Secp256k1PublicKeyFromHex(hexKey string) (*ecdsa.PublicKey, error) {
+// Secp256k1PublicKeyFromHex decodes the uncompressed 65-byte public key (04...)
+func Secp256k1PublicKeyFromHex(hexKey string) (*secp256k1.PublicKey, error) {
 	if len(hexKey) == 0 {
 		return nil, fmt.Errorf("empty key")
 	}
@@ -24,22 +24,25 @@ func Secp256k1PublicKeyFromHex(hexKey string) (*ecdsa.PublicKey, error) {
 	if len(b) != 65 || b[0] != 0x04 {
 		return nil, fmt.Errorf("invalid key format")
 	}
-	x := new(big.Int).SetBytes(b[1:33])
-	y := new(big.Int).SetBytes(b[33:65])
-	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}, nil
+	return secp256k1.ParsePubKey(b)
 }
 
-// VerifyData strictly verifies the ECDSA signature
-func VerifyData(pub *ecdsa.PublicKey, data []byte, sigHex string) (bool, error) {
+// VerifyData strictly verifies the ECDSA signature using secp256k1 curve
+func VerifyData(pub *secp256k1.PublicKey, data []byte, sigHex string) (bool, error) {
 	if pub == nil {
 		return false, fmt.Errorf("nil pub")
 	}
-	sig, err := hex.DecodeString(sigHex)
-	if err != nil || len(sig) != 64 {
-		return false, fmt.Errorf("invalid sig")
+	sigBytes, err := hex.DecodeString(sigHex)
+	if err != nil || len(sigBytes) != 64 {
+		return false, fmt.Errorf("invalid signature hex length")
 	}
-	r := new(big.Int).SetBytes(sig[:32])
-	s := new(big.Int).SetBytes(sig[32:])
+
+	r := new(big.Int).SetBytes(sigBytes[:32])
+	s := new(big.Int).SetBytes(sigBytes[32:])
+
+	// Construct the secp256k1 signature from R and S
+	sig := secp256k1.NewSignature(r, s)
+
 	hash := sha256.Sum256(data)
-	return ecdsa.Verify(pub, hash[:], r, s), nil
+	return sig.Verify(hash[:], pub), nil
 }

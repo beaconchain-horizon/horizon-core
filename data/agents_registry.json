@@ -1,1748 +1,2122 @@
 [
   {
-    "id": "academic-anthropologist",
-    "name": "Anthropologist Agent Personality",
-    "description": "",
-    "file_path": "./academic/academic-anthropologist.md"
+    "agent_id": "academic-anthropologist",
+    "user_id": "agent_academic-anthropologist",
+    "role": "academic",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9100656+03:30"
+  },
+  {
+    "agent_id": "academic-geographer",
+    "user_id": "agent_academic-geographer",
+    "role": "academic",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9224927+03:30"
+  },
+  {
+    "agent_id": "academic-historian",
+    "user_id": "agent_academic-historian",
+    "role": "academic",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9252354+03:30"
+  },
+  {
+    "agent_id": "academic-narratologist",
+    "user_id": "agent_academic-narratologist",
+    "role": "academic",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9279599+03:30"
+  },
+  {
+    "agent_id": "academic-psychologist",
+    "user_id": "agent_academic-psychologist",
+    "role": "academic",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9301652+03:30"
+  },
+  {
+    "agent_id": "academic-statistician",
+    "user_id": "agent_academic-statistician",
+    "role": "academic",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9322871+03:30"
+  },
+  {
+    "agent_id": "design-brand-guardian",
+    "user_id": "agent_design-brand-guardian",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9343781+03:30"
+  },
+  {
+    "agent_id": "design-image-prompt-engineer",
+    "user_id": "agent_design-image-prompt-engineer",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9365274+03:30"
+  },
+  {
+    "agent_id": "design-inclusive-visuals-specialist",
+    "user_id": "agent_design-inclusive-visuals-specialist",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.93819+03:30"
+  },
+  {
+    "agent_id": "design-persona-walkthrough",
+    "user_id": "agent_design-persona-walkthrough",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9409746+03:30"
+  },
+  {
+    "agent_id": "design-ui-designer",
+    "user_id": "agent_design-ui-designer",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9431596+03:30"
+  },
+  {
+    "agent_id": "design-ux-architect",
+    "user_id": "agent_design-ux-architect",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9458157+03:30"
+  },
+  {
+    "agent_id": "design-ux-researcher",
+    "user_id": "agent_design-ux-researcher",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9479226+03:30"
   },
   {
-    "id": "academic-geographer",
-    "name": "Geographer Agent Personality",
-    "description": "",
-    "file_path": "./academic/academic-geographer.md"
+    "agent_id": "design-visual-storyteller",
+    "user_id": "agent_design-visual-storyteller",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.950051+03:30"
   },
   {
-    "id": "academic-historian",
-    "name": "Historian Agent Personality",
-    "description": "",
-    "file_path": "./academic/academic-historian.md"
+    "agent_id": "design-whimsy-injector",
+    "user_id": "agent_design-whimsy-injector",
+    "role": "design",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9517591+03:30"
   },
   {
-    "id": "academic-narratologist",
-    "name": "Narratologist Agent Personality",
-    "description": "",
-    "file_path": "./academic/academic-narratologist.md"
+    "agent_id": "engineering-ai-data-remediation-engineer",
+    "user_id": "agent_engineering-ai-data-remediation-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9544652+03:30"
   },
   {
-    "id": "academic-psychologist",
-    "name": "Psychologist Agent Personality",
-    "description": "",
-    "file_path": "./academic/academic-psychologist.md"
+    "agent_id": "engineering-ai-engineer",
+    "user_id": "agent_engineering-ai-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9583724+03:30"
   },
   {
-    "id": "academic-statistician",
-    "name": "Statistician Agent Personality",
-    "description": "",
-    "file_path": "./academic/academic-statistician.md"
+    "agent_id": "engineering-api-platform-engineer",
+    "user_id": "agent_engineering-api-platform-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9631853+03:30"
   },
   {
-    "id": "design-brand-guardian",
-    "name": "Brand Guardian Agent Personality",
-    "description": "",
-    "file_path": "./design/design-brand-guardian.md"
+    "agent_id": "engineering-autonomous-optimization-architect",
+    "user_id": "agent_engineering-autonomous-optimization-architect",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9658602+03:30"
   },
   {
-    "id": "design-image-prompt-engineer",
-    "name": "Image Prompt Engineer Agent",
-    "description": "",
-    "file_path": "./design/design-image-prompt-engineer.md"
+    "agent_id": "engineering-backend-architect",
+    "user_id": "agent_engineering-backend-architect",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9680142+03:30"
   },
   {
-    "id": "design-inclusive-visuals-specialist",
-    "name": "📸 Inclusive Visuals Specialist",
-    "description": "",
-    "file_path": "./design/design-inclusive-visuals-specialist.md"
+    "agent_id": "engineering-cms-developer",
+    "user_id": "agent_engineering-cms-developer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9703285+03:30"
   },
   {
-    "id": "design-persona-walkthrough",
-    "name": "Persona Walkthrough Specialist",
-    "description": "",
-    "file_path": "./design/design-persona-walkthrough.md"
+    "agent_id": "engineering-code-reviewer",
+    "user_id": "agent_engineering-code-reviewer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9726243+03:30"
   },
   {
-    "id": "design-ui-designer",
-    "name": "UI Designer Agent Personality",
-    "description": "",
-    "file_path": "./design/design-ui-designer.md"
+    "agent_id": "engineering-codebase-onboarding-engineer",
+    "user_id": "agent_engineering-codebase-onboarding-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9746582+03:30"
   },
   {
-    "id": "design-ux-architect",
-    "name": "ArchitectUX Agent Personality",
-    "description": "",
-    "file_path": "./design/design-ux-architect.md"
+    "agent_id": "engineering-data-engineer",
+    "user_id": "agent_engineering-data-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9796796+03:30"
   },
   {
-    "id": "design-ux-researcher",
-    "name": "UX Researcher Agent Personality",
-    "description": "",
-    "file_path": "./design/design-ux-researcher.md"
+    "agent_id": "engineering-database-optimizer",
+    "user_id": "agent_engineering-database-optimizer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.981848+03:30"
   },
   {
-    "id": "design-visual-storyteller",
-    "name": "Visual Storyteller Agent",
-    "description": "",
-    "file_path": "./design/design-visual-storyteller.md"
+    "agent_id": "engineering-database-reliability-engineer",
+    "user_id": "agent_engineering-database-reliability-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9836791+03:30"
   },
   {
-    "id": "design-whimsy-injector",
-    "name": "Whimsy Injector Agent Personality",
-    "description": "",
-    "file_path": "./design/design-whimsy-injector.md"
+    "agent_id": "engineering-desktop-app-engineer",
+    "user_id": "agent_engineering-desktop-app-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9865787+03:30"
   },
   {
-    "id": "AGENT_REGISTRY",
-    "name": "Horizon Angel Agent Registry",
-    "description": "",
-    "file_path": "./docs/AGENT_REGISTRY.md"
+    "agent_id": "engineering-developer-tooling-engineer",
+    "user_id": "agent_engineering-developer-tooling-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9887333+03:30"
   },
   {
-    "id": "HORIZON_AGENT_CAPABILITY_MAP",
-    "name": "Horizon Angel Capability Map",
-    "description": "",
-    "file_path": "./docs/HORIZON_AGENT_CAPABILITY_MAP.md"
+    "agent_id": "engineering-devops-automator",
+    "user_id": "agent_engineering-devops-automator",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.990853+03:30"
   },
   {
-    "id": "HORIZON_AGENT_OPERATING_POLICY",
-    "name": "Horizon Angel Agent Operating Policy",
-    "description": "",
-    "file_path": "./docs/HORIZON_AGENT_OPERATING_POLICY.md"
+    "agent_id": "engineering-drupal-performance",
+    "user_id": "agent_engineering-drupal-performance",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9933815+03:30"
   },
   {
-    "id": "engineering-ai-data-remediation-engineer",
-    "name": "AI Data Remediation Engineer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-ai-data-remediation-engineer.md"
+    "agent_id": "engineering-drupal-shopping-cart",
+    "user_id": "agent_engineering-drupal-shopping-cart",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9960755+03:30"
   },
   {
-    "id": "engineering-ai-engineer",
-    "name": "AI Engineer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-ai-engineer.md"
+    "agent_id": "engineering-email-intelligence-engineer",
+    "user_id": "agent_engineering-email-intelligence-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:43.9982304+03:30"
   },
   {
-    "id": "engineering-api-platform-engineer",
-    "name": "API Platform Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-api-platform-engineer.md"
+    "agent_id": "engineering-embedded-firmware-engineer",
+    "user_id": "agent_engineering-embedded-firmware-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0001108+03:30"
   },
   {
-    "id": "engineering-autonomous-optimization-architect",
-    "name": "⚙️ Autonomous Optimization Architect",
-    "description": "",
-    "file_path": "./engineering/engineering-autonomous-optimization-architect.md"
+    "agent_id": "engineering-feishu-integration-developer",
+    "user_id": "agent_engineering-feishu-integration-developer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0035492+03:30"
   },
   {
-    "id": "engineering-backend-architect",
-    "name": "Backend Architect Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-backend-architect.md"
+    "agent_id": "engineering-filament-optimization-specialist",
+    "user_id": "agent_engineering-filament-optimization-specialist",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.005684+03:30"
   },
   {
-    "id": "engineering-cms-developer",
-    "name": "🧱 CMS Developer",
-    "description": "",
-    "file_path": "./engineering/engineering-cms-developer.md"
+    "agent_id": "engineering-finops-engineer",
+    "user_id": "agent_engineering-finops-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0078406+03:30"
   },
   {
-    "id": "engineering-code-reviewer",
-    "name": "Code Reviewer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-code-reviewer.md"
+    "agent_id": "engineering-frontend-developer",
+    "user_id": "agent_engineering-frontend-developer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0101813+03:30"
   },
   {
-    "id": "engineering-codebase-onboarding-engineer",
-    "name": "Codebase Onboarding Engineer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-codebase-onboarding-engineer.md"
+    "agent_id": "engineering-gaussdb-expert",
+    "user_id": "agent_engineering-gaussdb-expert",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0122901+03:30"
   },
   {
-    "id": "engineering-data-engineer",
-    "name": "Data Engineer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-data-engineer.md"
+    "agent_id": "engineering-git-workflow-master",
+    "user_id": "agent_engineering-git-workflow-master",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0146079+03:30"
   },
   {
-    "id": "engineering-database-optimizer",
-    "name": "🗄️ Database Optimizer",
-    "description": "",
-    "file_path": "./engineering/engineering-database-optimizer.md"
+    "agent_id": "engineering-i18n-engineer",
+    "user_id": "agent_engineering-i18n-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.016784+03:30"
   },
   {
-    "id": "engineering-database-reliability-engineer",
-    "name": "Database Reliability Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-database-reliability-engineer.md"
+    "agent_id": "engineering-identity-access-engineer",
+    "user_id": "agent_engineering-identity-access-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0183291+03:30"
   },
   {
-    "id": "engineering-desktop-app-engineer",
-    "name": "Desktop App Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-desktop-app-engineer.md"
+    "agent_id": "engineering-incident-response-commander",
+    "user_id": "agent_engineering-incident-response-commander",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0213644+03:30"
   },
   {
-    "id": "engineering-developer-tooling-engineer",
-    "name": "Developer Tooling Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-developer-tooling-engineer.md"
+    "agent_id": "engineering-iot-fleet-engineer",
+    "user_id": "agent_engineering-iot-fleet-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0228772+03:30"
   },
   {
-    "id": "engineering-devops-automator",
-    "name": "DevOps Automator Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-devops-automator.md"
+    "agent_id": "engineering-it-service-manager",
+    "user_id": "agent_engineering-it-service-manager",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0257279+03:30"
   },
   {
-    "id": "engineering-drupal-performance",
-    "name": "⚡ Drupal Performance Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-drupal-performance.md"
+    "agent_id": "engineering-minimal-change-engineer",
+    "user_id": "agent_engineering-minimal-change-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0278236+03:30"
   },
   {
-    "id": "engineering-drupal-shopping-cart",
-    "name": "🛒 Drupal Shopping Cart Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-drupal-shopping-cart.md"
+    "agent_id": "engineering-mobile-app-builder",
+    "user_id": "agent_engineering-mobile-app-builder",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0298034+03:30"
   },
   {
-    "id": "engineering-email-intelligence-engineer",
-    "name": "Email Intelligence Engineer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-email-intelligence-engineer.md"
+    "agent_id": "engineering-mobile-release-engineer",
+    "user_id": "agent_engineering-mobile-release-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0318018+03:30"
   },
   {
-    "id": "engineering-embedded-firmware-engineer",
-    "name": "Embedded Firmware Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-embedded-firmware-engineer.md"
+    "agent_id": "engineering-multi-agent-systems-architect",
+    "user_id": "agent_engineering-multi-agent-systems-architect",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0337974+03:30"
   },
   {
-    "id": "engineering-feishu-integration-developer",
-    "name": "Feishu Integration Developer",
-    "description": "",
-    "file_path": "./engineering/engineering-feishu-integration-developer.md"
+    "agent_id": "engineering-network-engineer",
+    "user_id": "agent_engineering-network-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.035798+03:30"
   },
   {
-    "id": "engineering-filament-optimization-specialist",
-    "name": "Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-filament-optimization-specialist.md"
+    "agent_id": "engineering-orgscript-engineer",
+    "user_id": "agent_engineering-orgscript-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0396897+03:30"
   },
   {
-    "id": "engineering-finops-engineer",
-    "name": "FinOps Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-finops-engineer.md"
+    "agent_id": "engineering-payments-billing-engineer",
+    "user_id": "agent_engineering-payments-billing-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.041864+03:30"
   },
   {
-    "id": "engineering-frontend-developer",
-    "name": "Frontend Developer Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-frontend-developer.md"
+    "agent_id": "engineering-privacy-engineer",
+    "user_id": "agent_engineering-privacy-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0440401+03:30"
   },
   {
-    "id": "engineering-gaussdb-expert",
-    "name": "🗄️ GaussDB OLTP Expert",
-    "description": "",
-    "file_path": "./engineering/engineering-gaussdb-expert.md"
+    "agent_id": "engineering-prompt-engineer",
+    "user_id": "agent_engineering-prompt-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0468235+03:30"
   },
   {
-    "id": "engineering-git-workflow-master",
-    "name": "Git Workflow Master Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-git-workflow-master.md"
+    "agent_id": "engineering-rag-pipeline-engineer",
+    "user_id": "agent_engineering-rag-pipeline-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0486803+03:30"
   },
   {
-    "id": "engineering-i18n-engineer",
-    "name": "Internationalization Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-i18n-engineer.md"
+    "agent_id": "engineering-rapid-prototyper",
+    "user_id": "agent_engineering-rapid-prototyper",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0509221+03:30"
   },
   {
-    "id": "engineering-identity-access-engineer",
-    "name": "Identity \u0026 Access Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-identity-access-engineer.md"
+    "agent_id": "engineering-realtime-collaboration-engineer",
+    "user_id": "agent_engineering-realtime-collaboration-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0530685+03:30"
   },
   {
-    "id": "engineering-incident-response-commander",
-    "name": "Incident Response Commander Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-incident-response-commander.md"
+    "agent_id": "engineering-search-relevance-engineer",
+    "user_id": "agent_engineering-search-relevance-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0552652+03:30"
   },
   {
-    "id": "engineering-iot-fleet-engineer",
-    "name": "IoT Fleet Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-iot-fleet-engineer.md"
+    "agent_id": "engineering-section-508-specialist",
+    "user_id": "agent_engineering-section-508-specialist",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0574554+03:30"
   },
   {
-    "id": "engineering-it-service-manager",
-    "name": "🖧 IT Service Manager",
-    "description": "",
-    "file_path": "./engineering/engineering-it-service-manager.md"
+    "agent_id": "engineering-senior-developer",
+    "user_id": "agent_engineering-senior-developer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0601174+03:30"
   },
   {
-    "id": "engineering-minimal-change-engineer",
-    "name": "Minimal Change Engineer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-minimal-change-engineer.md"
+    "agent_id": "engineering-software-architect",
+    "user_id": "agent_engineering-software-architect",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0626507+03:30"
   },
   {
-    "id": "engineering-mobile-app-builder",
-    "name": "Mobile App Builder Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-mobile-app-builder.md"
+    "agent_id": "engineering-solidity-smart-contract-engineer",
+    "user_id": "agent_engineering-solidity-smart-contract-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0660034+03:30"
   },
   {
-    "id": "engineering-mobile-release-engineer",
-    "name": "Mobile Release Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-mobile-release-engineer.md"
+    "agent_id": "engineering-sre",
+    "user_id": "agent_engineering-sre",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0686898+03:30"
   },
   {
-    "id": "engineering-multi-agent-systems-architect",
-    "name": "🕸️ Multi-Agent Systems Architect Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-multi-agent-systems-architect.md"
+    "agent_id": "engineering-technical-writer",
+    "user_id": "agent_engineering-technical-writer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0707897+03:30"
   },
   {
-    "id": "engineering-network-engineer",
-    "name": "Network Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-network-engineer.md"
+    "agent_id": "engineering-uswds-developer",
+    "user_id": "agent_engineering-uswds-developer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0730076+03:30"
   },
   {
-    "id": "engineering-orgscript-engineer",
-    "name": "OrgScript Engineer Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-orgscript-engineer.md"
+    "agent_id": "engineering-video-streaming-engineer",
+    "user_id": "agent_engineering-video-streaming-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0751343+03:30"
   },
   {
-    "id": "engineering-payments-billing-engineer",
-    "name": "Payments \u0026 Billing Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-payments-billing-engineer.md"
+    "agent_id": "engineering-voice-ai-integration-engineer",
+    "user_id": "agent_engineering-voice-ai-integration-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0783654+03:30"
   },
   {
-    "id": "engineering-privacy-engineer",
-    "name": "Privacy Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-privacy-engineer.md"
+    "agent_id": "engineering-webassembly-engineer",
+    "user_id": "agent_engineering-webassembly-engineer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0810548+03:30"
   },
   {
-    "id": "engineering-prompt-engineer",
-    "name": "Prompt Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-prompt-engineer.md"
+    "agent_id": "engineering-wechat-mini-program-developer",
+    "user_id": "agent_engineering-wechat-mini-program-developer",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0840245+03:30"
   },
   {
-    "id": "engineering-rag-pipeline-engineer",
-    "name": "RAG Pipeline Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-rag-pipeline-engineer.md"
+    "agent_id": "engineering-wordpress-performance",
+    "user_id": "agent_engineering-wordpress-performance",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0868112+03:30"
   },
   {
-    "id": "engineering-rapid-prototyper",
-    "name": "Rapid Prototyper Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-rapid-prototyper.md"
+    "agent_id": "engineering-wordpress-shopping-cart",
+    "user_id": "agent_engineering-wordpress-shopping-cart",
+    "role": "engineering",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0884416+03:30"
   },
   {
-    "id": "engineering-realtime-collaboration-engineer",
-    "name": "Realtime Collaboration Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-realtime-collaboration-engineer.md"
+    "agent_id": "finance-bookkeeper-controller",
+    "user_id": "agent_finance-bookkeeper-controller",
+    "role": "finance",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0913108+03:30"
   },
   {
-    "id": "engineering-search-relevance-engineer",
-    "name": "Search Relevance Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-search-relevance-engineer.md"
+    "agent_id": "finance-financial-analyst",
+    "user_id": "agent_finance-financial-analyst",
+    "role": "finance",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0936452+03:30"
   },
   {
-    "id": "engineering-section-508-specialist",
-    "name": "♿ Section 508 Accessibility Specialist",
-    "description": "",
-    "file_path": "./engineering/engineering-section-508-specialist.md"
+    "agent_id": "finance-fpa-analyst",
+    "user_id": "agent_finance-fpa-analyst",
+    "role": "finance",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.0964594+03:30"
   },
   {
-    "id": "engineering-senior-developer",
-    "name": "Developer Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-senior-developer.md"
+    "agent_id": "finance-investment-researcher",
+    "user_id": "agent_finance-investment-researcher",
+    "role": "finance",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.098577+03:30"
   },
   {
-    "id": "engineering-software-architect",
-    "name": "Software Architect Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-software-architect.md"
+    "agent_id": "finance-tax-strategist",
+    "user_id": "agent_finance-tax-strategist",
+    "role": "finance",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.101208+03:30"
   },
   {
-    "id": "engineering-solidity-smart-contract-engineer",
-    "name": "Solidity Smart Contract Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-solidity-smart-contract-engineer.md"
+    "agent_id": "blender-addon-engineer",
+    "user_id": "agent_blender-addon-engineer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1038847+03:30"
   },
   {
-    "id": "engineering-sre",
-    "name": "SRE (Site Reliability Engineer) Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-sre.md"
+    "agent_id": "game-audio-engineer",
+    "user_id": "agent_game-audio-engineer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1059956+03:30"
   },
   {
-    "id": "engineering-technical-writer",
-    "name": "Technical Writer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-technical-writer.md"
+    "agent_id": "game-designer",
+    "user_id": "agent_game-designer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1084048+03:30"
   },
   {
-    "id": "engineering-uswds-developer",
-    "name": "🏛️ USWDS Developer",
-    "description": "",
-    "file_path": "./engineering/engineering-uswds-developer.md"
+    "agent_id": "godot-gameplay-scripter",
+    "user_id": "agent_godot-gameplay-scripter",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1107954+03:30"
   },
   {
-    "id": "engineering-video-streaming-engineer",
-    "name": "Video Streaming Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-video-streaming-engineer.md"
+    "agent_id": "godot-multiplayer-engineer",
+    "user_id": "agent_godot-multiplayer-engineer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1135895+03:30"
   },
   {
-    "id": "engineering-voice-ai-integration-engineer",
-    "name": "🎙️ Voice AI Integration Engineer Agent",
-    "description": "",
-    "file_path": "./engineering/engineering-voice-ai-integration-engineer.md"
+    "agent_id": "godot-shader-developer",
+    "user_id": "agent_godot-shader-developer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1156977+03:30"
   },
   {
-    "id": "engineering-webassembly-engineer",
-    "name": "WebAssembly Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-webassembly-engineer.md"
+    "agent_id": "level-designer",
+    "user_id": "agent_level-designer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1183499+03:30"
   },
   {
-    "id": "engineering-wechat-mini-program-developer",
-    "name": "WeChat Mini Program Developer Agent Personality",
-    "description": "",
-    "file_path": "./engineering/engineering-wechat-mini-program-developer.md"
+    "agent_id": "narrative-designer",
+    "user_id": "agent_narrative-designer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1204514+03:30"
   },
   {
-    "id": "engineering-wordpress-performance",
-    "name": "⚡ WordPress Performance Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-wordpress-performance.md"
+    "agent_id": "roblox-avatar-creator",
+    "user_id": "agent_roblox-avatar-creator",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1222065+03:30"
   },
   {
-    "id": "engineering-wordpress-shopping-cart",
-    "name": "🛍️ WordPress Shopping Cart Engineer",
-    "description": "",
-    "file_path": "./engineering/engineering-wordpress-shopping-cart.md"
+    "agent_id": "roblox-experience-designer",
+    "user_id": "agent_roblox-experience-designer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1249339+03:30"
   },
   {
-    "id": "nexus-spatial-discovery",
-    "name": "Nexus Spatial: Full Agency Discovery Exercise",
-    "description": "",
-    "file_path": "./examples/nexus-spatial-discovery.md"
+    "agent_id": "roblox-systems-scripter",
+    "user_id": "agent_roblox-systems-scripter",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1273968+03:30"
   },
   {
-    "id": "workflow-book-chapter",
-    "name": "Workflow Example: Book Chapter Development",
-    "description": "",
-    "file_path": "./examples/workflow-book-chapter.md"
+    "agent_id": "technical-artist",
+    "user_id": "agent_technical-artist",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1303583+03:30"
   },
   {
-    "id": "workflow-landing-page",
-    "name": "Multi-Agent Workflow: Landing Page Sprint",
-    "description": "",
-    "file_path": "./examples/workflow-landing-page.md"
+    "agent_id": "unity-architect",
+    "user_id": "agent_unity-architect",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.132885+03:30"
   },
   {
-    "id": "workflow-startup-mvp",
-    "name": "Multi-Agent Workflow: Startup MVP",
-    "description": "",
-    "file_path": "./examples/workflow-startup-mvp.md"
+    "agent_id": "unity-editor-tool-developer",
+    "user_id": "agent_unity-editor-tool-developer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1350257+03:30"
   },
   {
-    "id": "workflow-with-memory",
-    "name": "Multi-Agent Workflow: Startup MVP with Persistent Memory",
-    "description": "",
-    "file_path": "./examples/workflow-with-memory.md"
+    "agent_id": "unity-multiplayer-engineer",
+    "user_id": "agent_unity-multiplayer-engineer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1371438+03:30"
   },
   {
-    "id": "finance-bookkeeper-controller",
-    "name": "📒 Bookkeeper \u0026 Controller Agent",
-    "description": "",
-    "file_path": "./finance/finance-bookkeeper-controller.md"
+    "agent_id": "unity-shader-graph-artist",
+    "user_id": "agent_unity-shader-graph-artist",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.141219+03:30"
   },
   {
-    "id": "finance-financial-analyst",
-    "name": "📊 Financial Analyst Agent",
-    "description": "",
-    "file_path": "./finance/finance-financial-analyst.md"
+    "agent_id": "unreal-multiplayer-architect",
+    "user_id": "agent_unreal-multiplayer-architect",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1472989+03:30"
   },
   {
-    "id": "finance-fpa-analyst",
-    "name": "📈 FP\u0026A Analyst Agent",
-    "description": "",
-    "file_path": "./finance/finance-fpa-analyst.md"
+    "agent_id": "unreal-systems-engineer",
+    "user_id": "agent_unreal-systems-engineer",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1499246+03:30"
   },
   {
-    "id": "finance-investment-researcher",
-    "name": "🔍 Investment Researcher Agent",
-    "description": "",
-    "file_path": "./finance/finance-investment-researcher.md"
+    "agent_id": "unreal-technical-artist",
+    "user_id": "agent_unreal-technical-artist",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1521003+03:30"
   },
   {
-    "id": "finance-tax-strategist",
-    "name": "🏛️ Tax Strategist Agent",
-    "description": "",
-    "file_path": "./finance/finance-tax-strategist.md"
+    "agent_id": "unreal-world-builder",
+    "user_id": "agent_unreal-world-builder",
+    "role": "game-development",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1543081+03:30"
   },
   {
-    "id": "blender-addon-engineer",
-    "name": "Blender Add-on Engineer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/blender/blender-addon-engineer.md"
+    "agent_id": "gis-3d-scene-developer",
+    "user_id": "agent_gis-3d-scene-developer",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1564027+03:30"
   },
   {
-    "id": "game-audio-engineer",
-    "name": "Game Audio Engineer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/game-audio-engineer.md"
+    "agent_id": "gis-analyst",
+    "user_id": "agent_gis-analyst",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1590347+03:30"
   },
   {
-    "id": "game-designer",
-    "name": "Game Designer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/game-designer.md"
+    "agent_id": "gis-bim-specialist",
+    "user_id": "agent_gis-bim-specialist",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.162109+03:30"
   },
   {
-    "id": "godot-gameplay-scripter",
-    "name": "Godot Gameplay Scripter Agent Personality",
-    "description": "",
-    "file_path": "./game-development/godot/godot-gameplay-scripter.md"
+    "agent_id": "gis-cartography-designer",
+    "user_id": "agent_gis-cartography-designer",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1642704+03:30"
   },
   {
-    "id": "godot-multiplayer-engineer",
-    "name": "Godot Multiplayer Engineer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/godot/godot-multiplayer-engineer.md"
+    "agent_id": "gis-drone-reality-mapping",
+    "user_id": "agent_gis-drone-reality-mapping",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.165884+03:30"
   },
   {
-    "id": "godot-shader-developer",
-    "name": "Godot Shader Developer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/godot/godot-shader-developer.md"
+    "agent_id": "gis-geoai-ml-engineer",
+    "user_id": "agent_gis-geoai-ml-engineer",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1692537+03:30"
   },
   {
-    "id": "level-designer",
-    "name": "Level Designer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/level-designer.md"
+    "agent_id": "gis-geoprocessing-specialist",
+    "user_id": "agent_gis-geoprocessing-specialist",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1715919+03:30"
   },
   {
-    "id": "narrative-designer",
-    "name": "Narrative Designer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/narrative-designer.md"
+    "agent_id": "gis-qa-engineer",
+    "user_id": "agent_gis-qa-engineer",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1773854+03:30"
   },
   {
-    "id": "roblox-avatar-creator",
-    "name": "Roblox Avatar Creator Agent Personality",
-    "description": "",
-    "file_path": "./game-development/roblox-studio/roblox-avatar-creator.md"
+    "agent_id": "gis-solution-engineer",
+    "user_id": "agent_gis-solution-engineer",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1805084+03:30"
   },
   {
-    "id": "roblox-experience-designer",
-    "name": "Roblox Experience Designer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/roblox-studio/roblox-experience-designer.md"
+    "agent_id": "gis-spatial-data-engineer",
+    "user_id": "agent_gis-spatial-data-engineer",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1825993+03:30"
   },
   {
-    "id": "roblox-systems-scripter",
-    "name": "Roblox Systems Scripter Agent Personality",
-    "description": "",
-    "file_path": "./game-development/roblox-studio/roblox-systems-scripter.md"
+    "agent_id": "gis-spatial-data-scientist",
+    "user_id": "agent_gis-spatial-data-scientist",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1846453+03:30"
   },
   {
-    "id": "technical-artist",
-    "name": "Technical Artist Agent Personality",
-    "description": "",
-    "file_path": "./game-development/technical-artist.md"
+    "agent_id": "gis-technical-consultant",
+    "user_id": "agent_gis-technical-consultant",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1871656+03:30"
   },
   {
-    "id": "unity-architect",
-    "name": "Unity Architect Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unity/unity-architect.md"
+    "agent_id": "gis-web-gis-developer",
+    "user_id": "agent_gis-web-gis-developer",
+    "role": "gis",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1891667+03:30"
   },
   {
-    "id": "unity-editor-tool-developer",
-    "name": "Unity Editor Tool Developer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unity/unity-editor-tool-developer.md"
+    "agent_id": "healthcare-clinical-evidence-agent",
+    "user_id": "agent_healthcare-clinical-evidence-agent",
+    "role": "healthcare",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1916813+03:30"
   },
   {
-    "id": "unity-multiplayer-engineer",
-    "name": "Unity Multiplayer Engineer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unity/unity-multiplayer-engineer.md"
+    "agent_id": "healthcare-innovation-strategist",
+    "user_id": "agent_healthcare-innovation-strategist",
+    "role": "healthcare",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1958306+03:30"
   },
   {
-    "id": "unity-shader-graph-artist",
-    "name": "Unity Shader Graph Artist Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unity/unity-shader-graph-artist.md"
+    "agent_id": "healthcare-sovereign-health-systems-agent",
+    "user_id": "agent_healthcare-sovereign-health-systems-agent",
+    "role": "healthcare",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.1977855+03:30"
   },
   {
-    "id": "unreal-multiplayer-architect",
-    "name": "Unreal Multiplayer Architect Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unreal-engine/unreal-multiplayer-architect.md"
+    "agent_id": "marketing-aeo-foundations",
+    "user_id": "agent_marketing-aeo-foundations",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2037895+03:30"
   },
   {
-    "id": "unreal-systems-engineer",
-    "name": "Unreal Systems Engineer Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unreal-engine/unreal-systems-engineer.md"
+    "agent_id": "marketing-agentic-search-optimizer",
+    "user_id": "agent_marketing-agentic-search-optimizer",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.206403+03:30"
   },
   {
-    "id": "unreal-technical-artist",
-    "name": "Unreal Technical Artist Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unreal-engine/unreal-technical-artist.md"
+    "agent_id": "marketing-ai-citation-strategist",
+    "user_id": "agent_marketing-ai-citation-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2085375+03:30"
   },
   {
-    "id": "unreal-world-builder",
-    "name": "Unreal World Builder Agent Personality",
-    "description": "",
-    "file_path": "./game-development/unreal-engine/unreal-world-builder.md"
+    "agent_id": "marketing-app-store-optimizer",
+    "user_id": "agent_marketing-app-store-optimizer",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2106795+03:30"
   },
   {
-    "id": "gis-3d-scene-developer",
-    "name": "3DSceneDeveloper Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-3d-scene-developer.md"
+    "agent_id": "marketing-baidu-seo-specialist",
+    "user_id": "agent_marketing-baidu-seo-specialist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2128034+03:30"
   },
   {
-    "id": "gis-analyst",
-    "name": "GISAnalyst Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-analyst.md"
+    "agent_id": "marketing-bilibili-content-strategist",
+    "user_id": "agent_marketing-bilibili-content-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.215306+03:30"
   },
   {
-    "id": "gis-bim-specialist",
-    "name": "BIMGISS Specialist Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-bim-specialist.md"
+    "agent_id": "marketing-book-co-author",
+    "user_id": "agent_marketing-book-co-author",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2175987+03:30"
   },
   {
-    "id": "gis-cartography-designer",
-    "name": "CartographyDesigner Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-cartography-designer.md"
+    "agent_id": "marketing-carousel-growth-engine",
+    "user_id": "agent_marketing-carousel-growth-engine",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2199003+03:30"
   },
   {
-    "id": "gis-drone-reality-mapping",
-    "name": "DroneRealityMapping Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-drone-reality-mapping.md"
+    "agent_id": "marketing-china-ecommerce-operator",
+    "user_id": "agent_marketing-china-ecommerce-operator",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2220301+03:30"
   },
   {
-    "id": "gis-geoai-ml-engineer",
-    "name": "GeoAIMLEngineer Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-geoai-ml-engineer.md"
+    "agent_id": "marketing-china-market-localization-strategist",
+    "user_id": "agent_marketing-china-market-localization-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2242184+03:30"
   },
   {
-    "id": "gis-geoprocessing-specialist",
-    "name": "GeoprocessingSpecialist Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-geoprocessing-specialist.md"
+    "agent_id": "marketing-content-creator",
+    "user_id": "agent_marketing-content-creator",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2268819+03:30"
   },
   {
-    "id": "gis-qa-engineer",
-    "name": "GISQAEngineer Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-qa-engineer.md"
+    "agent_id": "marketing-cross-border-ecommerce",
+    "user_id": "agent_marketing-cross-border-ecommerce",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.228761+03:30"
   },
   {
-    "id": "gis-solution-engineer",
-    "name": "GISSolutionEngineer Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-solution-engineer.md"
+    "agent_id": "marketing-douyin-strategist",
+    "user_id": "agent_marketing-douyin-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2314352+03:30"
   },
   {
-    "id": "gis-spatial-data-engineer",
-    "name": "SpatialDataEngineer Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-spatial-data-engineer.md"
+    "agent_id": "marketing-email-strategist",
+    "user_id": "agent_marketing-email-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.234063+03:30"
   },
   {
-    "id": "gis-spatial-data-scientist",
-    "name": "SpatialDataScientist Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-spatial-data-scientist.md"
+    "agent_id": "marketing-global-podcast-strategist",
+    "user_id": "agent_marketing-global-podcast-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2366938+03:30"
   },
   {
-    "id": "gis-technical-consultant",
-    "name": "GISTechnicalConsultant Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-technical-consultant.md"
+    "agent_id": "marketing-growth-hacker",
+    "user_id": "agent_marketing-growth-hacker",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2382137+03:30"
   },
   {
-    "id": "gis-web-gis-developer",
-    "name": "WebGISDeveloper Agent Personality",
-    "description": "",
-    "file_path": "./gis/gis-web-gis-developer.md"
+    "agent_id": "marketing-instagram-curator",
+    "user_id": "agent_marketing-instagram-curator",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2411798+03:30"
   },
   {
-    "id": "healthcare-clinical-evidence-agent",
-    "name": "Clinical Evidence Agent",
-    "description": "",
-    "file_path": "./healthcare/healthcare-clinical-evidence-agent.md"
+    "agent_id": "marketing-kuaishou-strategist",
+    "user_id": "agent_marketing-kuaishou-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2430827+03:30"
   },
   {
-    "id": "healthcare-innovation-strategist",
-    "name": "Healthcare Innovation Strategist",
-    "description": "",
-    "file_path": "./healthcare/healthcare-innovation-strategist.md"
+    "agent_id": "marketing-linkedin-content-creator",
+    "user_id": "agent_marketing-linkedin-content-creator",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2451108+03:30"
   },
   {
-    "id": "healthcare-sovereign-health-systems-agent",
-    "name": "Sovereign Health Systems Agent",
-    "description": "",
-    "file_path": "./healthcare/healthcare-sovereign-health-systems-agent.md"
+    "agent_id": "marketing-livestream-commerce-coach",
+    "user_id": "agent_marketing-livestream-commerce-coach",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2476191+03:30"
   },
   {
-    "id": "backend-architect-with-memory",
-    "name": "Backend Architect Agent Personality",
-    "description": "",
-    "file_path": "./integrations/mcp-memory/backend-architect-with-memory.md"
+    "agent_id": "marketing-multi-platform-publisher",
+    "user_id": "agent_marketing-multi-platform-publisher",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2496258+03:30"
   },
   {
-    "id": "marketing-aeo-foundations",
-    "name": "AEO Foundations Architect",
-    "description": "",
-    "file_path": "./marketing/marketing-aeo-foundations.md"
+    "agent_id": "marketing-podcast-strategist",
+    "user_id": "agent_marketing-podcast-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2516258+03:30"
   },
   {
-    "id": "marketing-agentic-search-optimizer",
-    "name": "Agentic Search Optimizer",
-    "description": "",
-    "file_path": "./marketing/marketing-agentic-search-optimizer.md"
+    "agent_id": "marketing-pr-communications-manager",
+    "user_id": "agent_marketing-pr-communications-manager",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2536304+03:30"
   },
   {
-    "id": "marketing-ai-citation-strategist",
-    "name": "AI Citation Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-ai-citation-strategist.md"
+    "agent_id": "marketing-private-domain-operator",
+    "user_id": "agent_marketing-private-domain-operator",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2564315+03:30"
   },
   {
-    "id": "marketing-app-store-optimizer",
-    "name": "App Store Optimizer Agent Personality",
-    "description": "",
-    "file_path": "./marketing/marketing-app-store-optimizer.md"
+    "agent_id": "marketing-reddit-community-builder",
+    "user_id": "agent_marketing-reddit-community-builder",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.258486+03:30"
   },
   {
-    "id": "marketing-baidu-seo-specialist",
-    "name": "Marketing Baidu SEO Specialist",
-    "description": "",
-    "file_path": "./marketing/marketing-baidu-seo-specialist.md"
+    "agent_id": "marketing-seo-specialist",
+    "user_id": "agent_marketing-seo-specialist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2604061+03:30"
   },
   {
-    "id": "marketing-bilibili-content-strategist",
-    "name": "Marketing Bilibili Content Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-bilibili-content-strategist.md"
+    "agent_id": "marketing-short-video-editing-coach",
+    "user_id": "agent_marketing-short-video-editing-coach",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2626722+03:30"
   },
   {
-    "id": "marketing-book-co-author",
-    "name": "Book Co-Author",
-    "description": "",
-    "file_path": "./marketing/marketing-book-co-author.md"
+    "agent_id": "marketing-social-media-strategist",
+    "user_id": "agent_marketing-social-media-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2659797+03:30"
   },
   {
-    "id": "marketing-carousel-growth-engine",
-    "name": "Marketing Carousel Growth Engine",
-    "description": "",
-    "file_path": "./marketing/marketing-carousel-growth-engine.md"
+    "agent_id": "marketing-tiktok-strategist",
+    "user_id": "agent_marketing-tiktok-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2684201+03:30"
   },
   {
-    "id": "marketing-china-ecommerce-operator",
-    "name": "Marketing China E-Commerce Operator",
-    "description": "",
-    "file_path": "./marketing/marketing-china-ecommerce-operator.md"
+    "agent_id": "marketing-twitter-engager",
+    "user_id": "agent_marketing-twitter-engager",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2711711+03:30"
   },
   {
-    "id": "marketing-china-market-localization-strategist",
-    "name": "China Market Localization Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-china-market-localization-strategist.md"
+    "agent_id": "marketing-video-optimization-specialist",
+    "user_id": "agent_marketing-video-optimization-specialist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2729791+03:30"
   },
   {
-    "id": "marketing-content-creator",
-    "name": "Marketing Content Creator Agent",
-    "description": "",
-    "file_path": "./marketing/marketing-content-creator.md"
+    "agent_id": "marketing-wechat-official-account",
+    "user_id": "agent_marketing-wechat-official-account",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2755997+03:30"
   },
   {
-    "id": "marketing-cross-border-ecommerce",
-    "name": "Marketing Cross-Border E-Commerce Specialist",
-    "description": "",
-    "file_path": "./marketing/marketing-cross-border-ecommerce.md"
+    "agent_id": "marketing-weibo-strategist",
+    "user_id": "agent_marketing-weibo-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2777942+03:30"
   },
   {
-    "id": "marketing-douyin-strategist",
-    "name": "Marketing Douyin Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-douyin-strategist.md"
+    "agent_id": "marketing-x-twitter-intelligence-analyst",
+    "user_id": "agent_marketing-x-twitter-intelligence-analyst",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2803404+03:30"
   },
   {
-    "id": "marketing-email-strategist",
-    "name": "Email Marketing Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-email-strategist.md"
+    "agent_id": "marketing-xiaohongshu-specialist",
+    "user_id": "agent_marketing-xiaohongshu-specialist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.282533+03:30"
   },
   {
-    "id": "marketing-global-podcast-strategist",
-    "name": "Marketing Global Podcast Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-global-podcast-strategist.md"
+    "agent_id": "marketing-zhihu-strategist",
+    "user_id": "agent_marketing-zhihu-strategist",
+    "role": "marketing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2850066+03:30"
   },
   {
-    "id": "marketing-growth-hacker",
-    "name": "Marketing Growth Hacker Agent",
-    "description": "",
-    "file_path": "./marketing/marketing-growth-hacker.md"
+    "agent_id": "paid-media-auditor",
+    "user_id": "agent_paid-media-auditor",
+    "role": "paid-media",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2872637+03:30"
   },
   {
-    "id": "marketing-instagram-curator",
-    "name": "Marketing Instagram Curator",
-    "description": "",
-    "file_path": "./marketing/marketing-instagram-curator.md"
+    "agent_id": "paid-media-creative-strategist",
+    "user_id": "agent_paid-media-creative-strategist",
+    "role": "paid-media",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2893352+03:30"
   },
   {
-    "id": "marketing-kuaishou-strategist",
-    "name": "Marketing Kuaishou Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-kuaishou-strategist.md"
+    "agent_id": "paid-media-paid-social-strategist",
+    "user_id": "agent_paid-media-paid-social-strategist",
+    "role": "paid-media",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.291543+03:30"
   },
   {
-    "id": "marketing-linkedin-content-creator",
-    "name": "LinkedIn Content Creator",
-    "description": "",
-    "file_path": "./marketing/marketing-linkedin-content-creator.md"
+    "agent_id": "paid-media-ppc-strategist",
+    "user_id": "agent_paid-media-ppc-strategist",
+    "role": "paid-media",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2938179+03:30"
   },
   {
-    "id": "marketing-livestream-commerce-coach",
-    "name": "Marketing Livestream Commerce Coach",
-    "description": "",
-    "file_path": "./marketing/marketing-livestream-commerce-coach.md"
+    "agent_id": "paid-media-programmatic-buyer",
+    "user_id": "agent_paid-media-programmatic-buyer",
+    "role": "paid-media",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2967223+03:30"
   },
   {
-    "id": "marketing-multi-platform-publisher",
-    "name": "Multi-Platform Publisher",
-    "description": "",
-    "file_path": "./marketing/marketing-multi-platform-publisher.md"
+    "agent_id": "paid-media-search-query-analyst",
+    "user_id": "agent_paid-media-search-query-analyst",
+    "role": "paid-media",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.2993644+03:30"
   },
   {
-    "id": "marketing-podcast-strategist",
-    "name": "Marketing Podcast Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-podcast-strategist.md"
+    "agent_id": "paid-media-tracking-specialist",
+    "user_id": "agent_paid-media-tracking-specialist",
+    "role": "paid-media",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3014762+03:30"
   },
   {
-    "id": "marketing-pr-communications-manager",
-    "name": "📣 PR \u0026 Communications Manager",
-    "description": "",
-    "file_path": "./marketing/marketing-pr-communications-manager.md"
+    "agent_id": "product-behavioral-nudge-engine",
+    "user_id": "agent_product-behavioral-nudge-engine",
+    "role": "product",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3031268+03:30"
   },
   {
-    "id": "marketing-private-domain-operator",
-    "name": "Marketing Private Domain Operator",
-    "description": "",
-    "file_path": "./marketing/marketing-private-domain-operator.md"
+    "agent_id": "product-feedback-synthesizer",
+    "user_id": "agent_product-feedback-synthesizer",
+    "role": "product",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3053027+03:30"
   },
   {
-    "id": "marketing-reddit-community-builder",
-    "name": "Marketing  Community Builder",
-    "description": "",
-    "file_path": "./marketing/marketing-reddit-community-builder.md"
+    "agent_id": "product-manager",
+    "user_id": "agent_product-manager",
+    "role": "product",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3075326+03:30"
   },
   {
-    "id": "marketing-seo-specialist",
-    "name": "Marketing SEO Specialist",
-    "description": "",
-    "file_path": "./marketing/marketing-seo-specialist.md"
+    "agent_id": "product-sprint-prioritizer",
+    "user_id": "agent_product-sprint-prioritizer",
+    "role": "product",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3103764+03:30"
   },
   {
-    "id": "marketing-short-video-editing-coach",
-    "name": "Marketing Short-Video Editing Coach",
-    "description": "",
-    "file_path": "./marketing/marketing-short-video-editing-coach.md"
+    "agent_id": "product-trend-researcher",
+    "user_id": "agent_product-trend-researcher",
+    "role": "product",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.312726+03:30"
   },
   {
-    "id": "marketing-social-media-strategist",
-    "name": "Social Media Strategist Agent",
-    "description": "",
-    "file_path": "./marketing/marketing-social-media-strategist.md"
+    "agent_id": "project-management-experiment-tracker",
+    "user_id": "agent_project-management-experiment-tracker",
+    "role": "project-management",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3152859+03:30"
   },
   {
-    "id": "marketing-tiktok-strategist",
-    "name": "Marketing TikTok Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-tiktok-strategist.md"
+    "agent_id": "project-management-jira-workflow-steward",
+    "user_id": "agent_project-management-jira-workflow-steward",
+    "role": "project-management",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.317804+03:30"
   },
   {
-    "id": "marketing-twitter-engager",
-    "name": "Marketing Twitter Engager",
-    "description": "",
-    "file_path": "./marketing/marketing-twitter-engager.md"
+    "agent_id": "project-management-meeting-notes-specialist",
+    "user_id": "agent_project-management-meeting-notes-specialist",
+    "role": "project-management",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3198218+03:30"
   },
   {
-    "id": "marketing-video-optimization-specialist",
-    "name": "Marketing Video Optimization Specialist Agent",
-    "description": "",
-    "file_path": "./marketing/marketing-video-optimization-specialist.md"
+    "agent_id": "project-management-project-shepherd",
+    "user_id": "agent_project-management-project-shepherd",
+    "role": "project-management",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3213533+03:30"
   },
   {
-    "id": "marketing-wechat-official-account",
-    "name": "Marketing WeChat Official Account Manager",
-    "description": "",
-    "file_path": "./marketing/marketing-wechat-official-account.md"
+    "agent_id": "project-management-studio-operations",
+    "user_id": "agent_project-management-studio-operations",
+    "role": "project-management",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3233655+03:30"
   },
   {
-    "id": "marketing-weibo-strategist",
-    "name": "Marketing Weibo Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-weibo-strategist.md"
+    "agent_id": "project-management-studio-producer",
+    "user_id": "agent_project-management-studio-producer",
+    "role": "project-management",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3263652+03:30"
   },
   {
-    "id": "marketing-x-twitter-intelligence-analyst",
-    "name": "Marketing X/Twitter Intelligence Analyst",
-    "description": "",
-    "file_path": "./marketing/marketing-x-twitter-intelligence-analyst.md"
+    "agent_id": "project-manager-senior",
+    "user_id": "agent_project-manager-senior",
+    "role": "project-management",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.330362+03:30"
   },
   {
-    "id": "marketing-xiaohongshu-specialist",
-    "name": "Marketing Xiaohongshu Specialist",
-    "description": "",
-    "file_path": "./marketing/marketing-xiaohongshu-specialist.md"
+    "agent_id": "sales-account-strategist",
+    "user_id": "agent_sales-account-strategist",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3329589+03:30"
   },
   {
-    "id": "marketing-zhihu-strategist",
-    "name": "Marketing Zhihu Strategist",
-    "description": "",
-    "file_path": "./marketing/marketing-zhihu-strategist.md"
+    "agent_id": "sales-coach",
+    "user_id": "agent_sales-coach",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3350557+03:30"
   },
   {
-    "id": "paid-media-auditor",
-    "name": "Paid Media Auditor Agent",
-    "description": "",
-    "file_path": "./paid-media/paid-media-auditor.md"
+    "agent_id": "sales-deal-strategist",
+    "user_id": "agent_sales-deal-strategist",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3373714+03:30"
   },
   {
-    "id": "paid-media-creative-strategist",
-    "name": "Paid Media Ad Creative Strategist Agent",
-    "description": "",
-    "file_path": "./paid-media/paid-media-creative-strategist.md"
+    "agent_id": "sales-discovery-coach",
+    "user_id": "agent_sales-discovery-coach",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3394585+03:30"
   },
   {
-    "id": "paid-media-paid-social-strategist",
-    "name": "Paid Media Paid Social Strategist Agent",
-    "description": "",
-    "file_path": "./paid-media/paid-media-paid-social-strategist.md"
+    "agent_id": "sales-engineer",
+    "user_id": "agent_sales-engineer",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3421309+03:30"
   },
   {
-    "id": "paid-media-ppc-strategist",
-    "name": "Paid Media PPC Campaign Strategist Agent",
-    "description": "",
-    "file_path": "./paid-media/paid-media-ppc-strategist.md"
+    "agent_id": "sales-offer-lead-gen-strategist",
+    "user_id": "agent_sales-offer-lead-gen-strategist",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3445729+03:30"
   },
   {
-    "id": "paid-media-programmatic-buyer",
-    "name": "Paid Media Programmatic \u0026 Display Buyer Agent",
-    "description": "",
-    "file_path": "./paid-media/paid-media-programmatic-buyer.md"
+    "agent_id": "sales-outbound-strategist",
+    "user_id": "agent_sales-outbound-strategist",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3470462+03:30"
   },
   {
-    "id": "paid-media-search-query-analyst",
-    "name": "Paid Media Search Query Analyst Agent",
-    "description": "",
-    "file_path": "./paid-media/paid-media-search-query-analyst.md"
+    "agent_id": "sales-pipeline-analyst",
+    "user_id": "agent_sales-pipeline-analyst",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3491652+03:30"
   },
   {
-    "id": "paid-media-tracking-specialist",
-    "name": "Paid Media Tracking \u0026 Measurement Specialist Agent",
-    "description": "",
-    "file_path": "./paid-media/paid-media-tracking-specialist.md"
+    "agent_id": "sales-proposal-strategist",
+    "user_id": "agent_sales-proposal-strategist",
+    "role": "sales",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.351258+03:30"
   },
   {
-    "id": "product-behavioral-nudge-engine",
-    "name": "🧠 Behavioral Nudge Engine",
-    "description": "",
-    "file_path": "./product/product-behavioral-nudge-engine.md"
+    "agent_id": "security-ai-generated-code-auditor",
+    "user_id": "agent_security-ai-generated-code-auditor",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.354207+03:30"
   },
   {
-    "id": "product-feedback-synthesizer",
-    "name": "Product Feedback Synthesizer Agent",
-    "description": "",
-    "file_path": "./product/product-feedback-synthesizer.md"
+    "agent_id": "security-appsec-engineer",
+    "user_id": "agent_security-appsec-engineer",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3563251+03:30"
   },
   {
-    "id": "product-manager",
-    "name": "🧭 Product Manager Agent",
-    "description": "",
-    "file_path": "./product/product-manager.md"
+    "agent_id": "security-architect",
+    "user_id": "agent_security-architect",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3623452+03:30"
   },
   {
-    "id": "product-sprint-prioritizer",
-    "name": "Product Sprint Prioritizer Agent",
-    "description": "",
-    "file_path": "./product/product-sprint-prioritizer.md"
+    "agent_id": "security-blockchain-security-auditor",
+    "user_id": "agent_security-blockchain-security-auditor",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3644453+03:30"
   },
   {
-    "id": "product-trend-researcher",
-    "name": "Product Trend Researcher Agent",
-    "description": "",
-    "file_path": "./product/product-trend-researcher.md"
+    "agent_id": "security-cloud-security-architect",
+    "user_id": "agent_security-cloud-security-architect",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3670397+03:30"
   },
   {
-    "id": "project-management-experiment-tracker",
-    "name": "Experiment Tracker Agent Personality",
-    "description": "",
-    "file_path": "./project-management/project-management-experiment-tracker.md"
+    "agent_id": "security-compliance-auditor",
+    "user_id": "agent_security-compliance-auditor",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3693679+03:30"
   },
   {
-    "id": "project-management-jira-workflow-steward",
-    "name": "Jira Workflow Steward Agent",
-    "description": "",
-    "file_path": "./project-management/project-management-jira-workflow-steward.md"
+    "agent_id": "security-incident-responder",
+    "user_id": "agent_security-incident-responder",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3720398+03:30"
   },
   {
-    "id": "project-management-meeting-notes-specialist",
-    "name": "Meeting Notes Specialist",
-    "description": "",
-    "file_path": "./project-management/project-management-meeting-notes-specialist.md"
+    "agent_id": "security-penetration-tester",
+    "user_id": "agent_security-penetration-tester",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3741758+03:30"
   },
   {
-    "id": "project-management-project-shepherd",
-    "name": "Project Shepherd Agent Personality",
-    "description": "",
-    "file_path": "./project-management/project-management-project-shepherd.md"
+    "agent_id": "security-secrets-credential-engineer",
+    "user_id": "agent_security-secrets-credential-engineer",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3769354+03:30"
   },
   {
-    "id": "project-management-studio-operations",
-    "name": "Studio Operations Agent Personality",
-    "description": "",
-    "file_path": "./project-management/project-management-studio-operations.md"
+    "agent_id": "security-senior-secops",
+    "user_id": "agent_security-senior-secops",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.379215+03:30"
   },
   {
-    "id": "project-management-studio-producer",
-    "name": "Studio Producer Agent Personality",
-    "description": "",
-    "file_path": "./project-management/project-management-studio-producer.md"
+    "agent_id": "security-threat-detection-engineer",
+    "user_id": "agent_security-threat-detection-engineer",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3813446+03:30"
   },
   {
-    "id": "project-manager-senior",
-    "name": "Project Manager Agent Personality",
-    "description": "",
-    "file_path": "./project-management/project-manager-senior.md"
+    "agent_id": "security-threat-intelligence-analyst",
+    "user_id": "agent_security-threat-intelligence-analyst",
+    "role": "security",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3834826+03:30"
   },
   {
-    "id": "sales-account-strategist",
-    "name": "Account Strategist Agent",
-    "description": "",
-    "file_path": "./sales/sales-account-strategist.md"
+    "agent_id": "macos-spatial-metal-engineer",
+    "user_id": "agent_macos-spatial-metal-engineer",
+    "role": "spatial-computing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3858409+03:30"
   },
   {
-    "id": "sales-coach",
-    "name": "Sales Coach Agent",
-    "description": "",
-    "file_path": "./sales/sales-coach.md"
+    "agent_id": "terminal-integration-specialist",
+    "user_id": "agent_terminal-integration-specialist",
+    "role": "spatial-computing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3880099+03:30"
   },
   {
-    "id": "sales-deal-strategist",
-    "name": "Deal Strategist Agent",
-    "description": "",
-    "file_path": "./sales/sales-deal-strategist.md"
+    "agent_id": "visionos-spatial-engineer",
+    "user_id": "agent_visionos-spatial-engineer",
+    "role": "spatial-computing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3902544+03:30"
   },
   {
-    "id": "sales-discovery-coach",
-    "name": "Discovery Coach Agent",
-    "description": "",
-    "file_path": "./sales/sales-discovery-coach.md"
+    "agent_id": "xr-cockpit-interaction-specialist",
+    "user_id": "agent_xr-cockpit-interaction-specialist",
+    "role": "spatial-computing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.392123+03:30"
   },
   {
-    "id": "sales-engineer",
-    "name": "Sales Engineer Agent",
-    "description": "",
-    "file_path": "./sales/sales-engineer.md"
+    "agent_id": "xr-immersive-developer",
+    "user_id": "agent_xr-immersive-developer",
+    "role": "spatial-computing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3963929+03:30"
   },
   {
-    "id": "sales-offer-lead-gen-strategist",
-    "name": "Offer \u0026 Lead Gen Strategist",
-    "description": "",
-    "file_path": "./sales/sales-offer-lead-gen-strategist.md"
+    "agent_id": "xr-interface-architect",
+    "user_id": "agent_xr-interface-architect",
+    "role": "spatial-computing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.3985473+03:30"
   },
   {
-    "id": "sales-outbound-strategist",
-    "name": "Outbound Strategist Agent",
-    "description": "",
-    "file_path": "./sales/sales-outbound-strategist.md"
+    "agent_id": "accounts-payable-agent",
+    "user_id": "agent_accounts-payable-agent",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4012117+03:30"
   },
   {
-    "id": "sales-pipeline-analyst",
-    "name": "Pipeline Analyst Agent",
-    "description": "",
-    "file_path": "./sales/sales-pipeline-analyst.md"
+    "agent_id": "agentic-identity-trust",
+    "user_id": "agent_agentic-identity-trust",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4039323+03:30"
   },
   {
-    "id": "sales-proposal-strategist",
-    "name": "Proposal Strategist Agent",
-    "description": "",
-    "file_path": "./sales/sales-proposal-strategist.md"
+    "agent_id": "agents-orchestrator",
+    "user_id": "agent_agents-orchestrator",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4061093+03:30"
   },
   {
-    "id": "security-ai-generated-code-auditor",
-    "name": "AI-Generated Code Security Auditor",
-    "description": "",
-    "file_path": "./security/security-ai-generated-code-auditor.md"
+    "agent_id": "automation-governance-architect",
+    "user_id": "agent_automation-governance-architect",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4082524+03:30"
   },
   {
-    "id": "security-appsec-engineer",
-    "name": "Application Security Engineer",
-    "description": "",
-    "file_path": "./security/security-appsec-engineer.md"
+    "agent_id": "business-strategist",
+    "user_id": "agent_business-strategist",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4103933+03:30"
   },
   {
-    "id": "security-architect",
-    "name": "Security Architect Agent",
-    "description": "",
-    "file_path": "./security/security-architect.md"
+    "agent_id": "change-management-consultant",
+    "user_id": "agent_change-management-consultant",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4125859+03:30"
   },
   {
-    "id": "security-blockchain-security-auditor",
-    "name": "Blockchain Security Auditor",
-    "description": "",
-    "file_path": "./security/security-blockchain-security-auditor.md"
+    "agent_id": "chief-financial-officer",
+    "user_id": "agent_chief-financial-officer",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4144237+03:30"
   },
   {
-    "id": "security-cloud-security-architect",
-    "name": "Cloud Security Architect",
-    "description": "",
-    "file_path": "./security/security-cloud-security-architect.md"
+    "agent_id": "corporate-training-designer",
+    "user_id": "agent_corporate-training-designer",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4165439+03:30"
   },
   {
-    "id": "security-compliance-auditor",
-    "name": "Compliance Auditor Agent",
-    "description": "",
-    "file_path": "./security/security-compliance-auditor.md"
+    "agent_id": "customer-service",
+    "user_id": "agent_customer-service",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4186852+03:30"
   },
   {
-    "id": "security-incident-responder",
-    "name": "Incident Responder",
-    "description": "",
-    "file_path": "./security/security-incident-responder.md"
+    "agent_id": "customer-success-manager",
+    "user_id": "agent_customer-success-manager",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4207868+03:30"
   },
   {
-    "id": "security-penetration-tester",
-    "name": "Penetration Tester",
-    "description": "",
-    "file_path": "./security/security-penetration-tester.md"
+    "agent_id": "data-consolidation-agent",
+    "user_id": "agent_data-consolidation-agent",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4228269+03:30"
   },
   {
-    "id": "security-secrets-credential-engineer",
-    "name": "Secrets \u0026 Credential Hygiene Engineer",
-    "description": "",
-    "file_path": "./security/security-secrets-credential-engineer.md"
+    "agent_id": "data-privacy-officer",
+    "user_id": "agent_data-privacy-officer",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4248455+03:30"
   },
   {
-    "id": "security-senior-secops",
-    "name": "Senior SecOps Engineer",
-    "description": "",
-    "file_path": "./security/security-senior-secops.md"
+    "agent_id": "esg-sustainability-officer",
+    "user_id": "agent_esg-sustainability-officer",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4268438+03:30"
   },
   {
-    "id": "security-threat-detection-engineer",
-    "name": "Threat Detection Engineer Agent",
-    "description": "",
-    "file_path": "./security/security-threat-detection-engineer.md"
+    "agent_id": "government-digital-presales-consultant",
+    "user_id": "agent_government-digital-presales-consultant",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4291076+03:30"
   },
   {
-    "id": "security-threat-intelligence-analyst",
-    "name": "Threat Intelligence Analyst",
-    "description": "",
-    "file_path": "./security/security-threat-intelligence-analyst.md"
+    "agent_id": "grant-writer",
+    "user_id": "agent_grant-writer",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4311077+03:30"
   },
   {
-    "id": "macos-spatial-metal-engineer",
-    "name": "macOS Spatial/Metal Engineer Agent Personality",
-    "description": "",
-    "file_path": "./spatial-computing/macos-spatial-metal-engineer.md"
+    "agent_id": "healthcare-aging-parent-care-companion",
+    "user_id": "agent_healthcare-aging-parent-care-companion",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.43419+03:30"
   },
   {
-    "id": "terminal-integration-specialist",
-    "name": "Terminal Integration Specialist",
-    "description": "",
-    "file_path": "./spatial-computing/terminal-integration-specialist.md"
+    "agent_id": "healthcare-customer-service",
+    "user_id": "agent_healthcare-customer-service",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4361697+03:30"
   },
   {
-    "id": "visionos-spatial-engineer",
-    "name": "visionOS Spatial Engineer",
-    "description": "",
-    "file_path": "./spatial-computing/visionos-spatial-engineer.md"
+    "agent_id": "healthcare-marketing-compliance",
+    "user_id": "agent_healthcare-marketing-compliance",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4384621+03:30"
   },
   {
-    "id": "xr-cockpit-interaction-specialist",
-    "name": "XR Cockpit Interaction Specialist Agent Personality",
-    "description": "",
-    "file_path": "./spatial-computing/xr-cockpit-interaction-specialist.md"
+    "agent_id": "hospitality-guest-services",
+    "user_id": "agent_hospitality-guest-services",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.440581+03:30"
   },
   {
-    "id": "xr-immersive-developer",
-    "name": "XR Immersive Developer Agent Personality",
-    "description": "",
-    "file_path": "./spatial-computing/xr-immersive-developer.md"
+    "agent_id": "hr-onboarding",
+    "user_id": "agent_hr-onboarding",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.442687+03:30"
   },
   {
-    "id": "xr-interface-architect",
-    "name": "XR Interface Architect Agent Personality",
-    "description": "",
-    "file_path": "./spatial-computing/xr-interface-architect.md"
+    "agent_id": "identity-graph-operator",
+    "user_id": "agent_identity-graph-operator",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4455245+03:30"
   },
   {
-    "id": "accounts-payable-agent",
-    "name": "Accounts Payable Agent Personality",
-    "description": "",
-    "file_path": "./specialized/accounts-payable-agent.md"
+    "agent_id": "language-translator",
+    "user_id": "agent_language-translator",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4476835+03:30"
   },
   {
-    "id": "agentic-identity-trust",
-    "name": "Agentic Identity \u0026 Trust Architect",
-    "description": "",
-    "file_path": "./specialized/agentic-identity-trust.md"
+    "agent_id": "legal-billing-time-tracking",
+    "user_id": "agent_legal-billing-time-tracking",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4529611+03:30"
   },
   {
-    "id": "agents-orchestrator",
-    "name": "AgentsOrchestrator Agent Personality",
-    "description": "",
-    "file_path": "./specialized/agents-orchestrator.md"
+    "agent_id": "legal-client-intake",
+    "user_id": "agent_legal-client-intake",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4595591+03:30"
   },
   {
-    "id": "automation-governance-architect",
-    "name": "Automation Governance Architect",
-    "description": "",
-    "file_path": "./specialized/automation-governance-architect.md"
+    "agent_id": "legal-document-review",
+    "user_id": "agent_legal-document-review",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4621088+03:30"
   },
   {
-    "id": "business-strategist",
-    "name": "♟️ Business Strategist",
-    "description": "",
-    "file_path": "./specialized/business-strategist.md"
+    "agent_id": "loan-officer-assistant",
+    "user_id": "agent_loan-officer-assistant",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4654107+03:30"
   },
   {
-    "id": "change-management-consultant",
-    "name": "🔄 Change Management Consultant",
-    "description": "",
-    "file_path": "./specialized/change-management-consultant.md"
+    "agent_id": "lsp-index-engineer",
+    "user_id": "agent_lsp-index-engineer",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4713464+03:30"
   },
   {
-    "id": "chief-financial-officer",
-    "name": "💼 Chief Financial Officer Agent",
-    "description": "",
-    "file_path": "./specialized/chief-financial-officer.md"
+    "agent_id": "ma-integration-manager",
+    "user_id": "agent_ma-integration-manager",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4739713+03:30"
   },
   {
-    "id": "corporate-training-designer",
-    "name": "Corporate Training Designer",
-    "description": "",
-    "file_path": "./specialized/corporate-training-designer.md"
+    "agent_id": "medical-billing-coding-specialist",
+    "user_id": "agent_medical-billing-coding-specialist",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4762288+03:30"
   },
   {
-    "id": "customer-service",
-    "name": "🎧 Customer Service Agent",
-    "description": "",
-    "file_path": "./specialized/customer-service.md"
+    "agent_id": "operations-manager",
+    "user_id": "agent_operations-manager",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4805964+03:30"
   },
   {
-    "id": "customer-success-manager",
-    "name": "🌟 Customer Success Manager",
-    "description": "",
-    "file_path": "./specialized/customer-success-manager.md"
+    "agent_id": "organizational-psychologist",
+    "user_id": "agent_organizational-psychologist",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4831158+03:30"
   },
   {
-    "id": "data-consolidation-agent",
-    "name": "Data Consolidation Agent",
-    "description": "",
-    "file_path": "./specialized/data-consolidation-agent.md"
+    "agent_id": "personal-growth-mentor",
+    "user_id": "agent_personal-growth-mentor",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4851403+03:30"
   },
   {
-    "id": "data-privacy-officer",
-    "name": "🔐 Data Privacy Officer Agent",
-    "description": "",
-    "file_path": "./specialized/data-privacy-officer.md"
+    "agent_id": "real-estate-buyer-seller",
+    "user_id": "agent_real-estate-buyer-seller",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4883398+03:30"
   },
   {
-    "id": "esg-sustainability-officer",
-    "name": "🌱 ESG \u0026 Sustainability Officer Agent",
-    "description": "",
-    "file_path": "./specialized/esg-sustainability-officer.md"
+    "agent_id": "recruitment-specialist",
+    "user_id": "agent_recruitment-specialist",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4899918+03:30"
   },
   {
-    "id": "government-digital-presales-consultant",
-    "name": "Government Digital Presales Consultant",
-    "description": "",
-    "file_path": "./specialized/government-digital-presales-consultant.md"
+    "agent_id": "report-distribution-agent",
+    "user_id": "agent_report-distribution-agent",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4922208+03:30"
   },
   {
-    "id": "grant-writer",
-    "name": "📝 Grant Writer",
-    "description": "",
-    "file_path": "./specialized/grant-writer.md"
+    "agent_id": "resume-tailor",
+    "user_id": "agent_resume-tailor",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4948902+03:30"
   },
   {
-    "id": "healthcare-aging-parent-care-companion",
-    "name": "🧡 Aging Parent Care Companion",
-    "description": "",
-    "file_path": "./specialized/healthcare-aging-parent-care-companion.md"
+    "agent_id": "retail-customer-returns",
+    "user_id": "agent_retail-customer-returns",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.4977611+03:30"
   },
   {
-    "id": "healthcare-customer-service",
-    "name": "🏥 Healthcare Customer Service Agent",
-    "description": "",
-    "file_path": "./specialized/healthcare-customer-service.md"
+    "agent_id": "sales-data-extraction-agent",
+    "user_id": "agent_sales-data-extraction-agent",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5003679+03:30"
   },
   {
-    "id": "healthcare-marketing-compliance",
-    "name": "Healthcare Marketing Compliance Specialist",
-    "description": "",
-    "file_path": "./specialized/healthcare-marketing-compliance.md"
+    "agent_id": "sales-outreach",
+    "user_id": "agent_sales-outreach",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5020447+03:30"
   },
   {
-    "id": "hospitality-guest-services",
-    "name": "🏨 Hospitality Guest Services Agent",
-    "description": "",
-    "file_path": "./specialized/hospitality-guest-services.md"
+    "agent_id": "specialized-chief-of-staff",
+    "user_id": "agent_specialized-chief-of-staff",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5046278+03:30"
   },
   {
-    "id": "hr-onboarding",
-    "name": "🤝 HR Onboarding Agent",
-    "description": "",
-    "file_path": "./specialized/hr-onboarding.md"
+    "agent_id": "specialized-civil-engineer",
+    "user_id": "agent_specialized-civil-engineer",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5066354+03:30"
   },
   {
-    "id": "identity-graph-operator",
-    "name": "Identity Graph Operator",
-    "description": "",
-    "file_path": "./specialized/identity-graph-operator.md"
+    "agent_id": "specialized-codebase-archaeologist",
+    "user_id": "agent_specialized-codebase-archaeologist",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5081412+03:30"
   },
   {
-    "id": "language-translator",
-    "name": "🌐 Language Translator",
-    "description": "",
-    "file_path": "./specialized/language-translator.md"
+    "agent_id": "specialized-cultural-intelligence-strategist",
+    "user_id": "agent_specialized-cultural-intelligence-strategist",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.511149+03:30"
   },
   {
-    "id": "legal-billing-time-tracking",
-    "name": "⏱️ Legal Billing \u0026 Time Tracking Agent",
-    "description": "",
-    "file_path": "./specialized/legal-billing-time-tracking.md"
+    "agent_id": "specialized-developer-advocate",
+    "user_id": "agent_specialized-developer-advocate",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5136554+03:30"
   },
   {
-    "id": "legal-client-intake",
-    "name": "📋 Legal Client Intake Agent",
-    "description": "",
-    "file_path": "./specialized/legal-client-intake.md"
+    "agent_id": "specialized-document-generator",
+    "user_id": "agent_specialized-document-generator",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5161699+03:30"
   },
   {
-    "id": "legal-document-review",
-    "name": "⚖️ Legal Document Review Agent",
-    "description": "",
-    "file_path": "./specialized/legal-document-review.md"
+    "agent_id": "specialized-fedramp-rmf-compliance",
+    "user_id": "agent_specialized-fedramp-rmf-compliance",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5181745+03:30"
   },
   {
-    "id": "loan-officer-assistant",
-    "name": "🏦 Loan Officer Assistant Agent",
-    "description": "",
-    "file_path": "./specialized/loan-officer-assistant.md"
+    "agent_id": "specialized-french-consulting-market",
+    "user_id": "agent_specialized-french-consulting-market",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5201736+03:30"
   },
   {
-    "id": "lsp-index-engineer",
-    "name": "LSP/Index Engineer Agent Personality",
-    "description": "",
-    "file_path": "./specialized/lsp-index-engineer.md"
+    "agent_id": "specialized-korean-business-navigator",
+    "user_id": "agent_specialized-korean-business-navigator",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5221754+03:30"
   },
   {
-    "id": "ma-integration-manager",
-    "name": "🤝 M\u0026A Integration Manager Agent",
-    "description": "",
-    "file_path": "./specialized/ma-integration-manager.md"
+    "agent_id": "specialized-mcp-builder",
+    "user_id": "agent_specialized-mcp-builder",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5242488+03:30"
   },
   {
-    "id": "medical-billing-coding-specialist",
-    "name": "🏥 Medical Billing \u0026 Coding Specialist",
-    "description": "",
-    "file_path": "./specialized/medical-billing-coding-specialist.md"
+    "agent_id": "specialized-model-qa",
+    "user_id": "agent_specialized-model-qa",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5270251+03:30"
   },
   {
-    "id": "operations-manager",
-    "name": "⚙️ Operations Manager Agent",
-    "description": "",
-    "file_path": "./specialized/operations-manager.md"
+    "agent_id": "specialized-pricing-analyst",
+    "user_id": "agent_specialized-pricing-analyst",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.530292+03:30"
   },
   {
-    "id": "organizational-psychologist",
-    "name": "🧠 Organizational Psychologist Agent",
-    "description": "",
-    "file_path": "./specialized/organizational-psychologist.md"
+    "agent_id": "specialized-salesforce-architect",
+    "user_id": "agent_specialized-salesforce-architect",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5328055+03:30"
   },
   {
-    "id": "personal-growth-mentor",
-    "name": "🌱 Personal Growth Mentor",
-    "description": "",
-    "file_path": "./specialized/personal-growth-mentor.md"
+    "agent_id": "specialized-strategy-duel-agent",
+    "user_id": "agent_specialized-strategy-duel-agent",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5346055+03:30"
   },
   {
-    "id": "real-estate-buyer-seller",
-    "name": "🏠 Real Estate Buyer \u0026 Seller Agent",
-    "description": "",
-    "file_path": "./specialized/real-estate-buyer-seller.md"
+    "agent_id": "specialized-workflow-architect",
+    "user_id": "agent_specialized-workflow-architect",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5371041+03:30"
   },
   {
-    "id": "recruitment-specialist",
-    "name": "Recruitment Specialist Agent",
-    "description": "",
-    "file_path": "./specialized/recruitment-specialist.md"
+    "agent_id": "study-abroad-advisor",
+    "user_id": "agent_study-abroad-advisor",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5392059+03:30"
   },
   {
-    "id": "report-distribution-agent",
-    "name": "Report Distribution Agent",
-    "description": "",
-    "file_path": "./specialized/report-distribution-agent.md"
+    "agent_id": "supply-chain-strategist",
+    "user_id": "agent_supply-chain-strategist",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5414698+03:30"
   },
   {
-    "id": "resume-tailor",
-    "name": "Resume Tailor Agent",
-    "description": "",
-    "file_path": "./specialized/resume-tailor.md"
+    "agent_id": "zk-steward",
+    "user_id": "agent_zk-steward",
+    "role": "specialized",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5448431+03:30"
   },
   {
-    "id": "retail-customer-returns",
-    "name": "🛒 Retail Customer Returns Agent",
-    "description": "",
-    "file_path": "./specialized/retail-customer-returns.md"
+    "agent_id": "support-analytics-reporter",
+    "user_id": "agent_support-analytics-reporter",
+    "role": "support",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.549125+03:30"
   },
   {
-    "id": "sales-data-extraction-agent",
-    "name": "Sales Data Extraction Agent",
-    "description": "",
-    "file_path": "./specialized/sales-data-extraction-agent.md"
+    "agent_id": "support-executive-summary-generator",
+    "user_id": "agent_support-executive-summary-generator",
+    "role": "support",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5513402+03:30"
   },
   {
-    "id": "sales-outreach",
-    "name": "🎯 Sales Outreach Agent",
-    "description": "",
-    "file_path": "./specialized/sales-outreach.md"
-  },
-  {
-    "id": "specialized-chief-of-staff",
-    "name": "🧭 Chief of Staff",
-    "description": "",
-    "file_path": "./specialized/specialized-chief-of-staff.md"
-  },
-  {
-    "id": "specialized-civil-engineer",
-    "name": "Civil Engineer Agent",
-    "description": "",
-    "file_path": "./specialized/specialized-civil-engineer.md"
-  },
-  {
-    "id": "specialized-codebase-archaeologist",
-    "name": "Codebase Archaeologist Agent Personality",
-    "description": "",
-    "file_path": "./specialized/specialized-codebase-archaeologist.md"
-  },
-  {
-    "id": "specialized-cultural-intelligence-strategist",
-    "name": "🌍 Cultural Intelligence Strategist",
-    "description": "",
-    "file_path": "./specialized/specialized-cultural-intelligence-strategist.md"
-  },
-  {
-    "id": "specialized-developer-advocate",
-    "name": "Developer Advocate Agent",
-    "description": "",
-    "file_path": "./specialized/specialized-developer-advocate.md"
-  },
-  {
-    "id": "specialized-document-generator",
-    "name": "Document Generator Agent",
-    "description": "",
-    "file_path": "./specialized/specialized-document-generator.md"
-  },
-  {
-    "id": "specialized-fedramp-rmf-compliance",
-    "name": "🛡️ FedRAMP \u0026 RMF Compliance Engineer",
-    "description": "",
-    "file_path": "./specialized/specialized-fedramp-rmf-compliance.md"
-  },
-  {
-    "id": "specialized-french-consulting-market",
-    "name": "French Consulting Market Navigator",
-    "description": "",
-    "file_path": "./specialized/specialized-french-consulting-market.md"
-  },
-  {
-    "id": "specialized-korean-business-navigator",
-    "name": "🧠 Your Identity \u0026 Memory",
-    "description": "",
-    "file_path": "./specialized/specialized-korean-business-navigator.md"
-  },
-  {
-    "id": "specialized-mcp-builder",
-    "name": "MCP Builder Agent",
-    "description": "",
-    "file_path": "./specialized/specialized-mcp-builder.md"
-  },
-  {
-    "id": "specialized-model-qa",
-    "name": "Model QA Specialist",
-    "description": "",
-    "file_path": "./specialized/specialized-model-qa.md"
-  },
-  {
-    "id": "specialized-pricing-analyst",
-    "name": "Pricing Analyst Agent",
-    "description": "",
-    "file_path": "./specialized/specialized-pricing-analyst.md"
-  },
-  {
-    "id": "specialized-salesforce-architect",
-    "name": "Salesforce Architect",
-    "description": "",
-    "file_path": "./specialized/specialized-salesforce-architect.md"
-  },
-  {
-    "id": "specialized-strategy-duel-agent",
-    "name": "Strategy Duel Agent",
-    "description": "",
-    "file_path": "./specialized/specialized-strategy-duel-agent.md"
-  },
-  {
-    "id": "specialized-workflow-architect",
-    "name": "Workflow Architect Agent Personality",
-    "description": "",
-    "file_path": "./specialized/specialized-workflow-architect.md"
-  },
-  {
-    "id": "study-abroad-advisor",
-    "name": "Study Abroad Advisor",
-    "description": "",
-    "file_path": "./specialized/study-abroad-advisor.md"
-  },
-  {
-    "id": "supply-chain-strategist",
-    "name": "Supply Chain Strategist Agent",
-    "description": "",
-    "file_path": "./specialized/supply-chain-strategist.md"
-  },
-  {
-    "id": "zk-steward",
-    "name": "ZK Steward Agent",
-    "description": "",
-    "file_path": "./specialized/zk-steward.md"
-  },
-  {
-    "id": "agent-activation-prompts",
-    "name": "🎯 NEXUS Agent Activation Prompts",
-    "description": "",
-    "file_path": "./strategy/coordination/agent-activation-prompts.md"
-  },
-  {
-    "id": "handoff-templates",
-    "name": "📋 NEXUS Handoff Templates",
-    "description": "",
-    "file_path": "./strategy/coordination/handoff-templates.md"
-  },
-  {
-    "id": "EXECUTIVE-BRIEF",
-    "name": "📑 NEXUS Executive Brief",
-    "description": "",
-    "file_path": "./strategy/EXECUTIVE-BRIEF.md"
-  },
-  {
-    "id": "nexus-strategy",
-    "name": "🌐 NEXUS — Network of EXperts, Unified in Strategy",
-    "description": "",
-    "file_path": "./strategy/nexus-strategy.md"
-  },
-  {
-    "id": "phase-0-discovery",
-    "name": "🔍 Phase 0 Playbook — Intelligence \u0026 Discovery",
-    "description": "",
-    "file_path": "./strategy/playbooks/phase-0-discovery.md"
-  },
-  {
-    "id": "phase-1-strategy",
-    "name": "🏗️ Phase 1 Playbook — Strategy \u0026 Architecture",
-    "description": "",
-    "file_path": "./strategy/playbooks/phase-1-strategy.md"
-  },
-  {
-    "id": "phase-2-foundation",
-    "name": "⚙️ Phase 2 Playbook — Foundation \u0026 Scaffolding",
-    "description": "",
-    "file_path": "./strategy/playbooks/phase-2-foundation.md"
-  },
-  {
-    "id": "phase-3-build",
-    "name": "🔨 Phase 3 Playbook — Build \u0026 Iterate",
-    "description": "",
-    "file_path": "./strategy/playbooks/phase-3-build.md"
-  },
-  {
-    "id": "phase-4-hardening",
-    "name": "🛡️ Phase 4 Playbook — Quality \u0026 Hardening",
-    "description": "",
-    "file_path": "./strategy/playbooks/phase-4-hardening.md"
-  },
-  {
-    "id": "phase-5-launch",
-    "name": "🚀 Phase 5 Playbook — Launch \u0026 Growth",
-    "description": "",
-    "file_path": "./strategy/playbooks/phase-5-launch.md"
-  },
-  {
-    "id": "phase-6-operate",
-    "name": "🔄 Phase 6 Playbook — Operate \u0026 Evolve",
-    "description": "",
-    "file_path": "./strategy/playbooks/phase-6-operate.md"
-  },
-  {
-    "id": "QUICKSTART",
-    "name": "⚡ NEXUS Quick-Start Guide",
-    "description": "",
-    "file_path": "./strategy/QUICKSTART.md"
-  },
-  {
-    "id": "scenario-enterprise-feature",
-    "name": "🏢 Runbook: Enterprise Feature Development",
-    "description": "",
-    "file_path": "./strategy/runbooks/scenario-enterprise-feature.md"
-  },
-  {
-    "id": "scenario-incident-response",
-    "name": "🚨 Runbook: Incident Response",
-    "description": "",
-    "file_path": "./strategy/runbooks/scenario-incident-response.md"
-  },
-  {
-    "id": "scenario-marketing-campaign",
-    "name": "📢 Runbook: Multi-Channel Marketing Campaign",
-    "description": "",
-    "file_path": "./strategy/runbooks/scenario-marketing-campaign.md"
-  },
-  {
-    "id": "scenario-startup-mvp",
-    "name": "🚀 Runbook: Startup MVP Build",
-    "description": "",
-    "file_path": "./strategy/runbooks/scenario-startup-mvp.md"
-  },
-  {
-    "id": "support-analytics-reporter",
-    "name": "Analytics Reporter Agent Personality",
-    "description": "",
-    "file_path": "./support/support-analytics-reporter.md"
-  },
-  {
-    "id": "support-executive-summary-generator",
-    "name": "Executive Summary Generator Agent Personality",
-    "description": "",
-    "file_path": "./support/support-executive-summary-generator.md"
-  },
-  {
-    "id": "support-finance-tracker",
-    "name": "Finance Tracker Agent Personality",
-    "description": "",
-    "file_path": "./support/support-finance-tracker.md"
-  },
-  {
-    "id": "support-infrastructure-maintainer",
-    "name": "Infrastructure Maintainer Agent Personality",
-    "description": "",
-    "file_path": "./support/support-infrastructure-maintainer.md"
-  },
-  {
-    "id": "support-legal-compliance-checker",
-    "name": "Legal Compliance Checker Agent Personality",
-    "description": "",
-    "file_path": "./support/support-legal-compliance-checker.md"
-  },
-  {
-    "id": "support-support-responder",
-    "name": "Support Responder Agent Personality",
-    "description": "",
-    "file_path": "./support/support-support-responder.md"
-  },
-  {
-    "id": "testing-accessibility-auditor",
-    "name": "Accessibility Auditor Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-accessibility-auditor.md"
-  },
-  {
-    "id": "testing-api-tester",
-    "name": "API Tester Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-api-tester.md"
-  },
-  {
-    "id": "testing-evidence-collector",
-    "name": "QA Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-evidence-collector.md"
-  },
-  {
-    "id": "testing-performance-benchmarker",
-    "name": "Performance Benchmarker Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-performance-benchmarker.md"
-  },
-  {
-    "id": "testing-reality-checker",
-    "name": "Integration Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-reality-checker.md"
-  },
-  {
-    "id": "testing-test-automation-engineer",
-    "name": "Test Automation Engineer",
-    "description": "",
-    "file_path": "./testing/testing-test-automation-engineer.md"
-  },
-  {
-    "id": "testing-test-results-analyzer",
-    "name": "Test Results Analyzer Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-test-results-analyzer.md"
-  },
-  {
-    "id": "testing-tool-evaluator",
-    "name": "Tool Evaluator Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-tool-evaluator.md"
-  },
-  {
-    "id": "testing-workflow-optimizer",
-    "name": "Workflow Optimizer Agent Personality",
-    "description": "",
-    "file_path": "./testing/testing-workflow-optimizer.md"
-  },
-  {
-    "id": "Porting-Buffer",
-    "name": "Porting to the Buffer.from/Buffer.alloc API",
-    "description": "",
-    "file_path": "./web/node_modules/safer-buffer/Porting-Buffer.md"
+    "agent_id": "support-finance-tracker",
+    "user_id": "agent_support-finance-tracker",
+    "role": "support",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5543464+03:30"
+  },
+  {
+    "agent_id": "support-infrastructure-maintainer",
+    "user_id": "agent_support-infrastructure-maintainer",
+    "role": "support",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5606647+03:30"
+  },
+  {
+    "agent_id": "support-legal-compliance-checker",
+    "user_id": "agent_support-legal-compliance-checker",
+    "role": "support",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5633765+03:30"
+  },
+  {
+    "agent_id": "support-support-responder",
+    "user_id": "agent_support-support-responder",
+    "role": "support",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5654662+03:30"
+  },
+  {
+    "agent_id": "testing-accessibility-auditor",
+    "user_id": "agent_testing-accessibility-auditor",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5675086+03:30"
+  },
+  {
+    "agent_id": "testing-api-tester",
+    "user_id": "agent_testing-api-tester",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5699952+03:30"
+  },
+  {
+    "agent_id": "testing-evidence-collector",
+    "user_id": "agent_testing-evidence-collector",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5720084+03:30"
+  },
+  {
+    "agent_id": "testing-performance-benchmarker",
+    "user_id": "agent_testing-performance-benchmarker",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5750109+03:30"
+  },
+  {
+    "agent_id": "testing-reality-checker",
+    "user_id": "agent_testing-reality-checker",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5773868+03:30"
+  },
+  {
+    "agent_id": "testing-test-automation-engineer",
+    "user_id": "agent_testing-test-automation-engineer",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5806392+03:30"
+  },
+  {
+    "agent_id": "testing-test-results-analyzer",
+    "user_id": "agent_testing-test-results-analyzer",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5823817+03:30"
+  },
+  {
+    "agent_id": "testing-tool-evaluator",
+    "user_id": "agent_testing-tool-evaluator",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5843753+03:30"
+  },
+  {
+    "agent_id": "testing-workflow-optimizer",
+    "user_id": "agent_testing-workflow-optimizer",
+    "role": "testing",
+    "license_id": "LIC-AGENT-DEFAULT",
+    "status": "Active",
+    "last_seen": "2026-11-01T00:55:44.5868099+03:30"
   }
 ]

@@ -25,6 +25,7 @@ type Req struct {
 	IssuedAt   int64  `json:"issued_at"`
 	ExpiresAt  int64  `json:"expires_at"`
 	HardwareID string `json:"hardware_id"`
+	SignedData string `json:"signed_data"`
 }
 
 func main() {
@@ -51,9 +52,12 @@ func main() {
 		case "ecdsa":
 			pub, err := crypto.Secp256k1PublicKeyFromHex(req.PublicKey)
 			if err == nil {
-				// EXACT format matching the Offline Dashboard
-				expTime := time.Unix(req.ExpiresAt, 0).UTC().Format(time.RFC3339)
-				payload := fmt.Sprintf("%s|%s|%s|%d|%s|active|%s", req.LicenseID, req.ProductID, req.UserID, req.Volume, req.MerkleRoot, expTime)
+				// Use the exact signed_data from dashboard if available
+				payload := req.SignedData
+				if payload == "" {
+					expTime := time.Unix(req.ExpiresAt, 0).UTC().Format(time.RFC3339)
+					payload = fmt.Sprintf("%s|%s|%s|%d|%s|active|%s", req.LicenseID, req.ProductID, req.UserID, req.Volume, req.MerkleRoot, expTime)
+				}
 				vote, _ = crypto.VerifyData(pub, []byte(payload), req.Signature)
 			}
 		case "txid":

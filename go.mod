@@ -3,6 +3,7 @@ module horizon-core
 go 1.24
 
 require (
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1
 	github.com/glebarez/sqlite v1.11.0
 	gorm.io/gorm v1.25.7
 )
