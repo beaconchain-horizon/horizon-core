@@ -1,30 +1,35 @@
-# 📜 Horizon Core — Project Constitution (قانون اساسی)
+# 📜 Horizon Core — قانون اساسی پروژه (Project Constitution)
 
-**WARNING:** Any AI Agent or Developer modifying this codebase MUST read and strictly adhere to the following laws. Violating these laws is strictly forbidden and will result in immediate rejection of code.
+**هشدار:** هر هوش مصنوعی یا توسعه‌دهنده‌ای که روی این کدبیس کار می‌کند، **باید** این قوانین را مطالعه کرده و به آن پایبند باشد. نقض این قوانین به معنای رد فوری کد است.
 
-## 🏛️ The Three Absolute Laws (قوانین سه‌گانه)
+## 🏛️ قوانین سه‌گانه مطلق (The Three Absolute Laws)
 
-1.  **Law #1: License Enforced Everywhere (قانون لایسنس اجباری)**
-    *   **Rule:** ALL internal and external communications (Nodes, Switches, APIs, Agents) MUST be authenticated using a valid License.
-    *   **Forbidden:** No public endpoint (except `/health`) is allowed without `X-License-ID` validation. Bypassing the `LicenseAuthMiddleware` for any reason (even for benchmarks) is a direct violation.
-2.  **Law #2: Billion-Scale Readiness (آمادگی برای یک میلیارد لایسنس)**
-    *   **Rule:** The database and infrastructure must be optimized to handle up to 1,000,000,000 (1 Billion) unique agent licenses. Bulk inserts must use batching (`CreateInBatches`).
-3.  **Law #3: Zero-Storage of Private Keys (ممنوعیت مطلق کلید خصوصی)**
-    *   **Rule:** Private keys, Seeds, or Mnemonics MUST NEVER be hardcoded, stored in databases, or written to disk.
-    *   **Allowed:** Only Public Keys and Signatures may be stored. Private keys MUST be generated in volatile RAM (in-memory) during runtime.
+1. **قانون اول: لایسنس در همه‌جا اجباری است (Law #1: License Enforced Everywhere)**
+   - **قانون:** تمام ارتباطات داخلی و خارجی (نودها، سوییچ‌ها، APIها، ایجنت‌ها) **باید** با لایسنس معتبر احراز هویت شوند.
+   - **ممنوع:** هیچ اندپوینت عمومی (به جز `/health`) مجاز نیست بدون اعتبارسنجی `X-License-ID` کار کند. دور زدن `LicenseAuthMiddleware` به هر دلیلی (حتی برای بنچمارک) نقض مستقیم قانون است.
 
-## 🏗️ Architectural Rules (قوانین معماری)
+2. **قانون دوم: آمادگی برای مقیاس یک میلیارد (Law #2: Billion-Scale Readiness)**
+   - **قانون:** دیتابیس و زیرساخت باید برای مدیریت تا ۱,۰۰۰,۰۰۰,۰۰۰ (یک میلیارد) لایسنس اختصاصی ایجنت بهینه شوند. درج‌های انبوه باید از بچینگ (`CreateInBatches`) استفاده کنند.
 
-4.  **Law #4: Crypto Sovereignty (حاکمیت رمزنگاری)**
-    *   **Rule:** The native cryptographic engine is `secp256k1`. It is independent of US/NIST mandates.
-    *   **Rule:** PQC (Post-Quantum) is a plug-in option, never a mandatory dependency. The `Crypto-Agility` layer must remain intact.
-5.  **Law #5: Branch Isolation (جدایی شاخه‌ها)**
-    *   **Rule:** NEVER merge branches blindly (e.g., `git merge mine`). Code must be cherry-picked or explicitly checked out (`git checkout mine -- <file>`). 
-6.  **Law #6: Liara Purge & Docker Safety (پاکسازی لیارا و ایمنی داکر)**
-    *   **Rule:** All configurations, workflows, and references to "Liara" MUST be deleted.
-    *   **Rule:** Do NOT delete `Dockerfile` or `docker-compose.yml`. Simply replace the word "Liara" with "Horizon" inside them.
-7.  **Law #7: Anonymity in Legal Docs (گمنامی در اسناد حقوقی)**
-    *   **Rule:** The name "Mahdi Amolimoghadam" or any personal name MUST NOT appear in public legal documents (GDPR, SCC). Use "Horizon Core Architecture Team" instead.
+3. **قانون سوم: ممنوعیت مطلق ذخیره کلید خصوصی (Law #3: Zero-Storage of Private Keys)**
+   - **قانون:** کلیدهای خصوصی، Seedها یا Mnemonicها **هرگز** نباید در کد هاردکد شوند، در دیتابیس ذخیره شوند یا روی دیسک نوشته شوند.
+   - **مجاز:** فقط کلیدهای عمومی و امضاها می‌توانند ذخیره شوند. کلیدهای خصوصی **باید** در حافظه فرار (RAM) در زمان اجرا تولید شوند.
+
+## 🏗️ قوانین معماری (Architectural Rules)
+
+4. **قانون چهارم: حاکمیت رمزنگاری (Law #4: Crypto Sovereignty)**
+   - **قانون:** موتور رمزنگاری بومی `secp256k1` است و مستقل از استانداردهای آمریکا/NIST عمل می‌کند.
+   - **قانون:** PQC (پسا-کوانتومی) یک گزینه پلاگین است، نه یک وابستگی اجباری. لایه `Crypto-Agility` باید دست‌نخورده باقی بماند.
+
+5. **قانون پنجم: جدایی شاخه‌ها (Law #5: Branch Isolation)**
+   - **قانون:** هرگز شاخه‌ها را کورکورانه ادغام نکنید (مثلاً `git merge mine`). کد باید به صورت انتخابی (`git checkout mine -- <file>`) یا با cherry-pick منتقل شود.
+
+6. **قانون ششم: پاکسازی لیارا و ایمنی داکر (Law #6: Liara Purge & Docker Safety)**
+   - **قانون:** تمام تنظیمات، ورک‌فلوها و ارجاعات به «Liara» **باید** حذف شوند.
+   - **قانون:** فایل‌های `Dockerfile` یا `docker-compose.yml` را **حذف نکنید**. فقط کلمه «Liara» را با «Horizon» در داخل آن‌ها جایگزین کنید.
+
+7. **قانون هفتم: گمنامی در اسناد حقوقی (Law #7: Anonymity in Legal Docs)**
+   - **قانون:** نام «Mahdi Amolimoghadam» یا هر نام شخصی **نباید** در اسناد حقوقی عمومی (GDPR، SCC) ظاهر شود. به جای آن از «Horizon Core Architecture Team» استفاده کنید.
 
 ---
-*By executing code in this repository, you automatically agree to be bound by these Constitutional Laws.*
+*با اجرای کد در این مخزن، شما به طور خودکار موافقت می‌کنید که به این قوانین اساسی پایبند باشید.*
