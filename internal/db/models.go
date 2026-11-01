@@ -3,7 +3,7 @@ package db
 import "time"
 
 type Block struct {
-	Number       uint64    `gorm:"primaryKey;autoIncrement:false" json:"number"`
+	Number       uint64    `gorm:"primaryKey" json:"number"`
 	PreviousHash string    `json:"previous_hash"`
 	MerkleRoot   string    `json:"merkle_root"`
 	MerkleType   string    `json:"merkle_type"`
@@ -34,6 +34,24 @@ type Agent struct {
 	LicenseID string    `json:"license_id"`
 	Status    string    `json:"status"`
 	LastSeen  time.Time `json:"last_seen"`
+}
+
+type License struct {
+	LicenseID  string    `gorm:"primaryKey;index" json:"license_id"`
+	UserID     string    `json:"user_id"`
+	ProductID  string    `json:"product_id"`
+	Volume     int64     `json:"volume"`
+	Used       int64     `json:"used"`
+	Duration   int       `json:"duration"`
+	MerkleRoot string    `json:"merkle_root"`
+	IssuedAt   int64     `json:"issued_at"`
+	ExpiresAt  int64     `json:"expires_at"`
+	HardwareID string    `json:"hardware_id"`
+	Signature  string    `json:"signature"`
+	PublicKey  string    `json:"public_key"`
+	SignedData string    `json:"signed_data"`
+	Status     string    `json:"status"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 type SystemLaw struct {
