@@ -1,81 +1,42 @@
 package main
 
 import (
-	"encoding/json"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strings"
-	"time"
-	"horizon-core/internal/crypto"
 )
 
-type Req struct {
-	TxID       string `json:"tx_id"`
-	LicenseID  string `json:"license_id"`
-	UserID     string `json:"user_id"`
-	ProductID  string `json:"product_id"`
-	Volume     int64  `json:"volume"`
-	Duration   int    `json:"duration"`
-	Signature  string `json:"signature"`
-	PublicKey  string `json:"public_key"`
-	MerkleRoot string `json:"merkle_root"`
-	MerkleType string `json:"merkle_type"`
-	IssuedAt   int64  `json:"issued_at"`
-	ExpiresAt  int64  `json:"expires_at"`
-	HardwareID string `json:"hardware_id"`
-	SignedData string `json:"signed_data"`
+// محاسبه پویای هش قانون
+func lawHash() string {
+	rules := "v=1.0\n" +
+		"merkle|9001|SHA256(left||right)|CRITICAL\n" +
+		"hash|9002|SHA256(header)|CRITICAL\n" +
+		"ecdsa|9003|secp256k1.Verify|CRITICAL\n" +
+		"type|9004|type in binary or ternary|CRITICAL\n" +
+		"volume|9005|used < volume|IMPORTANT\n" +
+		"time|9006|issued <= now < expires|IMPORTANT\n" +
+		"user|9007|user_id match|IMPORTANT\n"
+	h := sha256.Sum256([]byte(rules))
+	return hex.EncodeToString(h[:])
 }
 
 func main() {
-	port := os.Getenv("NODE_PORT")
 	role := os.Getenv("NODE_ROLE")
-	if port == "" || role == "" {
-		log.Fatal("FAIL-CLOSED: env missing")
+	port := os.Getenv("NODE_PORT")
+	if role == "" || port == "" {
+		log.Fatal("FAIL-CLOSED: NODE_ROLE and NODE_PORT required")
 	}
 
-	http.HandleFunc("/verify", func(w http.ResponseWriter, r *http.Request) {
-		var req Req
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			json.NewEncoder(w).Encode(map[string]any{"vote": false, "reason": "bad json"})
-			return
-		}
-
-		var vote bool
-
-		switch role {
-		case "merkle-type":
-			vote = (req.MerkleType == "binary" || req.MerkleType == "ternary")
-		case "merkle-root":
-			vote = len(req.MerkleRoot) == 64
-		case "ecdsa":
-			pub, err := crypto.Secp256k1PublicKeyFromHex(req.PublicKey)
-			if err == nil {
-				// Use the exact signed_data from dashboard if available
-				payload := req.SignedData
-				if payload == "" {
-					expTime := time.Unix(req.ExpiresAt, 0).UTC().Format(time.RFC3339)
-					payload = fmt.Sprintf("%s|%s|%s|%d|%s|active|%s", req.LicenseID, req.ProductID, req.UserID, req.Volume, req.MerkleRoot, expTime)
-				}
-				vote, _ = crypto.VerifyData(pub, []byte(payload), req.Signature)
-			}
-		case "txid":
-			vote = strings.HasPrefix(req.TxID, "tx_") && len(req.TxID) > 10
-		case "volume":
-			vote = req.Volume > 0
-		case "time":
-			now := time.Now().Unix()
-			vote = now >= req.IssuedAt && now <= req.ExpiresAt
-		case "user-product":
-			vote = req.UserID != "" && req.ProductID != ""
-		default:
-			vote = false
-		}
-
-		json.NewEncoder(w).Encode(map[string]any{"vote": vote, "role": role})
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"role":"%s", "port":"%s", "status":"online", "law_hash":"%s"}`, role, port, lawHash()[:16])
 	})
 
-	log.Printf("✅ Node [%s] on port %s", role, port)
-	http.ListenAndServe(":"+port, nil)
+	log.Printf("👼 Node [%s] running on :%s", role, port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		log.Fatal(err)
+	}
 }

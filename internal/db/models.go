@@ -3,7 +3,7 @@ package db
 import "time"
 
 type Block struct {
-	Number       uint64    `gorm:"primaryKey" json:"number"`
+	Number       uint64    `gorm:"primaryKey;autoIncrement:false" json:"number"`
 	PreviousHash string    `json:"previous_hash"`
 	MerkleRoot   string    `json:"merkle_root"`
 	MerkleType   string    `json:"merkle_type"`
@@ -27,20 +27,18 @@ type Transaction struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// Agent DB (Separate table for agents)
 type Agent struct {
-	AgentID       string    `gorm:"primaryKey" json:"agent_id"`
-	UserID        string    `json:"user_id"` // The generated UserID for the agent
-	Role          string    `json:"role"`    // e.g., frontend, backend, product
-	LicenseID     string    `json:"license_id"`
-	Status        string    `json:"status"`  // Active, Inactive
-	LastSeen      time.Time `json:"last_seen"`
+	AgentID   string    `gorm:"primaryKey" json:"agent_id"`
+	UserID    string    `json:"user_id"`
+	Role      string    `json:"role"`
+	LicenseID string    `json:"license_id"`
+	Status    string    `json:"status"`
+	LastSeen  time.Time `json:"last_seen"`
 }
 
 type SystemLaw struct {
-	LawID       string    `gorm:"primaryKey" json:"law_id"`
-	Title       string    `json:"title"`
-	Status      string    `json:"status"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
+	LawID       string `gorm:"primaryKey" json:"law_id"`
+	Title       string `json:"title"`
+	Status      string `json:"status"`
+	Description string `json:"description"`
 }

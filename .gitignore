@@ -1,8 +1,34 @@
+# Block ALL databases, backups, and logs
+*.db
+*.db-wal
+*.db-shm
+*.db.bak*
+*.db.old*
+*.bak
+*.log
+backup_dbs/
+HorizonCore-backups/
+data/
+horizon_safe_backups/
+
+# Block ALL keys, seeds, and secrets
+*.pem
+*.key
+seed*
+*seed*
+mykey*
+*.lic
+.env
+.env.*
+agent_license.json
+
+# Block binaries and build artifacts
 bin/
 *.exe
-*.db
-*.db-shm
-*.db-wal
-*.log
 node_modules/
-frontend/
+vendor/
+.gotmp/
+
+# Block OS noise
+.DS_Store
+Thumbs.db

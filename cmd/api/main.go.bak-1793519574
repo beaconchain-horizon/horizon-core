@@ -1,0 +1,93 @@
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"time"
+	"horizon-core/internal/db"
+	"horizon-core/internal/chain"
+)
+
+func enableCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+}
+
+func createGenesisIfNeeded() {
+	var count int64
+	db.DB.Model(&db.Block{}).Count(&count)
+	if count == 0 {
+		ts := time.Now().UTC()
+		zeroHash := "0000000000000000000000000000000000000000000000000000000000000000"
+		emptyRoot := hex.EncodeToString(make([]byte, 32))
+		h := sha256.New()
+		h.Write([]byte(zeroHash))
+		h.Write([]byte(emptyRoot))
+		h.Write([]byte(ts.Format(time.RFC3339Nano)))
+		fmt.Fprintf(h, "|%d", 0)
+		genesisHash := hex.EncodeToString(h.Sum(nil))
+		genesis := db.Block{
+			Number:       0,
+			PreviousHash: zeroHash,
+			MerkleRoot:   emptyRoot,
+			MerkleType:   "genesis",
+			TxCount:      0,
+			Timestamp:    ts,
+			BlockHash:    genesisHash,
+		}
+		db.DB.Create(&genesis)
+		log.Printf("🌱 Genesis Block created: #0 hash=%s", genesisHash[:16])
+	}
+}
+
+func main() {
+	db.Init()
+	createGenesisIfNeeded()
+
+	http.HandleFunc("/api/v1/chain/info", func(w http.ResponseWriter, r *http.Request) {
+		enableCORS(w)
+		var latest db.Block
+		db.DB.Order("number desc").First(&latest)
+		var txCount int64
+		db.DB.Model(&db.Transaction{}).Count(&txCount)
+		json.NewEncoder(w).Encode(map[string]any{
+			"chain_id": "horizon-core-v1.4",
+			"height": latest.Number,
+			"block_count": latest.Number + 1,
+			"tx_total": txCount,
+			"latest_hash": latest.BlockHash,
+			"latest_root": latest.MerkleRoot,
+		})
+	})
+
+	http.HandleFunc("/api/v1/blocks", func(w http.ResponseWriter, r *http.Request) {
+		enableCORS(w)
+		var blocks []db.Block
+		db.DB.Order("number desc").Limit(20).Find(&blocks)
+		json.NewEncoder(w).Encode(blocks)
+	})
+
+	http.HandleFunc("/api/v1/agents", func(w http.ResponseWriter, r *http.Request) {
+		enableCORS(w)
+		var agents []db.Agent
+		db.DB.Find(&agents)
+		json.NewEncoder(w).Encode(agents)
+	})
+
+	http.HandleFunc("/api/v1/test/merkle", func(w http.ResponseWriter, r *http.Request) {
+		enableCORS(w)
+		leaves := [][]byte{[]byte("A"), []byte("B"), []byte("C"), []byte("D")}
+		json.NewEncoder(w).Encode(map[string]string{
+			"binary": chain.ComputeMerkleRoot(leaves, "binary"),
+			"ternary": chain.ComputeMerkleRoot(leaves, "ternary"),
+		})
+	})
+
+	log.Println("🚀 Backend listening on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
