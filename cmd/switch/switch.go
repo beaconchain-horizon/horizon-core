@@ -874,6 +874,8 @@ func main() {
 			}
 			return strings.HasPrefix(origin, "http://localhost") ||
 				strings.HasPrefix(origin, "http://127.0.0.1") ||
+				origin == "https://horizon-backend.liara.run" ||
+				origin == "https://horizon-switch.liara.run"
 		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Customer-Token", "X-Admin-Token"},
