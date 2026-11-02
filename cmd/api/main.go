@@ -41,6 +41,7 @@ func main() {
 	})
 
 	r.POST("/api/v1/consensus/receive-block", func(c *gin.Context) {
+		log.Printf("📥 [ReceiveBlock] Got request")
 		var proposal consensus.BlockProposal
 		if err := c.ShouldBindJSON(&proposal); err != nil {
 			c.JSON(400, gin.H{"error": "Invalid block"})

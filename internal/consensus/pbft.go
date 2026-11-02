@@ -35,9 +35,15 @@ func BroadcastBlock(proposal BlockProposal, peers []string) {
 			req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-License-ID", "INTERNAL-CONSENSUS")
-			client := &http.Client{Timeout: 2 * time.Second}
+			
+			client := &http.Client{Timeout: 5 * time.Second}
 			resp, err := client.Do(req)
-			if err == nil { resp.Body.Close() }
+			if err != nil {
+				log.Printf("❌ [Broadcast] Failed to %s: %v", p, err)
+			} else {
+				log.Printf("✅ [Broadcast] Sent to %s (Status: %d)", p, resp.StatusCode)
+				resp.Body.Close()
+			}
 		}(peer)
 	}
 }
@@ -48,9 +54,15 @@ func SendVote(vote Vote, proposerURL string) {
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-License-ID", "INTERNAL-CONSENSUS")
-	client := &http.Client{Timeout: 2 * time.Second}
+	
+	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
-	if err == nil { resp.Body.Close() }
+	if err != nil {
+		log.Printf("❌ [Vote] Failed to %s: %v", proposerURL, err)
+	} else {
+		log.Printf("✅ [Vote] Sent to %s (Status: %d)", proposerURL, resp.StatusCode)
+		resp.Body.Close()
+	}
 }
 
 func AddVote(blockHash string, vote Vote) (bool, int) {
@@ -59,7 +71,7 @@ func AddVote(blockHash string, vote Vote) (bool, int) {
 	VotePool[blockHash] = append(VotePool[blockHash], vote)
 	count := len(VotePool[blockHash])
 	if count >= 5 {
-		log.Printf("🎉 BLOCK %s FINALIZED with %d votes (5/7 Quorum reached)!", blockHash[:8], count)
+		log.Printf("🎉 BLOCK %s FINALIZED with %d votes!", blockHash[:8], count)
 		return true, count
 	}
 	return false, count
