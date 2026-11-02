@@ -6,8 +6,4 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 0
     ignore:
-      - dependency-name: "github.com/gin-gonic/gin"
-      - dependency-name: "gorm.io/gorm"
-      - dependency-name: "github.com/glebarez/sqlite"
-      - dependency-name: "golang.org/x/crypto"
-      - dependency-name: "golang.org/x/net"
+      - dependency-name: "*" # فریز کامل تمام پکیج‌ها برای پایداری معماری و ممیزی
