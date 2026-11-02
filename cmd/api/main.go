@@ -30,7 +30,7 @@ func main() {
 	r.POST("/api/v1/consensus/propose", func(c *gin.Context) {
 		blockHash := fmt.Sprintf("%x", sha256.Sum256([]byte(time.Now().String())))
 		proposal := consensus.BlockProposal{
-			BlockNumber: uint64(time.Now().Unix()),
+			BlockNumber: uint64(time.Now().UnixNano()), // استفاده از نانوثانیه
 			BlockHash:   blockHash,
 			ProposerID:  nodeID,
 		}
@@ -41,7 +41,6 @@ func main() {
 	})
 
 	r.POST("/api/v1/consensus/receive-block", func(c *gin.Context) {
-		log.Printf("📥 [ReceiveBlock] Got request")
 		var proposal consensus.BlockProposal
 		if err := c.ShouldBindJSON(&proposal); err != nil {
 			c.JSON(400, gin.H{"error": "Invalid block"})
@@ -58,10 +57,25 @@ func main() {
 			c.JSON(400, gin.H{"error": "Invalid vote"})
 			return
 		}
+		
 		isFinalized, count := consensus.AddVote(vote.BlockHash, vote)
+		
 		if isFinalized {
-			log.Printf("🎉 BLOCK %s FINALIZED!", vote.BlockHash[:8])
+			// ذخیره بلاک در دیتابیس
+			newBlock := db.Block{
+				Number:    uint64(time.Now().UnixNano()), // استفاده از نانوثانیه
+				BlockHash: vote.BlockHash,
+				Timestamp: time.Now(),
+				TxCount:   0, 
+			}
+			result := db.DB.Create(&newBlock)
+			if result.Error == nil {
+				log.Printf("💾 Block %s SAVED to Database successfully!", vote.BlockHash[:8])
+			} else {
+				log.Printf("❌ Failed to save block: %v", result.Error)
+			}
 		}
+		
 		c.JSON(200, gin.H{"status": "vote_added", "total_votes": count})
 	})
 
