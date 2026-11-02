@@ -1,34 +1,18 @@
-# Block ALL databases, backups, and logs
-*.db
-*.db-wal
-*.db-shm
-*.db.bak*
-*.db.old*
-*.bak
-*.log
-backup_dbs/
-HorizonCore-backups/
-data/
-horizon_safe_backups/
-
-# Block ALL keys, seeds, and secrets
+# Private Keys and Secrets
 *.pem
-*.key
-seed*
-*seed*
-mykey*
-*.lic
 .env
-.env.*
-agent_license.json
+*.key
+keys/
+test-keys/
+*private*
 
-# Block binaries and build artifacts
-bin/
-*.exe
+# Databases
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+
+# Node modules
 node_modules/
-vendor/
-.gotmp/
-
-# Block OS noise
-.DS_Store
-Thumbs.db
