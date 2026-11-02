@@ -10,13 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// هش قانون اساسی پروژه (Law Hash)
 var CanonicalLawHash = ""
 
 func init() {
-	// ساخت هش از قوانین اساسی (برای سند ممیزی)
 	hash := sha256.Sum256([]byte("LAW-001: Zero-Storage; LAW-002: Hardware-License; LAW-003: All Comms Require License"))
-	CanonicalLawHash = hex.EncodeToString(hash[:])[:16] // 16 کاراکتر اول
+	CanonicalLawHash = hex.EncodeToString(hash[:])
 }
 
 func main() {
@@ -27,22 +25,19 @@ func main() {
 	if nodeID == "" { nodeID = "node-main" }
 
 	r := gin.Default()
+	r.MaxMultipartMemory = 8 << 20 // 8 MB Limit for Overflow tests
+	
+	r.Use(auth.WAFMiddleware()) // اعمال فایروال
 	r.Use(auth.LicenseAuthMiddleware())
 
-	// اندپوینت Health که حالا Law Hash را برمی‌گرداند
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "online", 
-			"node": nodeID,
-			"law_hash": CanonicalLawHash,
-			"audit_ready": true,
-		})
+		c.JSON(200, gin.H{"status": "online", "node": nodeID, "law_hash": CanonicalLawHash})
 	})
 
-	r.POST("/api/v1/tx", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
+	r.POST("/api/v1/license/verify", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "verified"})
 	})
 
-	log.Printf("✅ %s listening on :%s (Audit Compliant)", nodeID, port)
+	log.Printf("✅ %s listening on :%s (WAF Active)", nodeID, port)
 	r.Run(":" + port)
 }
