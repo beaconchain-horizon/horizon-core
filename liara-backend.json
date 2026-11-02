@@ -1,5 +1,0 @@
-{
-  "app": "horizon-backend",
-  "platform": "docker",
-  "port": 8080
-}
