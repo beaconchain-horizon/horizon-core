@@ -1,55 +1,13 @@
 version: 2
-
 updates:
-  # Go dependencies
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "security"
-    groups:
-      go-security-updates:
-        applies-to: "security-updates"
-        patterns:
-          - "*"
-
-  # Docker base images and Dockerfile dependencies
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "03:15"
-      timezone: "UTC"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "docker"
-      - "security"
-    groups:
-      docker-security-updates:
-        applies-to: "security-updates"
-        patterns:
-          - "*"
-
-  # GitHub Actions dependencies
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "03:30"
-      timezone: "UTC"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "ci"
-      - "security"
-    groups:
-      actions-security-updates:
-        applies-to: "security-updates"
-        patterns:
-          - "*"
+      interval: "weekly"
+    open-pull-requests-limit: 0
+    ignore:
+      - dependency-name: "github.com/gin-gonic/gin"
+      - dependency-name: "gorm.io/gorm"
+      - dependency-name: "github.com/glebarez/sqlite"
+      - dependency-name: "golang.org/x/crypto"
+      - dependency-name: "golang.org/x/net"
