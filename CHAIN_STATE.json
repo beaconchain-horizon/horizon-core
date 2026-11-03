@@ -1,0 +1,22 @@
+{
+  "chain_id": "horizon-core-v1.4",
+  "generated_at_utc": "2026-11-03T05:49:39Z",
+  "authority_pubkey": "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214",
+  "blocks": [
+    {
+      "number": 0,
+      "block_hash": "8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603",
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "status": "genesis_locked",
+      "authority_sig": "afac005b7f7565fe69ca9d58dabdf0a3914fce0854ee05f214d788e9e478b02f7c82a05b35d1456b605a128e4074ed9d3c4e55932cc7b368516c0681d236face"
+    },
+    {
+      "number": 1,
+      "block_hash": "f981652e6c25945a2655b83f7536524441422bdeb7b9742a30a5256cd637ceba",
+      "previous_hash": "8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603",
+      "status": "signed",
+      "tx_count": 1,
+      "authority_sig": "19f1b5674299e9625595f538c6c439cb77562a09246f13221b24ef62faa3ddb1433b4a8058424e31a6ece3577b755eed4543c7993c0261e0c977bf45994bd335"
+    }
+  ]
+}
