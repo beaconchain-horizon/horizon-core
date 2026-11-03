@@ -1,4 +1,12 @@
 <div align="center">
+  <img src="assets/logo.png" width="300" alt="Horizon Core Logo"/>
+  <br/>
+  <h1>HORIZON CORE</h1>
+  <p><strong>v1.4 — TRUST · VERIFY · MOVE FORWARD</strong></p>
+  <hr/>
+</div>
+
+<div align="center">
 <h1>HORIZON CORE</h1>
 <p><strong>Offline-first tamper-evident ledger — v1.4</strong></p>
 <p>Genesis LOCKED · Block #1 SIGNED · 7-Node Consensus</p>
