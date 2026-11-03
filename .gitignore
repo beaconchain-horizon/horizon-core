@@ -75,3 +75,7 @@ logs/
 data/*.db
 data/*.db-shm
 data/*.db-wal
+logs/
+*.exe
+*.log
+data/*.db

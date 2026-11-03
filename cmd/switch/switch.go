@@ -601,22 +601,114 @@ func listTxHandler(c *gin.Context) {
 // ============ BLOCKS ============
 
 func mineBlockHandler(c *gin.Context) {
+	var txs []Transaction
+	if err := db.Where("synced = ?", false).Limit(5000).Find(&txs).Error; err != nil {
+		c.JSON(500, gin.H{"error": "db error fetching txs"}); return
+	}
+	if len(txs) == 0 {
+		c.JSON(400, gin.H{"error": "no pending transactions"}); return
+	}
+
+	var licenses []License
+	if err := db.Where("status = ?", "active").Find(&licenses).Error; err != nil {
+		c.JSON(500, gin.H{"error": "db error fetching licenses"}); return
+	}
+
+	var consTxs []ConsensusTx
+	for _, t := range txs {
+		licID := ""
+		for _, l := range licenses {
+			if l.UserID == t.From { licID = l.LicenseID; break }
+		}
+		if licID == "" && len(licenses) > 0 { licID = licenses[0].LicenseID
+		}
+		consTxs = append(consTxs, ConsensusTx{From: t.From, To: t.To, Amount: t.Amount, LicenseID: licID, Type: t.Type})
+	}
+
+	var consLicenses []ConsensusLicense
+	for _, l := range licenses {
+		consLicenses = append(consLicenses, ConsensusLicense{LicenseID: l.LicenseID, UserID: l.UserID, Volume: int64(l.Volume), Used: int64(l.Used), IssuedAt: l.IssuedAt, ExpiresAt: l.ExpiresAt, Status: l.Status})
+	}
+
+	var lastBlock Block
+	db.Order("block_num desc").First(&lastBlock)
+	prevHash := "genesis"
+	blockNum := 0
+	if lastBlock.BlockNum >= 0 { prevHash = lastBlock.Hash; blockNum = lastBlock.BlockNum + 1 }
+
+	ts := time.Now().Unix()
+	
+	leaves := make([][]byte, len(consTxs))
+	for i, tx := range consTxs {
+		b, _ := json.Marshal(tx)
+		h := sha256.Sum256(b)
+		leaves[i] = h[:]
+	}
+	
+	merkleRoot := ""
+	if len(leaves) > 0 {
+		level := make([][]byte, len(leaves))
+		for i, l := range leaves { level[i] = l }
+		for len(level) > 1 {
+			next := make([][]byte, 0, (len(level)+1)/2)
+			for i := 0; i < len(level); i += 2 {
+				a := level[i]; b := a
+				if i+1 < len(level) { b = level[i+1] }
+				h := sha256.New(); h.Write(a); h.Write(b)
+				next = append(next, h.Sum(nil))
+			}
+			level = next
+		}
+		merkleRoot = hex.EncodeToString(level[0])
+	} else { merkleRoot = strings.Repeat("0", 64) }
+	
+	h := sha256.New()
+	h.Write([]byte(prevHash)); h.Write([]byte(merkleRoot))
+	h.Write([]byte(fmt.Sprintf("%d", ts))); h.Write([]byte(fmt.Sprintf("%d", len(consTxs))))
+	blockHash := hex.EncodeToString(h.Sum(nil))
+
+	var sigHex, signerAddr string
 	stateMutex.RLock()
-	hasKey := unlockedKey != nil
+	key := unlockedKey
 	stateMutex.RUnlock()
+	
+	if key != nil {
+		hashB, _ := hex.DecodeString(blockHash)
+		sig, err := crypto.SignHashRS(key, hashB)
+		if err == nil {
+			sigHex = hex.EncodeToString(sig)
+			signerAddr = "0x" + hex.EncodeToString(key.PublicKey.X.Bytes())
+		}
+	} else { c.JSON(400, gin.H{"error": "key not unlocked"}); return }
 
-	if !hasKey {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "key not unlocked, please unlock first"})
-		return
+	payload := ConsensusPayload{
+		BlockNumber: uint64(blockNum), BlockHash: blockHash, PrevHash: prevHash,
+		MerkleRoot: merkleRoot, MerkleType: "binary", Timestamp: ts, TxCount: len(consTxs),
+		Signature: sigHex, SignerAddr: signerAddr, Licenses: consLicenses, Txs: consTxs,
 	}
 
-	block, err := mineBlock()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	accepted, votes, err := RequestConsensus(payload)
+	if err != nil || !accepted {
+		c.JSON(402, gin.H{"error": "consensus rejected", "votes": votes, "reason": fmt.Sprintf("%v", err)}); return
 	}
 
-	c.JSON(http.StatusOK, block)
+	newBlock := Block{
+		BlockNum: blockNum, Timestamp: ts, PrevHash: prevHash, Hash: blockHash,
+		MerkleRoot: merkleRoot, MerkleAlgo: "v1", TxCount: len(txs),
+		CreatedAt: time.Now(), Signature: sigHex, SignerAddr: signerAddr,
+	}
+	if err := db.Create(&newBlock).Error; err != nil { c.JSON(500, gin.H{"error": "failed to save block"}); return }
+
+	for _, t := range txs {
+		db.Model(&t).Updates(map[string]interface{}{"synced": true, "block_index": blockNum})
+		for i := range licenses {
+			if licenses[i].UserID == t.From {
+				db.Model(&License{}).Where("license_id = ?", licenses[i].LicenseID).UpdateColumn("used", gorm.Expr("used + 1"))
+			}
+		}
+	}
+
+	c.JSON(200, gin.H{"status": "mined", "block_num": blockNum, "hash": blockHash, "tx_count": len(txs), "votes": votes})
 }
 
 func listBlocksHandler(c *gin.Context) {
