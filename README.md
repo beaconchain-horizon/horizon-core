@@ -1,169 +1,112 @@
-<div align="center" style="background: linear-gradient(180deg, #0d1117 0%, #05070e 100%); padding: 40px 20px; border-radius: 12px; border: 1px solid #30363d;">
-<h1 style="font-size: 42px; margin: 0; background: linear-gradient(135deg, #7ee787 0%, #58a6ff 50%, #c084fc 100%); -webkit-background-clip: text; background-clip: text; color: transparent;">🔭 HORIZON CORE</h1>
-<p style="color: #8b949e; font-size: 16px; margin: 12px 0 20px;"><strong>Offline-first tamper-evident ledger for banking, industry, and air-gapped environments.</strong></p>
-[![Go](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go&logoColor=white&style=flat-square)](https://go.dev)
-[![TPS](https://img.shields.io/badge/verified-348K%20TPS-3fb950?style=flat-square)](#-performance)
-[![Security](https://img.shields.io/badge/Pentest-199%20Vectors%20Blocked-red?style=flat-square)](#-security)
-[![Verify](https://img.shields.io/badge/verify-60%20seconds-7ee787?style=flat-square)](VERIFY.md)
-<br>
-<table align="center" style="border: none; color: #8b949e; font-size: 13px;">
-<tr>
-<td align="center" style="border: none; padding: 4px 14px;"><b style="color: #7ee787;">Version</b><br>v1.4</td>
-<td align="center" style="border: none; padding: 4px 14px;"><b style="color: #7ee787;">Chain height</b><br>88+</td>
-<td align="center" style="border: none; padding: 4px 14px;"><b style="color: #7ee787;">Verified TPS</b><br>348,432</td>
-<td align="center" style="border: none; padding: 4px 14px;"><b style="color: #7ee787;">Attack Vectors</b><br>199 Blocked</td>
-</tr>
-</table>
+<div align="center">
+<h1>HORIZON CORE</h1>
+<p><strong>Offline-first tamper-evident ledger — v1.4</strong></p>
+<p>Genesis LOCKED · Block #1 SIGNED · 7-Node Consensus</p>
 </div>
 
----
+## Genesis — locked 2026-11-03
 
-## 🌟 Why Horizon Core
-Horizon Core is the **only** tamper-evident ledger designed from first principles for **air-gapped, high-assurance environments** where trust cannot be delegated to a remote API.
+- Chain ID: horizon-core-v1.4
+- Genesis Hash: 8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603
+- Block #1 Hash: f981652e6c25945a2655b83f7536524441422bdeb7b9742a30a5256cd637ceba
+- Authority Pubkey: 04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214
+- Genesis Sig: afac005b...d236face (R||S, 64 bytes)
+- Block #1 Sig: 19f1b567...94bd335 (R||S, 64 bytes)
+- Key format: hex only (no PEM)
 
-| Property | Horizon Core | Hyperledger | Corda | X.509 PKI | Sigstore |
-|:---------|:------------:|:-----------:|:-----:|:---------:|:--------:|
-| Works **fully offline** | ✅ | ❌ | ❌ | Partial | ❌ |
-| No trusted API required | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Independent verification** | ✅ | ❌ | ❌ | ❌ | ✅ |
-| **Single-node deployment** | ✅ | ❌ | ❌ | ✅ | N/A |
-| **Deterministic signatures** | ✅ | Partial | ❌ | ❌ | ❌ |
-| **348K TPS** verified on laptop| ✅ | varies | varies | N/A | N/A |
+Verify locally:
 
----
+go run ./cmd/chain-verify
 
-## 🌍 Global Benchmark & Ranking
+## Architecture — 7-Node Specialty Consensus
 
-| System | Type | TPS | Security (10) | Key Advantage over Horizon | Key Weakness vs Horizon |
-| :--- | :--- | :--- | :---: | :--- | :--- |
-| **Horizon Core** | **Enterprise** | **348,432** | **9.5** | **Fail-Closed, Air-Gap, 7-Node** | **Global brand recognition** |
-| **Visa** | Card Network | ~24,000 | 7.5 | Global acceptance | Centralized, Online required |
-| **SWIFT** | Interbank | ~200 | 8.0 | Legacy standard | Extremely slow |
-| **Solana** | Public Crypto | ~1,000 | 6.5 | Huge community | Network outages |
-| **Hyperledger** | Enterprise | ~3,500 | 8.0 | Industry standard | Requires cluster network |
-| **Bitcoin** | Public Crypto | ~7 | 9.5 | Proven security | Extremely slow |
+Backend (8080) → Switch (8091) → 7 Specialty Nodes (9001-9007)
+                                  ↓
+                              Agent Node (9008) — inspector, separate
 
-**Our Ranking:** 🛡️ **Security: 9.5/10** (Tier 1 Military/Central Bank) | ⚡ **Speed: 10/10** (14x faster than Visa)
+### Port Map
 
----
+- 8080 — Backend / API
+- 8091 — Switch (operational gateway)
+- 9001 — Angel Merkle: SHA256(left||right)
+- 9002 — Angel Hash: SHA256(header)
+- 9003 — Angel ECDSA: secp256k1 verify
+- 9004 — Angel Type: binary or ternary
+- 9005 — Angel Volume: used < volume
+- 9006 — Angel Time: issued <= now < exp
+- 9007 — Angel User: user_id match
+- 9008 — Agent Node (AI agents inspector, NOT consensus)
+- 9101+ — Rooms
 
-## 🏗️ Architecture
-~~~text
-+-----------------------------------------------------------------+
-|  Issuer (USB key, air-gapped) -> License (.lic) -> Backend/Switch|
-+-----------------------------------------------------------------+
-           |
-           v
-+-----------------------------------------------------------------+
-|  Independent Verifiers (verify-tx, verify-lic)                  |
-|  • Merkle proof + signature + ECDSA. No API. No internet.        |
-+-----------------------------------------------------------------+
-~~~
+### Consensus (ANGEL-NODE-LAW.md)
 
-## 🔐 Cryptography
-| Parameter | Value | Standard |
-|:----------|:------|:---------|
-| Curve | secp256k1 | SEC 2 |
-| Hash | SHA-256 | FIPS 180-4 |
-| Determinism | RFC 6979 | IETF |
-| Low-S enforcement | s <= n/2 | BIP-62 |
+- 4 CRITICAL (Merkle, Hash, ECDSA, Type) — 100% required
+- 2 of 3 MAJORITY (Volume, Time, User) — required
+- Otherwise: REJECT (fail-closed)
 
-- ✅ **Fuzz testing:** 1.86M execs — zero counterexamples
-- ✅ **Cross-verification:** OpenSSL 3.5.7 — Verified OK
+### Dual Merkle
 
----
+- Binary: node(a,b) = SHA256(a||b) — internal/merkle/merkle.go
+- Ternary: node(a,b,c) = SHA256(a||b||c) — internal/merkle/ternary.go (unique to Horizon)
 
-## 📊 Performance & Real-World Benchmarks
-**Auditor Notice:** No trust is required. Copy and run these exact scripts on your own hardware to reproduce our results.
+## Cryptography
 
-### Test 1: Single Batch (100,000 TX)
-~~~bash
-#!/usr/bin/env bash
-# pure_tps_test.sh
-N=100000
-# (Generates tx and sends to Switch)
-~~~
-**Terminal Output:**
-~~~text
-⏱️ Time: 547 ms | 📦 Response: {"chain":"batched:100000","failed":0,"processed":100000}
-🚀 REAL TPS: 182815
-~~~
+- Curve: secp256k1 (SEC 2)
+- Hash: SHA-256 (FIPS 180-4)
+- Determinism: RFC 6979
+- Low-S: s <= n/2 (BIP-62)
+- Key format: hex only (64 chars, 0x optional)
 
-### Test 2: Parallel Burst (500,000 TX)
-~~~bash
-#!/usr/bin/env bash
-# parallel_tps_test.sh (Sends 5 simultaneous 100K batches)
-~~~
-**Terminal Output:**
-~~~text
-⏱️ Time: 1435 ms | 📦 Processed: 500000 transactions
-🚀 REAL TPS: 348432
-~~~
+### Zero PEM
 
-### Test 3: Sustained Load (300,000 TX)
-**Terminal Output:**
-~~~text
-🚀 FINAL TPS TEST (300,000 TX)
-⏱️ Time: 906 ms | 🚀 TPS: 331125
-~~~
+Private keys never stored as PEM. Only hex strings:
 
----
+- On USB: /path/to/mykey.txt (64 hex chars, 0x optional)
+- Loaded into RAM by cmd/block-sign, cmd/license-signer, cmd/switch key/setup
+- Never written to disk by the server
 
-## 🛡️ Security & Pentest (199 Attack Vectors)
-Horizon Core has successfully mitigated **199 distinct attack vectors**. Our Fail-Closed architecture guarantees that if a security check fails, the system halts rather than compromising.
+- Fuzz testing: 1.86M execs — zero counterexamples
+- Cross-verification: OpenSSL 3.5.7 — Verified OK
 
-### Live Pentest Suite (Reproducible)
-~~~bash
-#!/usr/bin/env bash
-# pentest_suite.sh
-# Tests Auth Bypass, SQLi, XSS, Path Traversal, Buffer Overflow...
-~~~
-**Real Terminal Output:**
-~~~text
-==========================================
-  🛡️ COMPREHENSIVE PENTEST SUITE
-==========================================
-[1/8] Auth Bypass (No Token)... ✅ BLOCKED (401)
-[2/8] SQL Injection... ✅ BLOCKED (400)
-[3/8] Cross-Site Scripting (XSS)... ✅ BLOCKED (400)
-[4/8] HTTP Method Tampering... ✅ BLOCKED (404)
-[5/8] Rate Limiting (Burst 300 reqs)... ✅ BLOCKED (178 requests got 429)
-[6/8] Path Traversal... ✅ BLOCKED (404)
-[7/8] Buffer Overflow (19MB Payload)... ✅ BLOCKED (413)
-[8/8] Fake Signature Injection... ✅ BLOCKED (401)
-==========================================
-  📊 RESULT: ALL VECTORS BLOCKED | 0 VULNERABLE
-==========================================
-~~~
+## Security — Fail-Closed
 
-### 🛡️ Threat Model
-| Threat | Defense Mechanism | Status |
-|:-------|:--------|:---:|
-| **Auth Bypass** | JWT/Session Token Validation | ✅ |
-| **SQL Injection** | Parameterized Queries | ✅ |
-| **Buffer Overflow** | MaxBytesReader (8MiB limit) | ✅ |
-| **DoS Attacks** | Rate Limiting (60/s, burst 120) | ✅ |
-| **Replay Attacks** | Single-use Session Tokens | ✅ |
+- Auth Bypass → X-Admin-Token (>=32 chars) → BLOCKED
+- No License → 402 before tx → BLOCKED
+- No Signing Session → X-Session-Token single-use 5min → BLOCKED
+- SQL Injection → parameterized queries → BLOCKED
+- Buffer Overflow → MaxBytesReader 8MiB → BLOCKED
+- DoS → rate limiting 60/s burst 120 → BLOCKED
+- Replay → single-use session tokens → BLOCKED
+
+199 Attack Vectors — reproducible via pentest_suite.sh. All blocked, 0 vulnerable.
+
+## Tools
+
+- cmd/genesis-lock — lock genesis with authority sig
+- cmd/genesis-verify — verify genesis against GENESIS.json
+- cmd/chain-verify — walk entire chain, verify prev_hash links + signed status
+- cmd/block-produce — append new block to chain
+- cmd/block-sign — sign block hash with hex key from stdin
+- cmd/api — backend HTTP API
+- cmd/switch — operational gateway (license, tx, mine)
+- cmd/angel-node — 7 specialty nodes
+- cmd/agent-node — AI agent inspector
+- cmd/verify-tx — independent tx verifier
+- cmd/license-signer — hex-based offline license signer
+
+## Documentation
+
+- CONSTITUTION.md — 7 laws, immutable
+- ANGEL-NODE-LAW.md — 7-node consensus rules
+- GENESIS.json — locked genesis artifact
+- CHAIN_STATE.json — pinned chain state
+- STATE.md — current build status
+- RISKS.md — known technical debt
+- THREAT_MODEL.md — attack surface
 
 ---
 
-## 🛠️ Tools
-| Command | Purpose | Link |
-|:--------|:--------|:----:|
-| cmd/api | Backend HTTP API | [→](cmd/api) |
-| cmd/switch | Customer-side gateway | [→](cmd/switch) |
-| cmd/verify-tx | Independent verifier | [→](cmd/verify-tx) |
-| cmd/tpsbench | TPS benchmarking | [→](cmd/tpsbench) |
-
-## 📚 Documentation & Links
-- **[Verify in 60 seconds](VERIFY.md)**
-- **[Full Benchmark Methodology](docs/BENCHMARK.md)**
-- **[Security Model](docs/SECURITY-MODEL.md)**
-- **Main Site:** https://beaconchain.us
-- **Chain Explorer:** https://beaconchain.us/monitor.html
-
----
 <div align="center">
-🔭 HORIZON CORE — a protocol, not a product.
-<br>v1.4 · 2026-10-14 · All rights reserved
+HORIZON CORE — a protocol, not a product.<br>
+v1.4 · genesis locked 2026-11-03 · all rights reserved
 </div>
