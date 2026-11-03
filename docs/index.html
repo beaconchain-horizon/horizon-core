@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Horizon Core — دروازه اصلی</title>
+<style>
+  :root{--bg:#0a0e17;--panel:#111827;--border:#1f2937;--accent:#00d4aa;--accent2:#3b82f6;--text:#e5e7eb;--muted:#9ca3af}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 16px}
+  h1{font-size:2.2rem;font-weight:800;margin-bottom:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--muted);margin-bottom:40px;font-size:.95rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:1000px;width:100%}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px;text-decoration:none;color:var(--text);transition:.2s;position:relative;overflow:hidden}
+  .card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,212,170,.15)}
+  .card h2{font-size:1.25rem;margin-bottom:10px}
+  .card p{color:var(--muted);font-size:.9rem;line-height:1.7}
+  .icon{font-size:2rem;margin-bottom:16px;display:block}
+  .badge{position:absolute;top:16px;left:16px;background:var(--accent);color:#0a0e17;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px}
+  .footer{margin-top:48px;color:var(--muted);font-size:.8rem;text-align:center;line-height:1.9}
+  .footer code{background:var(--panel);padding:2px 8px;border-radius:6px;color:var(--accent);font-size:.75rem}
+</style>
+</head>
+<body>
+  <h1>Horizon Core</h1>
+  <p class="sub">Offline-First · Tamper-Evident · secp256k1 · chain_id: horizon-core-v1.4</p>
+
+  <div class="grid">
+    <a class="card" href="offline-license.html">
+      <span class="icon">🔐</span>
+      <h2>تولید لایسنس آفلاین</h2>
+      <p>امضای لایسنس با کلید خصوصی روی فلش. کلید در حافظه می‌ماند، هیچ‌جا ذخیره نمی‌شود. سازگار با قانون ۳.</p>
+    </a>
+
+    <a class="card" href="https://beaconchain-horizon.github.io/beaconchain-horizon/">
+      <span class="badge">LIVE</span>
+      <span class="icon">🌐</span>
+      <h2>داشبورد شبکه</h2>
+      <p>وضعیت زنده زنجیره: ارتفاع بلاک، تعداد تراکنش، هش آخرین بلاک، سلامت نودها.</p>
+    </a>
+
+    <a class="card" href="https://beaconchain-horizon.github.io/beaconchain.us/">
+      <span class="icon">📊</span>
+      <h2>داشبورد نظارتی</h2>
+      <p>پایش اعتبارسنج‌ها، درآمد تاریخی، رتبه‌بندی امنیتی. beaconchain.us</p>
+    </a>
+
+    <a class="card" href="offline-license.html#verify">
+      <span class="icon">✅</span>
+      <h2>Verify on Switch</h2>
+      <p>لایسنس ساخته‌شده را مستقیم به سوییچ Horizon Core بفرست و اعتبارش را چک کن.</p>
+    </a>
+  </div>
+
+  <div class="footer">
+    <p>🔒 Private keys never leave the USB. Only public key + signature are stored.</p>
+    <p>Genesis hash: <code>8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603</code></p>
+    <p>Authority pubkey: <code>04cf6a…b1641214</code></p>
+  </div>
+</body>
+</html>
