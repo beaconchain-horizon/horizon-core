@@ -1,0 +1,13 @@
+{
+  "authority_pub_key": "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214",
+  "authority_sig": "afac005b7f7565fe69ca9d58dabdf0a3914fce0854ee05f214d788e9e478b02f7c82a05b35d1456b605a128e4074ed9d3c4e55932cc7b368516c0681d236face",
+  "chain_id": "horizon-core-v1.4",
+  "genesis_hash": "8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603",
+  "genesis_number": 0,
+  "locked_at": "2026-11-03T04:15:32Z",
+  "merkle_root": "8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603",
+  "merkle_type": "genesis",
+  "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "timestamp": "2026-10-31T18:43:01.8552524Z",
+  "tx_count": 0
+}
