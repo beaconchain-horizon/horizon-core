@@ -70,5 +70,3 @@ final_*.sh
 horizon-core/
 angel-agents-repo/
 horizon-bank-package/
-cmd/genesis-check/
-cmd/genesis-sign/
