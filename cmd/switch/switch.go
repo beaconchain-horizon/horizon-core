@@ -57,6 +57,7 @@ type Transaction struct {
 	Type       string    `json:"type"`
 	Timestamp  int64     `json:"timestamp"`
 	BlockIndex int       `gorm:"index" json:"block_index"`
+	LicenseID  string    `gorm:"index" json:"license_id"`
 	Synced     bool      `gorm:"index" json:"synced"`
 	CreatedAt  time.Time `json:"created_at"`
 }
@@ -438,6 +439,23 @@ func createTxHandler(c *gin.Context) {
 		c.JSON(http.StatusPaymentRequired, resp)
 		return
 	}
+	
+	// ═══ License Volume Enforcement ═══
+	if licID := c.GetHeader("X-License-ID"); licID != "" {
+		var lic License
+		if err := db.Where("license_id = ?", licID).First(&lic).Error; err == nil {
+			if int64(lic.Used) >= int64(lic.Volume) {
+				c.JSON(http.StatusPaymentRequired, gin.H{
+					"error":      "license volume exhausted",
+					"license_id": licID,
+					"volume":     lic.Volume,
+					"used":       lic.Used,
+				})
+				return
+			}
+			db.Model(&License{}).Where("license_id = ?", licID).Update("used", gorm.Expr("used + 1"))
+		}
+	}
 
 	// === Grace Period Check ===
 	if allowed, reason := isTransactionAllowedInGrace(); !allowed {
@@ -703,7 +721,7 @@ func mineBlockHandler(c *gin.Context) {
 		db.Model(&t).Updates(map[string]interface{}{"synced": true, "block_index": blockNum})
 		for i := range licenses {
 			if licenses[i].UserID == t.From {
-				db.Model(&License{}).Where("license_id = ?", licenses[i].LicenseID).UpdateColumn("used", gorm.Expr("used + 1"))
+				_ = licenses[i] // used tracked on acceptance
 			}
 		}
 	}
