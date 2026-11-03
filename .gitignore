@@ -79,3 +79,7 @@ logs/
 *.exe
 *.log
 data/*.db
+logs/
+*.exe
+*.log
+data/*.db
