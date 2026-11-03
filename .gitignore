@@ -65,3 +65,10 @@ rebuild_*.sh
 restore_*.sh
 safe_*.sh
 final_*.sh
+
+# جلوگیری از push پوشه‌های تودرتو
+horizon-core/
+angel-agents-repo/
+horizon-bank-package/
+cmd/genesis-check/
+cmd/genesis-sign/
