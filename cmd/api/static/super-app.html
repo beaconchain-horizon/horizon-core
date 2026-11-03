@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Core | Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --panel: rgba(20, 25, 35, 0.7);
+            --border: rgba(88, 166, 255, 0.2);
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --blue: #58a6ff;
+            --green: #3fb950;
+            --red: #f85149;
+            --purple: #bc8cff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #1a2333 0%, #05070a 60%);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: rgba(10, 15, 25, 0.8);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 10px;
+            backdrop-filter: blur(12px);
+        }
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            padding: 0 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand span { color: var(--blue); }
+        .nav { flex: 1; margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--blue);
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.1);
+        }
+        .status {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--green);
+        }
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .topbar {
+            height: 70px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            background: rgba(10, 15, 25, 0.5);
+            backdrop-filter: blur(12px);
+        }
+        .topbar h1 { font-size: 18px; font-weight: 600; color: #fff; }
+        .content { flex: 1; padding: 30px; overflow-y: auto; display: none; }
+        .content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Cards */
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .card:hover { border-color: var(--blue); }
+        .card h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .card .val { font-size: 28px; font-weight: 700; }
+        .card .val.green { color: var(--green); }
+        .card .val.blue { color: var(--blue); }
+        .card .val.purple { color: var(--purple); }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--panel);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { background: rgba(20, 30, 45, 0.8); color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(88, 166, 255, 0.05); }
+        .badge {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--blue);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Command Center */
+        .chat-container {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        .chat-log {
+            flex: 1;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            border: 1px solid var(--border);
+        }
+        .chat-log div { margin-bottom: 8px; line-height: 1.5; }
+        .input-area {
+            display: flex;
+            gap: 15px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.4);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-area input:focus { border-color: var(--blue); box-shadow: 0 0 10px rgba(88,166,255,0.2); }
+        .input-area button {
+            padding: 14px 28px;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .input-area button:hover { background: #4090e0; }
+        select {
+            background: rgba(0,0,0,0.4);
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand"><span>🔭</span> HORIZON CORE</div>
+        <div class="nav">
+            <div class="nav-item active" onclick="tab('dashboard', this)">📊 Dashboard</div>
+            <div class="nav-item" onclick="tab('agents', this)">🤖 Agent Fleet</div>
+            <div class="nav-item" onclick="tab('command', this)">👼 Command Center</div>
+            <div class="nav-item" onclick="tab('transactions', this)">💳 Transactions</div>
+        </div>
+        <div class="status">
+            <div><span class="dot"></span> Air-Gapped Network</div>
+            <div style="margin-top: 8px;">API: <span style="color: var(--green);">Online</span></div>
+        </div>
+    </div>
+    <div class="main">
+        <div class="topbar">
+            <h1 id="page-title">Network Dashboard</h1>
+            <div style="color: var(--muted);">Commander Mahdi</div>
+        </div>
+
+        <div id="dashboard" class="content active">
+            <div class="cards">
+                <div class="card"><h3>Network Status</h3><div class="val green">Online</div></div>
+                <div class="card"><h3>Total Agents</h3><div class="val blue" id="total-agents">--</div></div>
+                <div class="card"><h3>Consensus Nodes</h3><div class="val">7 / 7</div></div>
+                <div class="card"><h3>Transactions</h3><div class="val purple" id="total-txs">--</div></div>
+            </div>
+            <h3 style="color:#fff; margin-bottom:15px;">Recent Transactions</h3>
+            <table><thead><tr><th>TX ID</th><th>License ID</th><th>User</th><th>Created</th></tr></thead><tbody id="recent-txs"><tr><td colspan="4">Loading...</td></tr></tbody></table>
+        </div>
+
+        <div id="agents" class="content">
+            <h3 style="color:#fff; margin-bottom:15px;">Registered Agents</h3>
+            <table><thead><tr><th>Agent ID</th><th>User ID</th><th>Role</th><th>Status</th></tr></thead><tbody id="agents-tbody"><tr><td colspan="4">Loading...</td></tr></tbody></table>
+        </div>
+
+        <div id="command" class="content">
+            <div class="chat-container">
+                <div class="chat-log" id="chat-log">
+                    <div style="color:var(--green);">[Guardian] Awaiting command. All agents on standby.</div>
+                </div>
+                <div class="input-area">
+                    <select id="target-agent">
+                        <option value="frontend">Frontend</option>
+                        <option value="backend">Backend</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="security">Security</option>
+                        <option value="general">General</option>
+                    </select>
+                    <input type="text" id="command-input" placeholder="Type your command..." onkeypress="if(event.key==='Enter') sendCommand()">
+                    <button onclick="sendCommand()">Send ➤</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="transactions" class="content">
+            <h3 style="color:#fff; margin-bottom:15px;">All Transactions</h3>
+            <table><thead><tr><th>TX ID</th><th>License ID</th><th>User ID</th><th>Created</th></tr></thead><tbody id="txs-tbody"><tr><td colspan="4">Loading...</td></tr></tbody></table>
+        </div>
+    </div>
+
+    <script>
+        function tab(id, el) {
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(id).classList.add('active');
+            document.getElementById('page-title').innerText = el.innerText.substring(2);
+        }
+
+        async function fetchDashboard() {
+            try {
+                const ag = await (await fetch('http://localhost:8080/api/v1/agents')).json();
+                document.getElementById('total-agents').innerText = ag.length;
+                document.getElementById('agents-tbody').innerHTML = ag.map(a => `
+                    <tr>
+                        <td style="font-family:monospace">${a.agent_id}</td>
+                        <td>${a.user_id}</td>
+                        <td><span class="badge">${a.role}</span></td>
+                        <td style="color:var(--green); font-weight:bold;">● ${a.status}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="4">No agents</td></tr>';
+            } catch(e) { console.error(e); }
+
+            try {
+                const tx = await (await fetch('http://localhost:8080/api/v1/transactions')).json();
+                document.getElementById('total-txs').innerText = tx.length;
+                document.getElementById('recent-txs').innerHTML = tx.slice(-5).reverse().map(t => `
+                    <tr>
+                        <td style="font-family:monospace; color:var(--blue);">${t.tx_id.substring(0,16)}...</td>
+                        <td>${t.license_id}</td>
+                        <td>${t.user_id}</td>
+                        <td>${new Date(t.created_at).toLocaleString()}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="4">No transactions</td></tr>';
+                document.getElementById('txs-tbody').innerHTML = tx.slice().reverse().map(t => `
+                    <tr>
+                        <td style="font-family:monospace">${t.tx_id}</td>
+                        <td>${t.license_id}</td>
+                        <td>${t.user_id}</td>
+                        <td>${new Date(t.created_at).toLocaleString()}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="4">No transactions</td></tr>';
+            } catch(e) { console.error(e); }
+        }
+
+        async function sendCommand() {
+            const input = document.getElementById('command-input');
+            const log = document.getElementById('chat-log');
+            const target = document.getElementById('target-agent').value;
+            const cmd = input.value.trim();
+            if (!cmd) return;
+            
+            log.innerHTML += `<div style="color:var(--blue); margin-top:10px;">[Commander] ${cmd}</div>`;
+            log.scrollTop = log.scrollHeight;
+            input.value = '';
+            
+            try {
+                const res = await fetch('http://localhost:9008/api/v1/guardian/dispatch', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: "Horizon Agent Network",
+                        license_id: "HORIZON-GUARDIAN-001",
+                        public_key: "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214",
+                        signature: "d92260d848e1ee6f2051c3376e2fcfae3f3d3984e620553255e80932b756dc300d6099f16e81a195a380c5452d2e71077b3a0de1233841282159e9e45603c553",
+                        signed_data: "{\"license_id\":\"HORIZON-GUARDIAN-001\",\"user_id\":\"Horizon Agent Network\",\"product_id\":\"horizon-core\",\"volume\":1000000000,\"duration\":3650,\"merkle_root\":\"205e2ffab5fe29c78e265753344a578915c175667dbf51e6e1c71ae972526b1a\",\"issued_at\":1793484211,\"expires_at\":2108844211,\"hardware_id\":\"\"}",
+                        target_agent: target,
+                        command: cmd
+                    })
+                });
+                const data = await res.json();
+                const reply = data.status === 'dispatched' 
+                    ? `<span style="color:var(--green);">✅ Dispatched to [${data.agent}] (${data.role})</span>` 
+                    : `<span style="color:var(--red);">❌ Error: ${data.reason || 'unknown'}</span>`;
+                log.innerHTML += `<div style="margin-top:5px;">${reply}</div>`;
+            } catch(e) {
+                log.innerHTML += `<div style="color:var(--red); margin-top:5px;">❌ Network error: ${e.message}</div>`;
+            }
+            log.scrollTop = log.scrollHeight;
+        }
+
+        fetchDashboard();
+        setInterval(fetchDashboard, 4000);
+    </script>
+</body>
+</html>

@@ -70,3 +70,8 @@ final_*.sh
 horizon-core/
 angel-agents-repo/
 horizon-bank-package/
+*.exe
+logs/
+data/*.db
+data/*.db-shm
+data/*.db-wal
