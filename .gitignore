@@ -83,3 +83,53 @@ logs/
 *.exe
 *.log
 data/*.db
+
+# ═══ DATA & DATABASES (هرگز به گیت نرود) ═══
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+horizon-dev.db*
+data/
+**/data/*.db
+**/*.db
+
+# ═══ LOGS ═══
+*.log
+logs/
+**/*.log
+
+# ═══ KEYS & SECRETS ═══
+*.pem
+*.key
+*.crt
+.env
+.env.*
+mykey.txt
+**/mykey.txt
+secrets/
+keys/
+
+# ═══ BACKUPS ═══
+*.bak
+*.backup
+backups/
+_quarantine_*/
+_hold_*/
+
+# ═══ BINARIES ═══
+*.exe
+*.dll
+*.so
+*.dylib
+
+# ═══ VERIFICATION FILES (حجیم) ═══
+verify-cert.exe
+horizon-verify.zip
+
+# ═══ GENERATED ═══
+*.out
+*.tmp
+cert.sig
+cert.hash
