@@ -43,7 +43,7 @@ var (
 
 func InitBatcher(db *gorm.DB, cfg BatcherConfig) {
 	if cfg.MaxSize <= 0 {
-		cfg.MaxSize = 5000
+		cfg.MaxSize = 50000
 	}
 	if cfg.FlushInterval <= 0 {
 		cfg.FlushInterval = 50 * time.Millisecond
@@ -101,6 +101,25 @@ func (b *ChainBatcher) Submit(txType string, payload interface{}) string {
 		go b.Flush()
 	}
 	return "queued"
+}
+
+func (b *ChainBatcher) SubmitBatch(txType string, payloads []interface{}) {
+	b.mu.Lock()
+	for _, payload := range payloads {
+		b.queue = append(b.queue, PendingTx{
+			TxType:    txType,
+			Payload:   payload,
+			Timestamp: time.Now().UnixNano(),
+		})
+	}
+	b.totalSubmitted += int64(len(payloads))
+	n := len(b.queue)
+	full := n >= b.cfg.MaxSize
+	b.mu.Unlock()
+
+	if full {
+		go b.Flush()
+	}
 }
 
 func (b *ChainBatcher) Flush() {

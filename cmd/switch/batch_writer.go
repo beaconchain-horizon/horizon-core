@@ -14,13 +14,7 @@ func initTxQueue() {
 }
 
 func queueTransaction(tx *Transaction) {
-	select {
-	case txQueue <- tx:
-	default:
-		if err := db.Create(tx).Error; err != nil {
-			log.Printf("sync tx write error: %v", err)
-		}
-	}
+	txQueue <- tx
 }
 
 func startLedgerLoops(l *Ledger, stopCh chan struct{}) {

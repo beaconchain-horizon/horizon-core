@@ -24,7 +24,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/glebarez/sqlite"
 	"golang.org/x/net/netutil"
 	"gorm.io/gorm"
 	"horizon-core/internal/crypto"
@@ -916,7 +915,7 @@ func main() {
 		dbPath = "./data/horizon-switch.db"
 	}
 
-	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	db, err = openDB(dbPath)
 	if err != nil {
 		log.Fatal("Failed to open database:", err)
 	}
@@ -1287,14 +1286,11 @@ func createTxBatchHandler(c *gin.Context) {
 	chainInfo := "offline"
 	if key != nil && len(processed) > 0 {
 		if b := GetBatcher(); b != nil {
-			for _, tx := range processed {
-				b.Submit(TxBatch, map[string]interface{}{
-					"tx_id":  tx.TxID,
-					"from":   tx.From,
-					"to":     tx.To,
-					"amount": tx.Amount,
-				})
-			}
+			payloads := make([]interface{}, len(processed))
+		for i, tx := range processed {
+			payloads[i] = tx
+		}
+		b.SubmitBatch(TxBatch, payloads)
 			chainInfo = fmt.Sprintf("batched:%d", len(processed))
 		}
 	}
