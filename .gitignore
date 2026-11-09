@@ -133,3 +133,4 @@ horizon-verify.zip
 *.tmp
 cert.sig
 cert.hash
+vendor/
