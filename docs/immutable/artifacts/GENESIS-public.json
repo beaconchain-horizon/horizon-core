@@ -1,0 +1,20 @@
+{
+  "chain_id": "horizon-core-v1.4",
+  "genesis_locked_at": "2026-11-03",
+  "genesis_hash": "8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603",
+  "block_1_hash": "f981652e6c25945a2655b83f7536524441422bdeb7b9742a30a5256cd637ceba",
+  "authority_pubkey_hex": "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214",
+  "pubkey_format": "uncompressed 65-byte SEC1 hex (0x04 prefix)",
+  "curve": "secp256k1",
+  "hash": "SHA-256",
+  "genesis_signature": {
+    "format": "R||S, 64 bytes hex",
+    "r_s_hex": "afac005b...d236face",
+    "note": "full signature available in signed GENESIS.json within source tree"
+  },
+  "block_1_signature": {
+    "format": "R||S, 64 bytes hex",
+    "r_s_hex": "19f1b567...94bd335"
+  },
+  "authority_notice": "Private key custody: hex-only, USB, RAM-loaded, never written to disk. See SECURITY-DESIGN.md §6."
+}
