@@ -134,3 +134,4 @@ horizon-verify.zip
 cert.sig
 cert.hash
 vendor/
+*.exe~
