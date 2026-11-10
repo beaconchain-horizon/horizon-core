@@ -1,28 +1,36 @@
-name: Update Map Data Weekly
+cd ~/Beaconchain/horizon-core
+cat > .github/workflows/update-map-data.yml <<'YAML'
+name: Update weekly map data
 
 on:
   schedule:
-    # هر شنبه ساعت ۳ صبح
     - cron: '0 3 * * 6'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - name: Generate map data
         run: |
           mkdir -p docs/data
-          cat > docs/data/map-data.json <<'JSONEOF'
-{"generated_at":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","source":"manual","version":"1.0"}
-JSONEOF
+          printf '{"generated_at":"%s","source":"manual","version":"1.0"}\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > docs/data/map-data.json
 
-      - name: Commit & Push
+      - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/data/map-data.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update map data"
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update map data"
+            git push
+          fi
+YAML
