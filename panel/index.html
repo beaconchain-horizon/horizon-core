@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon Core — Super App</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--bg2:#131826;--bg3:#1c2333;--fg:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--accent2:#7ee787;--danger:#ff7b72;--border:#30363d}
+body{background:var(--bg);color:var(--fg);font-family:'Segoe UI',system-ui,sans-serif;display:flex;height:100vh;overflow:hidden}
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0}
+.logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.logo h1{font-size:20px;background:linear-gradient(135deg,#7ee787,#58a6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo p{font-size:11px;color:var(--muted);margin-top:4px}
+.nav-item{padding:12px 20px;cursor:pointer;color:var(--muted);font-size:14px;transition:.2s;display:flex;align-items:center;gap:10px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--fg)}
+.nav-item.active{background:var(--bg3);color:var(--accent);border-left-color:var(--accent)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:60px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.status{display:flex;gap:20px;font-size:13px}
+.status-item{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2)}
+.dot.off{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+.content{flex:1;overflow-y:auto;padding:24px}
+.view{display:none}
+.view.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;transition:.2s}
+.card:hover{border-color:var(--accent)}
+.card .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.card .value{font-size:28px;font-weight:bold;color:var(--accent);font-family:'Consolas',monospace}
+.card .sub{color:var(--muted);font-size:11px;margin-top:4px}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.panel h2{font-size:16px;margin-bottom:16px;color:var(--accent2);display:flex;align-items:center;gap:8px}
+.chat{height:400px;overflow-y:auto;background:var(--bg);border-radius:8px;padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.msg{margin-bottom:12px;padding:10px 14px;border-radius:8px;max-width:85%;font-size:14px;line-height:1.5}
+.msg.user{background:var(--accent);color:var(--bg);margin-left:auto}
+.msg.bot{background:var(--bg3);color:var(--fg)}
+.msg .meta{font-size:10px;opacity:.6;margin-bottom:4px}
+.input-row{display:flex;gap:8px}
+input,textarea,select{background:var(--bg3);border:1px solid var(--border);color:var(--fg);padding:10px 14px;border-radius:8px;font-size:14px;font-family:inherit;flex:1;outline:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+button{background:var(--accent);color:var(--bg);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;transition:.2s;display:flex;align-items:center;gap:6px}
+button:hover{filter:brightness(1.1)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.danger{background:var(--danger);color:var(--fg)}
+button.ghost{background:transparent;border:1px solid var(--border);color:var(--fg)}
+button.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.terminal{background:#000;color:#0f0;font-family:'Consolas',monospace;padding:16px;border-radius:8px;height:400px;overflow-y:auto;font-size:13px;line-height:1.6;border:1px solid var(--border)}
+.terminal .cmd{color:var(--accent)}
+.terminal .err{color:var(--danger)}
+.term-input{display:flex;gap:8px;margin-top:12px}
+.term-input input{font-family:'Consolas',monospace;background:#000;color:#0f0;border-color:#0f0}
+.dropzone{border:2px dashed var(--border);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:.2s;color:var(--muted)}
+.dropzone:hover{border-color:var(--accent);color:var(--accent);background:var(--bg3)}
+.file-list{margin-top:16px}
+.file-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg3);border-radius:6px;margin-bottom:6px;font-size:13px}
+.voice-btn{width:50px;height:50px;border-radius:50%;background:var(--danger);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:.2s}
+.voice-btn.recording{animation:pulse 1.2s infinite;background:var(--accent)}
+@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(88,166,255,.7)}50%{transform:scale(1.05);box-shadow:0 0 0 15px rgba(88,166,255,0)}}
+.row{display:flex;gap:12px;align-items:center}
+.tag{display:inline-block;padding:3px 10px;background:var(--bg3);color:var(--accent);border-radius:12px;font-size:11px;margin:2px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <h1>🔭 HORIZON CORE</h1>
+    <p>Super App · v1.4</p>
+  </div>
+  <div class="nav-item active" data-view="dashboard">📊 Dashboard</div>
+  <div class="nav-item" data-view="agents">🤖 AI Agents (349)</div>
+  <div class="nav-item" data-view="chat">💬 Chat</div>
+  <div class="nav-item" data-view="files">📁 Files & Media</div>
+  <div class="nav-item" data-view="voice">🎤 Voice</div>
+  <div class="nav-item" data-view="terminal">💻 Terminal</div>
+  <div class="nav-item" data-view="system">⚙️ System</div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="status">
+      <div class="status-item"><span class="dot" id="s-switch"></span>Switch</div>
+      <div class="status-item"><span class="dot" id="s-guardian"></span>Guardian</div>
+      <div class="status-item"><span class="dot" id="s-runner"></span>Runner</div>
+      <div class="status-item">🌐 <span id="field-count">21</span> Fields</div>
+    </div>
+    <div class="row">
+      <span style="color:var(--muted);font-size:13px" id="clock"></span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="grid">
+        <div class="card"><div class="label">Total Blocks</div><div class="value" id="stat-blocks">—</div><div class="sub">chain_blocks</div></div>
+        <div class="card"><div class="label">Pending Txs</div><div class="value" id="stat-pending">—</div><div class="sub">queue</div></div>
+        <div class="card"><div class="label">Total Transactions</div><div class="value" id="stat-txs">—</div><div class="sub">committed</div></div>
+        <div class="card"><div class="label">Active Licenses</div><div class="value" id="stat-lic">—</div><div class="sub">licenses table</div></div>
+        <div class="card"><div class="label">AI Agents</div><div class="value" id="stat-agents">349</div><div class="sub">21 fields</div></div>
+        <div class="card"><div class="label">Guardian Status</div><div class="value" id="stat-guardian" style="font-size:18px">—</div><div class="sub">port 9008</div></div>
+      </div>
+      <div class="panel">
+        <h2>🔴 Live Chain Feed</h2>
+        <div id="chain-feed" style="font-family:'Consolas',monospace;font-size:12px;color:var(--muted)">Fetching...</div>
+      </div>
+    </div>
+
+    <!-- AGENTS -->
+    <div class="view" id="view-agents">
+      <div class="panel">
+        <h2>🤖 Available Fields (21)</h2>
+        <div id="field-list"></div>
+      </div>
+      <div class="panel">
+        <h2>📞 Call Agents by Field</h2>
+        <div class="row" style="margin-bottom:12px">
+          <input id="call-field" placeholder="e.g. engineering, security, design" style="max-width:300px">
+          <input id="call-command" placeholder="Your command...">
+          <button onclick="callAgents()">Send</button>
+        </div>
+        <div id="call-result" style="font-family:'Consolas';font-size:12px;color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="view" id="view-chat">
+      <div class="panel">
+        <h2>💬 Chat with Guardian</h2>
+        <div class="chat" id="chat"></div>
+        <div class="input-row">
+          <select id="chat-field" style="max-width:200px">
+            <option value="engineering">engineering</option>
+            <option value="security">security</option>
+            <option value="design">design</option>
+            <option value="specialized">specialized</option>
+          </select>
+          <input id="chat-input" placeholder="Ask anything..." onkeypress="if(event.key==='Enter')sendChat()">
+          <button onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILES -->
+    <div class="view" id="view-files">
+      <div class="panel">
+        <h2>📁 Upload Files (Images, ZIP, Audio, Documents)</h2>
+        <div class="dropzone" onclick="document.getElementById('file-input').click()">
+          <div style="font-size:40px;margin-bottom:10px">📤</div>
+          <div>Click to upload or drag & drop</div>
+          <div style="font-size:11px;margin-top:6px">ZIP · PNG · JPG · MP3 · WAV · PDF · JSON</div>
+        </div>
+        <input type="file" id="file-input" multiple style="display:none" onchange="uploadFiles(this.files)">
+        <div class="file-list" id="file-list"></div>
+      </div>
+      <div class="panel">
+        <h2>🎨 Generate Image (Local AI)</h2>
+        <div class="row">
+          <input id="img-prompt" placeholder="Describe the image...">
+          <button onclick="generateImage()">Generate</button>
+        </div>
+        <div id="img-result" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <!-- VOICE -->
+    <div class="view" id="view-voice">
+      <div class="panel" style="text-align:center">
+        <h2>🎤 Voice Command</h2>
+        <p style="color:var(--muted);margin-bottom:24px">Click, speak, and it will transcribe & send to Guardian.</p>
+        <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎤</button>
+        <div style="margin-top:24px;font-size:14px;color:var(--muted)" id="voice-status">Not recording</div>
+        <div id="voice-text" style="margin-top:16px;padding:16px;background:var(--bg3);border-radius:8px;min-height:60px;font-size:15px"></div>
+      </div>
+    </div>
+
+    <!-- TERMINAL -->
+    <div class="view" id="view-terminal">
+      <div class="panel">
+        <h2>💻 Web Terminal (Emergency Access)</h2>
+        <p style="color:var(--muted);font-size:12px;margin-bottom:12px">Admin only. Commands run on the local switch host.</p>
+        <div class="terminal" id="terminal"></div>
+        <div class="term-input">
+          <span style="color:#0f0;font-family:Consolas;padding-top:10px">$</span>
+          <input id="term-input" placeholder="git status" onkeypress="if(event.key==='Enter')runCmd()">
+          <button onclick="runCmd()">Run</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div class="view" id="view-system">
+      <div class="panel">
+        <h2>⚙️ System Endpoints</h2>
+        <div id="sys-endpoints" style="font-family:Consolas;font-size:13px"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const API = {
+  switch: 'http://localhost:8091',
+  guardian: 'http://localhost:9008',
+  runner: 'http://localhost:9101',
+  panel: 'http://localhost:9200'
+};
+const TOKEN = 'bench0000000000000000000000000000000000000000000000000000000bench';
+
+// ═══════════════ NAVIGATION ═══════════════
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('view-' + el.dataset.view).classList.add('active');
+    if (el.dataset.view === 'dashboard') loadStats();
+    if (el.dataset.view === 'agents') loadFields();
+  });
+});
+
+// ═══════════════ CLOCK ═══════════════
+setInterval(() => document.getElementById('clock').textContent = new Date().toLocaleString(), 1000);
+
+// ═══════════════ HEALTH PINGS ═══════════════
+async function ping(url, dotId) {
+  try {
+    const r = await fetch(url + '/health', {signal: AbortSignal.timeout(2000)});
+    document.getElementById(dotId).className = 'dot' + (r.ok ? '' : ' off');
+    return r.ok;
+  } catch { document.getElementById(dotId).className = 'dot off'; return false; }
+}
+async function healthLoop() {
+  await ping(API.switch, 's-switch');
+  await ping(API.guardian, 's-guardian');
+  await ping(API.runner, 's-runner');
+}
+setInterval(healthLoop, 5000); healthLoop();
+
+// ═══════════════ DASHBOARD ═══════════════
+async function loadStats() {
+  try {
+    const r = await fetch(API.switch + '/stats', {headers: {'X-Admin-Token': TOKEN}});
+    const d = await r.json();
+    document.getElementById('stat-blocks').textContent = d.chainLength || '0';
+    document.getElementById('stat-txs').textContent = d.totalTx || '0';
+    document.getElementById('stat-pending').textContent = d.pendingTx || '0';
+    document.getElementById('stat-lic').textContent = d.licenses || '0';
+  } catch(e) { console.error(e); }
+  try {
+    const r2 = await fetch(API.guardian + '/stats');
+    const g = await r2.json();
+    document.getElementById('stat-guardian').textContent = g.network_stats ? 'Online' : 'Offline';
+  } catch { document.getElementById('stat-guardian').textContent = 'Offline'; }
+  try {
+    const r3 = await fetch(API.switch + '/block/list', {headers: {'X-Admin-Token': TOKEN}});
+    const b = await r3.json();
+    const feed = (b.blocks || []).slice(0, 5).map(x => `#${x.block_num} ${x.hash.slice(0,16)}... · ${x.tx_count} txs`).join('<br>');
+    document.getElementById('chain-feed').innerHTML = feed || 'No blocks';
+  } catch {}
+}
+loadStats(); setInterval(loadStats, 10000);
+
+// ═══════════════ AGENTS ═══════════════
+async function loadFields() {
+  try {
+    const r = await fetch(API.runner + '/fields');
+    const d = await r.json();
+    const html = Object.entries(d).map(([k,v]) => `<span class="tag">${k} <b>(${v})</b></span>`).join(' ');
+    document.getElementById('field-list').innerHTML = html;
+  } catch { document.getElementById('field-list').textContent = 'Runner offline'; }
+}
+async function callAgents() {
+  const field = document.getElementById('call-field').value.trim();
+  const command = document.getElementById('call-command').value.trim();
+  if (!field || !command) return alert('Enter field and command');
+  document.getElementById('call-result').textContent = 'Calling...';
+  try {
+    const r = await fetch(API.runner + '/call', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({field, command})
+    });
+    const d = await r.json();
+    document.getElementById('call-result').innerHTML = `<pre>${JSON.stringify(d, null, 2)}</pre>`;
+  } catch(e) { document.getElementById('call-result').textContent = 'Error: ' + e.message; }
+}
+
+// ═══════════════ CHAT ═══════════════
+async function sendChat() {
+  const field = document.getElementById('chat-field').value;
+  const text = document.getElementById('chat-input').value.trim();
+  if (!text) return;
+  const chat = document.getElementById('chat');
+  chat.innerHTML += `<div class="msg user"><div class="meta">You → ${field}</div>${text}</div>`;
+  document.getElementById('chat-input').value = '';
+  chat.scrollTop = chat.scrollHeight;
+  try {
+    const r = await fetch(API.runner + '/call', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({field, command: text})
+    });
+    const d = await r.json();
+    chat.innerHTML += `<div class="msg bot"><div class="meta">🤖 Guardian</div>${d.result || 'No response'}</div>`;
+  } catch(e) {
+    chat.innerHTML += `<div class="msg bot"><div class="meta">Error</div>${e.message}</div>`;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ═══════════════ FILES ═══════════════
+async function uploadFiles(files) {
+  const list = document.getElementById('file-list');
+  for (const f of files) {
+    const fd = new FormData();
+    fd.append('file', f);
+    try {
+      const r = await fetch(API.panel + '/upload', {method:'POST', body: fd});
+      const d = await r.json();
+      list.innerHTML += `<div class="file-item"><span>📎 ${f.name} (${(f.size/1024).toFixed(1)}KB)</span><span class="tag">${d.status}</span></div>`;
+    } catch(e) {
+      list.innerHTML += `<div class="file-item"><span>❌ ${f.name}</span><span class="tag">failed</span></div>`;
+    }
+  }
+}
+async function generateImage() {
+  const prompt = document.getElementById('img-prompt').value.trim();
+  if (!prompt) return;
+  document.getElementById('img-result').innerHTML = 'Generating...';
+  try {
+    const r = await fetch(API.panel + '/generate-image', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({prompt})
+    });
+    const d = await r.json();
+    if (d.url) document.getElementById('img-result').innerHTML = `<img src="${d.url}" style="max-width:100%;border-radius:8px">`;
+    else document.getElementById('img-result').textContent = JSON.stringify(d);
+  } catch(e) { document.getElementById('img-result').textContent = 'Error: ' + e.message; }
+}
+
+// ═══════════════ VOICE ═══════════════
+let recognition = null, recording = false;
+function toggleVoice() {
+  const btn = document.getElementById('voice-btn');
+  const status = document.getElementById('voice-status');
+  const textEl = document.getElementById('voice-text');
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    return alert('Speech recognition not supported in this browser. Use Chrome/Edge.');
+  }
+  if (recording) { recognition.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'fa-IR';
+  recognition.onstart = () => { recording = true; btn.classList.add('recording'); status.textContent = '🔴 Recording... speak now'; textEl.textContent = ''; };
+  recognition.onresult = (e) => {
+    let t = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+    textEl.textContent = t;
+  };
+  recognition.onend = async () => {
+    recording = false; btn.classList.remove('recording'); status.textContent = 'Not recording';
+    const txt = textEl.textContent.trim();
+    if (txt) {
+      textEl.textContent = txt + '\n\n→ Sending to Guardian...';
+      try {
+        const r = await fetch(API.runner + '/call', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({field:'specialized', command: txt})
+        });
+        const d = await r.json();
+        textEl.textContent = txt + '\n\n🤖 ' + (d.result || 'No response');
+      } catch(e) { textEl.textContent = txt + '\n\n❌ ' + e.message; }
+    }
+  };
+  recognition.start();
+}
+
+// ═══════════════ TERMINAL ═══════════════
+async function runCmd() {
+  const input = document.getElementById('term-input');
+  const term = document.getElementById('terminal');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  term.innerHTML += `<div><span class="cmd">$ ${cmd}</span></div>`;
+  input.value = '';
+  term.scrollTop = term.scrollHeight;
+  try {
+    const r = await fetch(API.panel + '/terminal/exec', {
+      method:'POST', headers:{'Content-Type':'application/json','X-Admin-Token':TOKEN},
+      body: JSON.stringify({command: cmd})
+    });
+    const d = await r.json();
+    const out = (d.stdout || '') + (d.stderr ? `<span class="err">${d.stderr}</span>` : '');
+    term.innerHTML += `<div>${out}</div>`;
+  } catch(e) {
+    term.innerHTML += `<div class="err">${e.message}</div>`;
+  }
+  term.scrollTop = term.scrollHeight;
+}
+
+// Load fields on page load
+loadFields();
+</script>
+</body>
+</html>
