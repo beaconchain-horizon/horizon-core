@@ -639,7 +639,7 @@ func mineBlockHandler(c *gin.Context) {
 			}
 			if licID == "" && len(licenses) > 0 { licID = licenses[0].LicenseID }
 		}
-		consTxs = append(consTxs, ConsensusTx{From: t.From, To: t.To, Amount: t.Amount, LicenseID: licID, Type: t.Type})
+		consTxs = append(consTxs, ConsensusTx{From: t.From, To: t.To, Amount: t.Amount, LicenseID: licID, Type: t.Type, Payload: t.Payload})
 	}
 
 	var consLicenses []ConsensusLicense
