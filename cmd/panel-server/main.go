@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,119 +14,167 @@ import (
 	"time"
 )
 
-const AdminToken = "bench0000000000000000000000000000000000000000000000000000000bench"
-const UploadDir = "./panel-uploads"
+const (
+	AdminToken   = "bench0000000000000000000000000000000000000000000000000000000bench"
+	UploadDir    = "./panel-uploads"
+	OllamaURL    = "http://localhost:11434"
+	OllamaModel  = "qwen2.5:7b" // مدل پیش‌فرض
+	AgentDir     = "../angel-agents"
+)
 
-// ═══════════════ SECURITY: command whitelist ═══════════════
-var allowedPrefixes = []string{
-	"git ", "go ", "ls", "cat ", "grep ", "tail ", "head ", "ps ", "tasklist",
-	"echo ", "pwd", "whoami", "date", "df ", "free ", "netstat",
-	"curl ", "wget ", "./horizon-", "taskkill", "go run",
-}
+// لیست سفید برای امنیت ترمینال
+var allowedPrefixes = []string{"git ", "go ", "ls", "cat ", "grep ", "tail ", "head ", "ps ", "tasklist", "echo ", "pwd", "whoami", "date", "df ", "free ", "netstat", "curl ", "wget ", "./horizon-", "taskkill", "go run"}
 var blockedPatterns = []string{"rm -rf /", "format ", ":(){", "del /f", "shutdown", "reboot", "mkfs", "dd if=", "> /dev/sd", "chmod 777 /"}
 
 func isAllowed(cmd string) (bool, string) {
 	for _, b := range blockedPatterns {
-		if strings.Contains(strings.ToLower(cmd), b) { return false, "blocked pattern: " + b }
+		if strings.Contains(strings.ToLower(cmd), b) { return false, "blocked: " + b }
 	}
 	for _, p := range allowedPrefixes {
 		if strings.HasPrefix(strings.TrimSpace(cmd), p) { return true, "" }
 	}
-	return false, "command not whitelisted. Allowed prefixes: " + strings.Join(allowedPrefixes, ", ")
+	return false, "not whitelisted"
 }
 
-// ═══════════════ CORS ═══════════════
 func cors(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
 }
 
-// ═══════════════ HANDLERS ═══════════════
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	cors(w); w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "service": "panel-server", "time": time.Now().Format(time.RFC3339)})
+func ollamaHealth() bool {
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get(OllamaURL + "/api/tags")
+	if err != nil { return false }
+	defer resp.Body.Close()
+	return resp.StatusCode == 200
 }
 
-func authCheck(w http.ResponseWriter, r *http.Request) bool {
-	if r.Header.Get("X-Admin-Token") != AdminToken {
-		cors(w); w.WriteHeader(401)
-		json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"})
-		return false
+// هندلر چت (اتصال به ایجنت و اولاما)
+func chatHandler(w http.ResponseWriter, r *http.Request) {
+	cors(w); w.Header().Set("Content-Type", "application/json")
+	var req struct {
+		Field   string `json:"field"`
+		Message string `json:"message"`
 	}
-	return true
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(400); json.NewEncoder(w).Encode(map[string]string{"error": err.Error()}); return
+	}
+
+	if !ollamaHealth() {
+		json.NewEncoder(w).Encode(map[string]string{"error": "Ollama offline. Run 'ollama serve' in another terminal."})
+		return
+	}
+
+	// خواندن شخصیت ایجنت از فایل .md
+	systemPrompt := "You are Horizon Core's AI assistant. Reply in Persian if asked in Persian. Keep answers concise."
+	if req.Field != "" {
+		agentFiles, _ := filepath.Glob(filepath.Join(AgentDir, req.Field, "*.md"))
+		if len(agentFiles) > 0 {
+			data, _ := os.ReadFile(agentFiles[0])
+			systemPrompt = "You are an expert AI agent in the '" + req.Field + "' field. Base your answer on this persona:\n\n" + string(data)
+			if len(systemPrompt) > 8000 { systemPrompt = systemPrompt[:8000] }
+		}
+	}
+
+	ollamaReq := map[string]interface{}{
+		"model": OllamaModel, "prompt": req.Message, "system": systemPrompt, "stream": false,
+		"options": map[string]interface{}{"temperature": 0.7},
+	}
+	body, _ := json.Marshal(ollamaReq)
+	client := &http.Client{Timeout: 120 * time.Second}
+	resp, err := client.Post(OllamaURL+"/api/generate", "application/json", bytes.NewBuffer(body))
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{"error": "Ollama error: " + err.Error()}); return
+	}
+	defer resp.Body.Close()
+	
+	var ollamaResp struct { Response string `json:"response"` }
+	json.NewDecoder(resp.Body).Decode(&ollamaResp)
+
+	json.NewEncoder(w).Encode(map[string]string{
+		"response": ollamaResp.Response, "field": req.Field, "model": OllamaModel,
+	})
+}
+
+// هندلر آمار (اتصال به سوییچ و نگهبان)
+func statsHandler(w http.ResponseWriter, r *http.Request) {
+	cors(w); w.Header().Set("Content-Type", "application/json")
+	
+	// آمار سوییچ
+	var switchStats map[string]interface{}
+	respS, errS := http.Get("http://localhost:8091/stats")
+	if errS == nil {
+		json.NewDecoder(respS.Body).Decode(&switchStats)
+		respS.Body.Close()
+	}
+
+	// آمار نگهبان
+	var guardianStats map[string]interface{}
+	respG, errG := http.Get("http://localhost:9008/stats")
+	if errG == nil {
+		json.NewDecoder(respG.Body).Decode(&guardianStats)
+		respG.Body.Close()
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"switch": switchStats, "guardian": guardianStats,
+	})
 }
 
 func terminalHandler(w http.ResponseWriter, r *http.Request) {
 	cors(w); w.Header().Set("Content-Type", "application/json")
-	if !authCheck(w, r) { return }
-	var req struct{ Command string `json:"command"` }
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(400); json.NewEncoder(w).Encode(map[string]string{"error": err.Error()}); return
+	if r.Header.Get("X-Admin-Token") != AdminToken {
+		w.WriteHeader(401); json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"}); return
 	}
-	ok, reason := isAllowed(req.Command)
-	if !ok {
+	var req struct{ Command string `json:"command"` }
+	json.NewDecoder(r.Body).Decode(&req)
+	
+	if ok, reason := isAllowed(req.Command); !ok {
 		json.NewEncoder(w).Encode(map[string]string{"stderr": "⛔ " + reason}); return
 	}
-	// Execute via bash
+	
 	cmd := exec.Command("bash", "-c", req.Command)
-	cmd.Dir = "."
 	var stdout, stderr strings.Builder
 	cmd.Stdout = &stdout; cmd.Stderr = &stderr
 	err := cmd.Run()
-	resp := map[string]interface{}{
-		"stdout": stdout.String(), "stderr": stderr.String(),
-		"exit":   0,
-	}
-	if err != nil { resp["exit"] = 1; resp["stderr"] = stderr.String() + "\n" + err.Error() }
-	json.NewEncoder(w).Encode(resp)
+	res := map[string]interface{}{"stdout": stdout.String(), "stderr": stderr.String(), "exit": 0}
+	if err != nil { res["exit"] = 1 }
+	json.NewEncoder(w).Encode(res)
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	cors(w); w.Header().Set("Content-Type", "application/json")
-	if r.Method != "POST" {
-		w.WriteHeader(405); json.NewEncoder(w).Encode(map[string]string{"error": "POST only"}); return
-	}
-	r.Body = http.MaxBytesReader(w, r.Body, 100<<20) // 100MB max
+	r.Body = http.MaxBytesReader(w, r.Body, 200<<20)
 	file, header, err := r.FormFile("file")
 	if err != nil { w.WriteHeader(400); json.NewEncoder(w).Encode(map[string]string{"error": err.Error()}); return }
 	defer file.Close()
+	
 	os.MkdirAll(UploadDir, 0755)
 	dst := filepath.Join(UploadDir, fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(header.Filename)))
-	out, _ := os.Create(dst)
-	defer out.Close()
-	n, _ := io.Copy(out, file)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status": "uploaded", "file": filepath.Base(dst), "size": n,
-	})
-}
-
-func generateImageHandler(w http.ResponseWriter, r *http.Request) {
-	cors(w); w.Header().Set("Content-Type", "application/json")
-	var req struct{ Prompt string `json:"prompt"` }
-	json.NewDecoder(r.Body).Decode(&req)
-	// Local: placeholder (could plug in Stable Diffusion / local model later)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "queued",
-		"prompt":  req.Prompt,
-		"url":     "", // will be filled by local image model
-		"message": "Image generation requires a local model (Stable Diffusion / Ollama). Configure in panel-server.",
-	})
+	out, _ := os.Create(dst); defer out.Close()
+	io.Copy(out, file)
+	json.NewEncoder(w).Encode(map[string]interface{}{"status": "uploaded", "file": filepath.Base(dst)})
 }
 
 func main() {
 	os.MkdirAll(UploadDir, 0755)
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", healthHandler)
-	mux.HandleFunc("/upload", uploadHandler)
-	mux.HandleFunc("/terminal/exec", terminalHandler)
-	mux.HandleFunc("/generate-image", generateImageHandler)
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Serve static panel
-		http.FileServer(http.Dir("./panel")).ServeHTTP(w, r)
+	http.HandleFunc("/api/chat", chatHandler)
+	http.HandleFunc("/api/stats", statsHandler)
+	http.HandleFunc("/api/terminal", terminalHandler)
+	http.HandleFunc("/api/upload", uploadHandler)
+	http.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		cors(w); w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status": "ok", "ollama": ollamaHealth(), "time": time.Now().Format(time.RFC3339),
+		})
 	})
+	
+	// سرو کردن فایل HTML
+	http.Handle("/", http.FileServer(http.Dir("./panel")))
+
 	port := os.Getenv("PANEL_PORT")
 	if port == "" { port = "9200" }
-	log.Printf("🚀 Panel Server on :%s — serving ./panel + terminal API", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Printf("🚀 Super App Panel: http://localhost:%s | Ollama: %v", port, ollamaHealth())
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
