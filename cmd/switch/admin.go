@@ -227,6 +227,7 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		ProductID  string `json:"product_id"`
 		Volume     int    `json:"volume"`
 		Duration   int    `json:"duration"`
+		LicenseType string `json:"license_type"`
 		MerkleRoot string `json:"merkle_root"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -260,6 +261,7 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		IssuedAt:   now,
 		ExpiresAt:  now + int64(req.Duration*86400),
 		Status:     "active",
+			LicenseType: req.LicenseType,
 	}
 
 	if lic.MerkleRoot == "" {
