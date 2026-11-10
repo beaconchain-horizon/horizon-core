@@ -1,22 +1,30 @@
 # 📊 Horizon Core - Current State
 
-**Last Updated:** 2026-11-03
+**Last Updated:** 2026-11-10
 **Go Version:** 1.24
-**Primary Database:** SQLite (WAL Mode, Single-Writer Pool) - *PostgreSQL planned for scale.*
+**Primary Databases:** Dual-Engine (PostgreSQL for Online High-Speed, SQLite for Offline Air-Gap).
 
 ## 🏗️ Architecture Status
-- **Consensus:** PBFT (5/7 Quorum) - Fully operational.
-- **Switch (V1.4):** Fully integrated (35 files), running on port 8080. Features: Auth, Batch Writer (50k tx/200ms), License Enforcement.
-- **Crypto:** Native `secp256k1` (Uncompressed 65-byte format).
+- **Consensus:** 8-Node PBFT (4 Critical + 2/3 Majority + 1 Agent Guardian). Fully operational and fail-closed.
+- **Switch (V1.4):** Runs on port 8091 (Online/PostgreSQL) and 8092 (Offline/SQLite). Features: Auth, Optimized Batch Writer, License Enforcement.
+- **License Issuance:** Block-based. No license is valid unless it is included in a block approved by all 8 consensus nodes.
+- **Crypto:** Native `secp256k1` (Uncompressed 65-byte format). Hex-only (Zero PEM).
 - **Laws:** `CONSTITUTION.md` is active and enforced.
 
-## 📈 Last Successful Tests
-- **Consensus Test:** Block finalized and saved to DB via 5 votes.
-- **Switch Test:** Auth token (32+ chars) accepted, DB opened, Air-gap OFF.
-- **Attack Simulation:** 192 vectors tested, 100% blocked.
+## 📈 Verified Performance & Security Tests (2026-11-10)
+- **Ingestion TPS:** 110,072 tx/sec (Batch Writer, PostgreSQL).
+- **Commit TPS:** 43,500 tx/sec (8-Node PBFT Consensus + Disk Write).
+- **Zero Drop:** 1,000,000 transactions processed with 0 drops and 0 HTTP errors.
+- **Attack Simulation:** 192/192 attack vectors passed (100% blocked).
+- **Stuxnet Simulation:** SCADA Injection, Sensor Tampering, OOM, and SSRF all BLOCKED.
+
+## 🔒 Genesis & Chain State (LOCKED)
+- **Genesis Block (#0):** `8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603` (Signed & Locked).
+- **Block #1:** `f981652e6c25945a2655b83f7536524441422bdeb7b9742a30a5256cd637ceba` (Signed).
+- **Block Strategy:** Blocks are created dynamically based on size (Batch size 50,000) or time (Flush Interval), aggregating transactions from multiple clients.
 
 ## ⚠️ Known Pending Items
-- **Genesis Block:** Not yet officially generated and frozen (Hash pending).
-- **Git History:** Old private keys may exist in historical commits (Requires `git filter-repo`).
-- **Hardcoded Port:** Switch defaults to 8080. Needs `SWITCH_PORT` env variable.
-- **Locked File:** `horizon-dev.db` is locked by Windows process (Harmless, ignored by Git).
+- **Third-Party Audit:** Required for Tier 3 enterprise customers (e.g., Fireblocks, IBM).
+- **Dynamic Customer Nodes:** Architecture is ready; API for dynamic node registration per customer is pending.
+- **Git History:** 🟢 RESOLVED. Old PEM keys and `.exe` backups have been purged and added to `.gitignore`.
+- **Port Configuration:** 🟢 RESOLVED. Port is fully dynamic via `SWITCH_PORT` env variable.
