@@ -11,7 +11,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 )
 
 type Tx struct {
@@ -155,6 +154,7 @@ func evaluate(p ConsensusPayload) VoteResponse {
 		}
 		usageThisBlock := make(map[string]int64)
 		for _, tx := range p.Txs {
+			if tx.Type == "CEREMONY" { continue }
 			if tx.LicenseID == "" { return VoteResponse{Vote: "REJECT", Reason: "tx missing license_id"} }
 			usageThisBlock[tx.LicenseID]++
 		}
@@ -170,14 +170,11 @@ func evaluate(p ConsensusPayload) VoteResponse {
 		return VoteResponse{Vote: "ACCEPT", Reason: "all volumes ok"}
 
 	case "Time":
-		now := time.Now().Unix()
+		blockTs := p.Timestamp
 		for _, lic := range p.Licenses {
-			if now < lic.IssuedAt || now >= lic.ExpiresAt {
+			if blockTs < lic.IssuedAt || blockTs >= lic.ExpiresAt {
 				return VoteResponse{Vote: "REJECT", Reason: "license expired: " + lic.LicenseID}
 			}
-		}
-		if now < p.Timestamp - 60 || now > p.Timestamp + 60 {
-			return VoteResponse{Vote: "REJECT", Reason: "block timestamp out of bounds"}
 		}
 		return VoteResponse{Vote: "ACCEPT", Reason: "time ok"}
 

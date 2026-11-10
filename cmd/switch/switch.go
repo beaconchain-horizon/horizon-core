@@ -58,6 +58,7 @@ type Transaction struct {
 	Timestamp  int64     `json:"timestamp"`
 	BlockIndex int       `gorm:"index" json:"block_index"`
 	LicenseID  string    `gorm:"index" json:"license_id"`
+	Payload    string    `gorm:"type:text" json:"payload"`
 	Synced     bool      `gorm:"index" json:"synced"`
 	CreatedAt  time.Time `json:"created_at"`
 }
@@ -397,6 +398,7 @@ func unlockKeyHandler(c *gin.Context) {
 	log.Printf("Key unlocked: %s", vault.PublicAddr)
 
 	checkLicenseNow()
+	go createCeremonyAttestation("UNLOCK", "admin-operator")
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":      "unlocked",
@@ -893,6 +895,72 @@ func statsHandler(c *gin.Context) {
 }
 
 // ============ MAIN ============
+
+// CEREMONY ATTESTATION LOGIC
+type CeremonyAttestation struct {
+	AttestationID   string `json:"attestation_id"`
+	CeremonyType    string `json:"ceremony_type"`
+	Timestamp       int64  `json:"timestamp"`
+	OperatorID      string `json:"operator_id"`
+	NodeID          string `json:"node_id"`
+	PublicKeyFP     string `json:"public_key_fingerprint"`
+	Result          string `json:"result"`
+	PrevAttestation string `json:"prev_attestation"`
+	Signature       string `json:"signature"`
+}
+
+var lastCeremonyHash string = ""
+var currentNodeID = "switch-node-1"
+
+func createCeremonyAttestation(ceremonyType, operatorID string) {
+	stateMutex.RLock()
+	key := unlockedKey
+	stateMutex.RUnlock()
+
+	if key == nil { return }
+
+	pubKeyX := key.PublicKey.X.Bytes()
+	pubKeyY := key.PublicKey.Y.Bytes()
+	pubKeyBytes := append([]byte{0x04}, append(pubKeyX, pubKeyY...)...)
+	h := sha256.Sum256(pubKeyBytes)
+	pubKeyFP := hex.EncodeToString(h[:])
+
+	att := CeremonyAttestation{
+		AttestationID:   fmt.Sprintf("CEREMONY-%d", time.Now().UnixNano()),
+		CeremonyType:    ceremonyType,
+		Timestamp:       time.Now().Unix(),
+		OperatorID:      operatorID,
+		NodeID:          currentNodeID,
+		PublicKeyFP:     pubKeyFP,
+		Result:          "SUCCESS",
+		PrevAttestation: lastCeremonyHash,
+	}
+
+	attBytes, _ := json.Marshal(att)
+	attHash := sha256.Sum256(attBytes)
+	
+	sig, err := crypto.SignHashRS(key, attHash[:])
+	if err == nil {
+		att.Signature = hex.EncodeToString(sig)
+		lastCeremonyHash = hex.EncodeToString(attHash[:])
+	}
+
+	payloadBytes, _ := json.Marshal(att)
+	tx := &Transaction{
+		TxID:       att.AttestationID,
+		From:       "SYSTEM",
+		To:         "BLOCKCHAIN",
+		Amount:     0,
+		Type:       "CEREMONY",
+		LicenseID:  "",
+		Payload:    string(payloadBytes),
+		Timestamp:  att.Timestamp,
+		BlockIndex: -1,
+	}
+	
+	queueTransaction(tx)
+	log.Printf("✓ Ceremony Attestation queued: %s by %s", att.CeremonyType, operatorID)
+}
 
 func main() {
 	// ─── P0.4 FAIL-CLOSED: refuse to start without required secrets ───

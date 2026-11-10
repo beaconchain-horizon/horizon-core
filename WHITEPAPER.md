@@ -64,10 +64,6 @@ PBFT's all-to-all voting carries O(n²) per-round message overhead. Horizon Core
 - **Go Backend Cluster:** PBFT consensus, dual Merkle construction, license enforcement, fsync commit to PostgreSQL, one-way audit emission to Zone 3.
 - **Failure isolation:** edge failure → anycast reroute; node failure → quorum absorbs; PostgreSQL failure → rebuild from block log; audit zone decoupled (async, no throughput impact).
 
-## Appendix A (Forthcoming)
-- Security Evidence Register (192 vectors STRIDE mapping)
-- Benchmark Methodology (Hardware specs, fsync settings, multi-site pending)
-
 # Appendix A — Security Evidence Register
 
 ## A.1 Enumeration Methodology
@@ -196,6 +192,38 @@ This appendix provides the enumeration framework, distribution, representative v
 
 ---
 
+## A.7 Supervised Boot Ceremony Protocol
+
+### Purpose
+The Supervised Boot Ceremony is the controlled, human-attested process by which the secp256k1 signing key is loaded from encrypted USB media into consensus node RAM. The system boots in a **LOCKED** state and cannot mine, sign, or commit blocks until this ceremony is completed by an authorized operator.
+
+### Prerequisites
+- **Encrypted key file:** `key.enc` on read-only USB media (AES-256-GCM, scrypt-derived key)
+- **Passphrase:** Known only to authorized operators; stored separately from the USB.
+- **Ceremony tool:** `cmd/ceremony/main.go` installed on the switch host.
+- **Switch running:** Reachable on `127.0.0.1:9090` (loopback only).
+- **Two-person rule:** A second authorized operator witnesses and co-signs the ceremony log.
+
+### Ceremony Procedure
+1. **Operator authentication:** The operator physically accesses the switch host console. A second authorized operator witnesses the ceremony. (State: LOCKED)
+2. **USB insertion:** The operator inserts the USB media containing `key.enc`. (State: LOCKED)
+3. **Passphrase entry:** The operator enters the passphrase via the ceremony CLI tool (hidden input). (State: LOCKED)
+4. **Key decryption:** The ceremony tool sends the passphrase and key file path to the switch's local-only endpoint. The switch decrypts the key, loads it into RAM, and wipes the passphrase. (State: LOCKED → UNLOCKED)
+5. **Unlock confirmation:** The switch returns HTTP 200. Mining and signing endpoints become operational. (State: UNLOCKED)
+6. **USB removal:** The operator physically removes the USB media. (State: UNLOCKED)
+7. **Ceremony log entry:** The switch records an immutable log entry: timestamp, operator ID, ceremony completion, and the public key fingerprint. (State: UNLOCKED)
+8. **Operational state:** The key exists only in RAM. If the switch process restarts, the key is lost and the ceremony must be repeated.
+
+### Security Guarantees
+- **Zero-PEM:** The key is never written to disk.
+- **Encrypted at rest on USB:** A stolen USB without the passphrase yields no key material.
+- **RAM-only after ceremony:** The key exists solely in the switch process memory.
+- **No auto-unlock:** The system cannot self-unlock.
+- **Loopback-only endpoint:** The unlock endpoint is bound to `127.0.0.1:9090`.
+- **Two-person rule:** Prevents single-actor key loading.
+- **Ceremony attestation:** Each ceremony is logged and committed to the blockchain.
+
+
 # Appendix B — Benchmark Methodology
 
 ## B.1 Test Environment
@@ -280,37 +308,5 @@ These distributed figures will replace the single-host caveat in the Executive S
 
 ---
 
-*End of appendices. These should be appended to the main whitepaper (Sections 1–5) to complete the document.*
 
-
-## A.7 Supervised Boot Ceremony Protocol
-
-### Purpose
-The Supervised Boot Ceremony is the controlled, human-attested process by which the secp256k1 signing key is loaded from encrypted USB media into consensus node RAM. The system boots in a **LOCKED** state and cannot mine, sign, or commit blocks until this ceremony is completed by an authorized operator.
-
-### Prerequisites
-- **Encrypted key file:** `key.enc` on read-only USB media (AES-256-GCM, scrypt-derived key)
-- **Passphrase:** Known only to authorized operators; stored separately from the USB.
-- **Ceremony tool:** `cmd/ceremony/main.go` installed on the switch host.
-- **Switch running:** Reachable on `127.0.0.1:9090` (loopback only).
-- **Two-person rule:** A second authorized operator witnesses and co-signs the ceremony log.
-
-### Ceremony Procedure
-1. **Operator authentication:** The operator physically accesses the switch host console. A second authorized operator witnesses the ceremony. (State: LOCKED)
-2. **USB insertion:** The operator inserts the USB media containing `key.enc`. (State: LOCKED)
-3. **Passphrase entry:** The operator enters the passphrase via the ceremony CLI tool (hidden input). (State: LOCKED)
-4. **Key decryption:** The ceremony tool sends the passphrase and key file path to the switch's local-only endpoint. The switch decrypts the key, loads it into RAM, and wipes the passphrase. (State: LOCKED → UNLOCKED)
-5. **Unlock confirmation:** The switch returns HTTP 200. Mining and signing endpoints become operational. (State: UNLOCKED)
-6. **USB removal:** The operator physically removes the USB media. (State: UNLOCKED)
-7. **Ceremony log entry:** The switch records an immutable log entry: timestamp, operator ID, ceremony completion, and the public key fingerprint. (State: UNLOCKED)
-8. **Operational state:** The key exists only in RAM. If the switch process restarts, the key is lost and the ceremony must be repeated.
-
-### Security Guarantees
-- **Zero-PEM:** The key is never written to disk.
-- **Encrypted at rest on USB:** A stolen USB without the passphrase yields no key material.
-- **RAM-only after ceremony:** The key exists solely in the switch process memory.
-- **No auto-unlock:** The system cannot self-unlock.
-- **Loopback-only endpoint:** The unlock endpoint is bound to `127.0.0.1:9090`.
-- **Two-person rule:** Prevents single-actor key loading.
-- **Ceremony attestation:** Each ceremony is logged and committed to the blockchain.
 

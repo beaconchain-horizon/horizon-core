@@ -14,6 +14,7 @@ type ConsensusTx struct {
 	Amount    float64 `json:"amount"`
 	LicenseID string  `json:"license_id"`
 	Type      string  `json:"type"`
+	Payload   string  `json:"payload"`
 }
 
 type ConsensusLicense struct {
