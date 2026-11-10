@@ -148,7 +148,7 @@ button.record.recording{animation:pulse 1s infinite}
 </main>
 
 <script>
-const API = "http://localhost:9200";
+const API = "http://localhost:9300";
 const TOKEN = "bench0000000000000000000000000000000000000000000000000000000bench";
 
 // ساعت
@@ -181,7 +181,7 @@ setInterval(checkHealth, 5000); checkHealth();
 // آمار
 async function loadStats() {
     try {
-        const r = await fetch(API + '/api/stats');
+        const r = await fetch("http://localhost:9200/api/stats");
         const d = await r.json();
         if (d.switch) {
             document.getElementById('stat-blocks').innerText = d.switch.chainLength || 0;
