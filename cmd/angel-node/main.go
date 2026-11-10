@@ -25,6 +25,7 @@ type Tx struct {
 type License struct {
 	LicenseID string `json:"license_id"`
 	UserID    string `json:"user_id"`
+	ProductID string `json:"product_id"`
 	Volume    int64  `json:"volume"`
 	Used      int64  `json:"used"`
 	IssuedAt  int64  `json:"issued_at"`
@@ -180,9 +181,25 @@ func evaluate(p ConsensusPayload) VoteResponse {
 		return VoteResponse{Vote: "ACCEPT", Reason: "time ok"}
 
 	case "User":
-		// اطمینان از اینکه هر تراکنش یک لایسنس معتبر و متعلق به کاربر دارد
+		licUserOf := make(map[string]string)
+		for _, lic := range p.Licenses {
+			licUserOf[lic.LicenseID] = lic.UserID
+		}
 		for _, tx := range p.Txs {
-			if tx.LicenseID == "" { return VoteResponse{Vote: "REJECT", Reason: "tx missing license"} }
+			if tx.Type == "CEREMONY" { continue }
+			if tx.LicenseID == "" {
+				return VoteResponse{Vote: "REJECT", Reason: "tx missing license_id"}
+			}
+			licUser, ok := licUserOf[tx.LicenseID]
+			if !ok {
+				return VoteResponse{Vote: "REJECT", Reason: "license not in block: " + tx.LicenseID}
+			}
+			if licUser == "" {
+				return VoteResponse{Vote: "REJECT", Reason: "license empty user_id: " + tx.LicenseID}
+			}
+			if tx.From != licUser {
+				return VoteResponse{Vote: "REJECT", Reason: fmt.Sprintf("user mismatch: tx.from=%s license.user_id=%s", tx.From, licUser)}
+			}
 		}
 		return VoteResponse{Vote: "ACCEPT", Reason: "user/license binding ok"}
 	}
