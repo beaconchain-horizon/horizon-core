@@ -36,6 +36,7 @@ type ConsensusPayload struct {
 	TxCount     int                `json:"tx_count"`
 	Signature   string             `json:"signature"`
 	SignerAddr  string             `json:"signer_addr"`
+	BlockLicenseID string `json:"block_license_id"`
 	Licenses    []ConsensusLicense `json:"licenses"`
 	Txs         []ConsensusTx      `json:"txs"`
 }

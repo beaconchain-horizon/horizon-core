@@ -82,8 +82,8 @@ func seedAccounts(n int) {
 
 func runRaw(total int) int64 {
 	fmt.Printf("🚀 حالت RAW: شلیک %d تراکنش (Batch)...\n", total)
-	batchSize := 5000
-	numWorkers := 20
+	batchSize := 10000
+	numWorkers := 50
 	var success int64
 	var wg sync.WaitGroup
 	ch := make(chan int, total/batchSize)
@@ -125,7 +125,7 @@ func runRaw(total int) int64 {
 				if err == nil {
 					io.ReadAll(resp.Body)
 					resp.Body.Close()
-					if resp.StatusCode == 200 { atomic.AddInt64(&success, int64(batchSize)) } else { if atomic.LoadInt64(&success) == 0 { b, _ := io.ReadAll(resp.Body); fmt.Printf("BATCH ERROR %d: %s\n", resp.StatusCode, string(b)) } }
+					if resp.StatusCode == 200 || resp.StatusCode == 201 { atomic.AddInt64(&success, int64(batchSize)) } else { if atomic.LoadInt64(&success) == 0 { b, _ := io.ReadAll(resp.Body); fmt.Printf("BATCH ERROR %d: %s\n", resp.StatusCode, string(b)) } }
 				}
 			}
 		}()

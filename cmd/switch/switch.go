@@ -34,17 +34,18 @@ import (
 // ============================================================
 
 type Block struct {
-	ID         uint      `gorm:"primaryKey" json:"id"`
-	BlockNum   int       `gorm:"uniqueIndex;column:block_num" json:"block_num"`
-	Timestamp  int64     `json:"timestamp"`
-	PrevHash   string    `json:"prev_hash"`
-	Hash       string    `gorm:"index" json:"hash"`
-	MerkleRoot string    `json:"merkle_root"`
-	MerkleAlgo string    `json:"merkle_algo"`
-	TxCount    int       `json:"tx_count"`
-	CreatedAt  time.Time `json:"created_at"`
-	Signature  string    `json:"signature,omitempty"`
-	SignerAddr string    `json:"signer_addr,omitempty"`
+	ID             uint      `gorm:"primaryKey" json:"id"`
+	BlockNum       int       `gorm:"uniqueIndex;column:block_num" json:"block_num"`
+	Timestamp      int64     `json:"timestamp"`
+	PrevHash       string    `json:"prev_hash"`
+	Hash           string    `gorm:"index" json:"hash"`
+	MerkleRoot     string    `json:"merkle_root"`
+	MerkleAlgo     string    `json:"merkle_algo"`
+	TxCount        int       `json:"tx_count"`
+	CreatedAt      time.Time `json:"created_at"`
+	Signature      string    `json:"signature,omitempty"`
+	SignerAddr     string    `json:"signer_addr,omitempty"`
+	BlockLicenseID string    `json:"block_license_id"`
 }
 
 type Transaction struct {
@@ -62,21 +63,21 @@ type Transaction struct {
 }
 
 type License struct {
-	ID         uint      `gorm:"primaryKey" json:"id"`
-	LicenseID  string    `gorm:"uniqueIndex" json:"license_id"`
-	UserID     string    `gorm:"index" json:"user_id"`
-	ProductID  string    `json:"product_id"`
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	LicenseID   string    `gorm:"uniqueIndex" json:"license_id"`
+	UserID      string    `gorm:"index" json:"user_id"`
+	ProductID   string    `json:"product_id"`
 	Volume      int       `json:"volume"`
 	LicenseType string    `gorm:"default:client" json:"license_type"`
-	Used       int       `json:"used"`
-	Duration   int       `json:"duration"`
-	Signature  string    `json:"signature"`
-	MerkleRoot string    `json:"merkle_root"`
-	IssuedAt   int64     `json:"issued_at"`
-	ExpiresAt  int64     `json:"expires_at"`
-	Status     string    `json:"status"`
-	CreatedAt  time.Time `json:"created_at"`
-	HardwareID string    `json:"hardware_id"`
+	Used        int       `json:"used"`
+	Duration    int       `json:"duration"`
+	Signature   string    `json:"signature"`
+	MerkleRoot  string    `json:"merkle_root"`
+	IssuedAt    int64     `json:"issued_at"`
+	ExpiresAt   int64     `json:"expires_at"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	HardwareID  string    `json:"hardware_id"`
 }
 
 type KeyVault struct {
@@ -480,9 +481,6 @@ func createTxHandler(c *gin.Context) {
 
 	// ═══════════════════════════════════════════════════════════════════
 	// P1.3 FIX: Enforce one-time signing session token.
-	// The client MUST first call POST /signing/session to obtain a token,
-	// then send it in the X-Session-Token header of this request.
-	// Without a valid, unconsumed, non-expired token, the transaction is rejected.
 	// ═══════════════════════════════════════════════════════════════════
 	sessionTok := c.GetHeader("X-Session-Token")
 	if sessionTok == "" {
@@ -504,9 +502,6 @@ func createTxHandler(c *gin.Context) {
 
 	// ═══════════════════════════════════════════════════════════════════
 	// P1.2 FIX: Enforce Dual Control for high-value transactions.
-	// If amount >= dualThreshold, the client must have already obtained
-	// approval via POST /dual/request and POST /dual/approve by a second
-	// admin. The approval ID must be sent in the X-Dual-Approval header.
 	// ═══════════════════════════════════════════════════════════════════
 	if RequiresDualControl(req.Amount) {
 		approvalID := c.GetHeader("X-Dual-Approval")
@@ -570,6 +565,7 @@ func createTxHandler(c *gin.Context) {
 		Type:       req.Type,
 		Timestamp:  time.Now().Unix(),
 		BlockIndex: -1,
+		LicenseID:  c.GetHeader("X-License-ID"),
 		Synced:     false,
 	}
 	queueTransaction(tx)
@@ -634,11 +630,12 @@ func mineBlockHandler(c *gin.Context) {
 
 	var consTxs []ConsensusTx
 	for _, t := range txs {
-		licID := ""
-		for _, l := range licenses {
-			if l.UserID == t.From { licID = l.LicenseID; break }
-		}
-		if licID == "" && len(licenses) > 0 { licID = licenses[0].LicenseID
+		licID := t.LicenseID
+		if licID == "" {
+			for _, l := range licenses {
+				if l.UserID == t.From { licID = l.LicenseID; break }
+			}
+			if licID == "" && len(licenses) > 0 { licID = licenses[0].LicenseID }
 		}
 		consTxs = append(consTxs, ConsensusTx{From: t.From, To: t.To, Amount: t.Amount, LicenseID: licID, Type: t.Type})
 	}
@@ -699,7 +696,9 @@ func mineBlockHandler(c *gin.Context) {
 		}
 	} else { c.JSON(400, gin.H{"error": "key not unlocked"}); return }
 
+	blockLicID := fmt.Sprintf("BLOCK-LIC-%d-%d", blockNum, ts)
 	payload := ConsensusPayload{
+		BlockLicenseID: blockLicID,
 		BlockNumber: uint64(blockNum), BlockHash: blockHash, PrevHash: prevHash,
 		MerkleRoot: merkleRoot, MerkleType: "binary", Timestamp: ts, TxCount: len(consTxs),
 		Signature: sigHex, SignerAddr: signerAddr, Licenses: consLicenses, Txs: consTxs,
@@ -711,6 +710,7 @@ func mineBlockHandler(c *gin.Context) {
 	}
 
 	newBlock := Block{
+		BlockLicenseID: blockLicID,
 		BlockNum: blockNum, Timestamp: ts, PrevHash: prevHash, Hash: blockHash,
 		MerkleRoot: merkleRoot, MerkleAlgo: "v1", TxCount: len(txs),
 		CreatedAt: time.Now(), Signature: sigHex, SignerAddr: signerAddr,
@@ -948,7 +948,6 @@ func main() {
 
 	// init license chain (blockchain registry)
 	if err := initLicenseChain(db); err != nil {
-
 		log.Printf("⚠️  license chain init: %v", err)
 	}
 	initChainConfig()
@@ -1006,7 +1005,6 @@ func main() {
 	api.POST("/license/check", licenseCheckHandler)
 	{
 		registerIndustrialRoutes(api)
-
 		registerTenantRoutes(api)
 
 		startIndustrialBackgroundJobs()
@@ -1116,7 +1114,7 @@ func main() {
 	apiCustomer := r.Group("/api/v1/customer")
 	{
 		apiCustomer.POST("/login", customerLoginHandler)
-		apiCustomer.POST("/logout", customerLogoutHandler)
+		api.POST("/logout", customerLogoutHandler)
 
 		authCustomer := apiCustomer.Group("")
 		authCustomer.Use(customerAuthRequired())
@@ -1274,6 +1272,7 @@ func createTxBatchHandler(c *gin.Context) {
 			Type:       t.Type,
 			Timestamp:  time.Now().Unix(),
 			BlockIndex: -1,
+			LicenseID:  c.GetHeader("X-License-ID"),
 		}
 		queueTransaction(tx)
 		processed = append(processed, tx)
@@ -1288,10 +1287,10 @@ func createTxBatchHandler(c *gin.Context) {
 	if key != nil && len(processed) > 0 {
 		if b := GetBatcher(); b != nil {
 			payloads := make([]interface{}, len(processed))
-		for i, tx := range processed {
-			payloads[i] = tx
-		}
-		b.SubmitBatch(TxBatch, payloads)
+			for i, tx := range processed {
+				payloads[i] = tx
+			}
+			b.SubmitBatch(TxBatch, payloads)
 			chainInfo = fmt.Sprintf("batched:%d", len(processed))
 		}
 	}
