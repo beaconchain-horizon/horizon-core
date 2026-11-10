@@ -118,3 +118,29 @@ Private keys never stored as PEM. Only hex strings:
 HORIZON CORE — a protocol, not a product.<br>
 v1.4 · genesis locked 2026-11-03 · all rights reserved
 </div>
+
+---
+
+## 9. INTERNATIONAL STANDARDS REFERENCED
+
+| Standard | Issuer | Region | Reference |
+|:---------|:-------|:------:|:----------|
+| SEC 2 v2 — secp256k1 | SECG | 🇺🇸 · 🌍 | [secg.org/sec2-v2.pdf](https://www.secg.org/sec2-v2.pdf) |
+| RFC 6979 — Deterministic ECDSA | IETF | 🌍 | [datatracker.ietf.org](https://datatracker.ietf.org/doc/html/rfc6979) |
+| BIP-62 — Low-S enforcement | Bitcoin Core | 🌍 | [bitcoin/bips](https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki) |
+| FIPS 180-4 — SHA-256 | NIST | 🇺🇸 | [csrc.nist.gov](https://csrc.nist.gov/publications/detail/fips/180/4/final) |
+| ISO/IEC 25010 — Software quality | ISO | 🇨🇭 · 🌍 | [iso25000.com](https://iso25000.com/index.php/en/iso-25000-standards/iso-25010) |
+| ISO 8583 — Financial transactions | ISO | 🇨🇭 · 🌍 | [iso.org](https://www.iso.org/standard/79451.html) |
+| ISO 20022 — Financial messaging | ISO | 🇨🇭 · 🌍 | [iso20022.org](https://www.iso20022.org/) |
+| Basel III — Banking regulation | BIS | 🇨🇭 · 🌍 | [bis.org](https://www.bis.org/basel_framework/) |
+| GDPR — Data protection | EU | 🇪🇺 | [eur-lex.europa.eu](https://eur-lex.europa.eu/eli/reg/2016/679/oj) |
+
+> Full detail: `HORIZON-CORE-v1.4-STANDARDS.md`
+> Every standard is publicly verifiable at the link provided.
+
+---
+
+<div align="center">
+HORIZON CORE — a protocol, not a product.<br/>
+v1.4 · genesis locked 2026-11-03 · all rights reserved
+</div>
