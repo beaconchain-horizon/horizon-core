@@ -15,44 +15,24 @@ import (
 )
 
 const (
-	AdminToken   = "bench0000000000000000000000000000000000000000000000000000000bench"
-	UploadDir    = "./panel-uploads"
-	OllamaURL    = "http://localhost:11434"
-	OllamaModel  = "qwen2.5:7b" // مدل پیش‌فرض
-	AgentDir     = "../angel-agents"
+	AdminToken  = "bench0000000000000000000000000000000000000000000000000000000bench"
+	UploadDir   = "./panel-uploads"
+	AgentDir    = "../angel-agents"
+	LMStudioURL = "http://localhost:1234/v1/chat/completions"
 )
 
-// لیست سفید برای امنیت ترمینال
-var allowedPrefixes = []string{"git ", "go ", "ls", "cat ", "grep ", "tail ", "head ", "ps ", "tasklist", "echo ", "pwd", "whoami", "date", "df ", "free ", "netstat", "curl ", "wget ", "./horizon-", "taskkill", "go run"}
-var blockedPatterns = []string{"rm -rf /", "format ", ":(){", "del /f", "shutdown", "reboot", "mkfs", "dd if=", "> /dev/sd", "chmod 777 /"}
-
-func isAllowed(cmd string) (bool, string) {
-	for _, b := range blockedPatterns {
-		if strings.Contains(strings.ToLower(cmd), b) { return false, "blocked: " + b }
-	}
-	for _, p := range allowedPrefixes {
-		if strings.HasPrefix(strings.TrimSpace(cmd), p) { return true, "" }
-	}
-	return false, "not whitelisted"
-}
-
-func cors(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
-}
-
-func ollamaHealth() bool {
+func lmStudioHealth() bool {
 	client := &http.Client{Timeout: 2 * time.Second}
-	resp, err := client.Get(OllamaURL + "/api/tags")
+	resp, err := client.Get("http://localhost:1234/v1/models")
 	if err != nil { return false }
 	defer resp.Body.Close()
 	return resp.StatusCode == 200
 }
 
-// هندلر چت (اتصال به ایجنت و اولاما)
 func chatHandler(w http.ResponseWriter, r *http.Request) {
-	cors(w); w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	
 	var req struct {
 		Field   string `json:"field"`
 		Message string `json:"message"`
@@ -61,13 +41,18 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400); json.NewEncoder(w).Encode(map[string]string{"error": err.Error()}); return
 	}
 
-	if !ollamaHealth() {
-		json.NewEncoder(w).Encode(map[string]string{"error": "Ollama offline. Run 'ollama serve' in another terminal."})
+	if !lmStudioHealth() {
+		json.NewEncoder(w).Encode(map[string]string{"error": "LM Studio offline. Start the Local Server on port 1234."})
 		return
 	}
 
-	// خواندن شخصیت ایجنت از فایل .md
-	systemPrompt := "You are Horizon Core's AI assistant. Reply in Persian if asked in Persian. Keep answers concise."
+	apiKey := os.Getenv("LM_STUDIO_API_KEY")
+	if apiKey == "" {
+		json.NewEncoder(w).Encode(map[string]string{"error": "LM_STUDIO_API_KEY env variable not set."})
+		return
+	}
+
+	systemPrompt := "You are Horizon Core's AI assistant. Reply in Persian if asked in Persian."
 	if req.Field != "" {
 		agentFiles, _ := filepath.Glob(filepath.Join(AgentDir, req.Field, "*.md"))
 		if len(agentFiles) > 0 {
@@ -77,62 +62,62 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ollamaReq := map[string]interface{}{
-		"model": OllamaModel, "prompt": req.Message, "system": systemPrompt, "stream": false,
-		"options": map[string]interface{}{"temperature": 0.7},
+	lmReq := map[string]interface{}{
+		"messages": []map[string]string{
+			{"role": "system", "content": systemPrompt},
+			{"role": "user", "content": req.Message},
+		},
+		"temperature": 0.7,
+		"stream":      false,
 	}
-	body, _ := json.Marshal(ollamaReq)
+	
+	body, _ := json.Marshal(lmReq)
 	client := &http.Client{Timeout: 120 * time.Second}
-	resp, err := client.Post(OllamaURL+"/api/generate", "application/json", bytes.NewBuffer(body))
+	httpReq, _ := http.NewRequest("POST", LMStudioURL, bytes.NewBuffer(body))
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+
+	resp, err := client.Do(httpReq)
 	if err != nil {
-		json.NewEncoder(w).Encode(map[string]string{"error": "Ollama error: " + err.Error()}); return
+		json.NewEncoder(w).Encode(map[string]string{"error": "LM Studio error: " + err.Error()}); return
 	}
 	defer resp.Body.Close()
 	
-	var ollamaResp struct { Response string `json:"response"` }
-	json.NewDecoder(resp.Body).Decode(&ollamaResp)
+	var lmResp struct {
+		Choices []struct {
+			Message struct { Content string `json:"content"` } `json:"message"`
+		} `json:"choices"`
+	}
+	json.NewDecoder(resp.Body).Decode(&lmResp)
+
+	if len(lmResp.Choices) == 0 {
+		json.NewEncoder(w).Encode(map[string]string{"error": "Empty response from LM Studio"}); return
+	}
 
 	json.NewEncoder(w).Encode(map[string]string{
-		"response": ollamaResp.Response, "field": req.Field, "model": OllamaModel,
+		"response": lmResp.Choices[0].Message.Content, "field": req.Field, "model": "LM Studio",
 	})
 }
 
-// هندلر آمار (اتصال به سوییچ و نگهبان)
 func statsHandler(w http.ResponseWriter, r *http.Request) {
-	cors(w); w.Header().Set("Content-Type", "application/json")
-	
-	// آمار سوییچ
-	var switchStats map[string]interface{}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	var switchStats, guardianStats map[string]interface{}
 	respS, errS := http.Get("http://localhost:8091/stats")
-	if errS == nil {
-		json.NewDecoder(respS.Body).Decode(&switchStats)
-		respS.Body.Close()
-	}
-
-	// آمار نگهبان
-	var guardianStats map[string]interface{}
+	if errS == nil { json.NewDecoder(respS.Body).Decode(&switchStats); respS.Body.Close() }
 	respG, errG := http.Get("http://localhost:9008/stats")
-	if errG == nil {
-		json.NewDecoder(respG.Body).Decode(&guardianStats)
-		respG.Body.Close()
-	}
-
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"switch": switchStats, "guardian": guardianStats,
-	})
+	if errG == nil { json.NewDecoder(respG.Body).Decode(&guardianStats); respG.Body.Close() }
+	json.NewEncoder(w).Encode(map[string]interface{}{"switch": switchStats, "guardian": guardianStats})
 }
 
 func terminalHandler(w http.ResponseWriter, r *http.Request) {
-	cors(w); w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
 	if r.Header.Get("X-Admin-Token") != AdminToken {
 		w.WriteHeader(401); json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"}); return
 	}
 	var req struct{ Command string `json:"command"` }
 	json.NewDecoder(r.Body).Decode(&req)
-	
-	if ok, reason := isAllowed(req.Command); !ok {
-		json.NewEncoder(w).Encode(map[string]string{"stderr": "⛔ " + reason}); return
-	}
 	
 	cmd := exec.Command("bash", "-c", req.Command)
 	var stdout, stderr strings.Builder
@@ -144,12 +129,12 @@ func terminalHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	cors(w); w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
 	r.Body = http.MaxBytesReader(w, r.Body, 200<<20)
 	file, header, err := r.FormFile("file")
 	if err != nil { w.WriteHeader(400); json.NewEncoder(w).Encode(map[string]string{"error": err.Error()}); return }
 	defer file.Close()
-	
 	os.MkdirAll(UploadDir, 0755)
 	dst := filepath.Join(UploadDir, fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(header.Filename)))
 	out, _ := os.Create(dst); defer out.Close()
@@ -164,17 +149,16 @@ func main() {
 	http.HandleFunc("/api/terminal", terminalHandler)
 	http.HandleFunc("/api/upload", uploadHandler)
 	http.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		cors(w); w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"status": "ok", "ollama": ollamaHealth(), "time": time.Now().Format(time.RFC3339),
+			"status": "ok", "lm_studio": lmStudioHealth(), "time": time.Now().Format(time.RFC3339),
 		})
 	})
-	
-	// سرو کردن فایل HTML
 	http.Handle("/", http.FileServer(http.Dir("./panel")))
 
 	port := os.Getenv("PANEL_PORT")
 	if port == "" { port = "9200" }
-	log.Printf("🚀 Super App Panel: http://localhost:%s | Ollama: %v", port, ollamaHealth())
+	log.Printf("🚀 Panel: http://localhost:%s | LM Studio: %v", port, lmStudioHealth())
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

@@ -74,7 +74,7 @@ button.record.recording{animation:pulse 1s infinite}
     <div class="topbar">
         <div class="status-dots">
             <div><span class="dot" id="dot-switch"></span> Switch</div>
-            <div><span class="dot" id="dot-ollama"></span> Ollama (هوش)</div>
+            <div><span class="dot" id="dot-brain"></span> Brain (هوش)</div>
         </div>
         <div style="font-size:14px;color:#8b949e" id="clock"></div>
     </div>
@@ -167,10 +167,10 @@ function switchView(id, el) {
 // بررسی سلامت
 async function checkHealth() {
     try {
-        const r = await fetch(API + '/api/health');
+        const r = await fetch('http://localhost:9300/api/health');
         const d = await r.json();
-        document.getElementById('dot-ollama').className = 'dot ' + (d.ollama ? 'on' : 'off');
-    } catch { document.getElementById('dot-ollama').className = 'dot off'; }
+        document.getElementById('dot-brain').className = 'dot ' + (d.ollama ? 'on' : 'off');
+    } catch { document.getElementById('dot-brain').className = 'dot off'; }
     try {
         await fetch("http://localhost:8091/health");
         document.getElementById('dot-switch').className = 'dot on';
