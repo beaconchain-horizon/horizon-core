@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"crypto/rand"
 	"encoding/hex"
 	"log"
@@ -285,7 +286,24 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		log.Printf("⛓  license %s appended in block #%d", lic.LicenseID, chainTx.BlockNum)
 	}
 
-	addAudit("issue_license", lic.LicenseID, "for user "+lic.UserID, c.ClientIP())
+	// ثبت لایسنس به عنوان یک تراکنش در صف اجماع
+	tx := &Transaction{
+		TxID:       fmt.Sprintf("lic_%s_%d", lic.LicenseID, time.Now().UnixNano()),
+		From:       "system",
+		To:         lic.UserID,
+		Amount:     0,
+		Type:       TxLicenseIssue,
+		Timestamp:  time.Now().Unix(),
+		BlockIndex: -1,
+		Synced:     false,
+	}
+	if err := db.Create(tx).Error; err != nil {
+		log.Printf("⚠️  failed to queue license tx: %v", err)
+	} else {
+		log.Printf("⛓  license %s queued as tx (awaiting 8-node consensus)", lic.LicenseID)
+	}
+
+		addAudit("issue_license", lic.LicenseID, "for user "+lic.UserID, c.ClientIP())
 
 	// refresh license state in memory (so isLicenseValid becomes true)
 	checkLicenseNow()

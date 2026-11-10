@@ -66,7 +66,8 @@ type License struct {
 	LicenseID  string    `gorm:"uniqueIndex" json:"license_id"`
 	UserID     string    `gorm:"index" json:"user_id"`
 	ProductID  string    `json:"product_id"`
-	Volume     int       `json:"volume"`
+	Volume      int       `json:"volume"`
+	LicenseType string    `gorm:"default:client" json:"license_type"`
 	Used       int       `json:"used"`
 	Duration   int       `json:"duration"`
 	Signature  string    `json:"signature"`

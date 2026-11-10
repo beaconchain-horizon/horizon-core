@@ -34,7 +34,7 @@ func BroadcastBlock(proposal BlockProposal, peers []string) {
 			url := fmt.Sprintf("http://%s/api/v1/consensus/receive-block", p)
 			req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("X-License-ID", "INTERNAL-CONSENSUS")
+			req.Header.Set("X-License-ID", "INTERNAL-NODE-LIC")
 			client := &http.Client{Timeout: 5 * time.Second}
 			resp, err := client.Do(req)
 			if err == nil { resp.Body.Close() }
@@ -47,7 +47,7 @@ func SendVote(vote Vote, proposerURL string) {
 	url := fmt.Sprintf("http://%s/api/v1/consensus/receive-vote", proposerURL)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-License-ID", "INTERNAL-CONSENSUS")
+	req.Header.Set("X-License-ID", "INTERNAL-NODE-LIC")
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
 	if err == nil { resp.Body.Close() }
