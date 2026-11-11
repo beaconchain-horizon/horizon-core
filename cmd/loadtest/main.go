@@ -83,7 +83,7 @@ func seedAccounts(n int) {
 func runRaw(total int) int64 {
 	fmt.Printf("🚀 حالت RAW: شلیک %d تراکنش (Batch)...\n", total)
 	batchSize := 10000
-	numWorkers := 50
+	numWorkers := 20
 	var success int64
 	var wg sync.WaitGroup
 	ch := make(chan int, total/batchSize)
