@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Core — Agent Workspace</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+            --bg-base: #121212;
+            --bg-panel: #1e1e1e;
+            --bg-glass: rgba(30, 30, 30, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            /* Simulating the blurred background image from the photo */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 25%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background-color: #181818;
+            border-right: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 24px;
+            padding-left: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .nav-item svg { width: 18px; height: 18px; opacity: 0.7; }
+
+        .sidebar-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Checklist */
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding-left: 8px;
+            line-height: 1.4;
+        }
+
+        .step-circle {
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid #444;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-item.completed .step-circle {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+
+        .learn-more-btn {
+            background: transparent;
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            width: max-content;
+            margin-top: 10px;
+            margin-left: 8px;
+        }
+
+        /* --- MAIN AREA (Behind Modal) --- */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            padding: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-step.active { color: var(--text-primary); font-weight: 500; }
+        
+        .progress-dot {
+            width: 6px; height: 6px; background-color: #333; border-radius: 50%;
+        }
+        .progress-step.active .progress-dot { background-color: var(--text-primary); }
+
+        /* --- CENTRAL MODAL (Glassmorphism) --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+
+        .chat-window {
+            width: 900px;
+            height: 650px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-glass);
+            gap: 12px;
+        }
+
+        .mac-dots {
+            display: flex;
+            gap: 8px;
+        }
+        .mac-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .mac-dot.red { background: #ff5f56; }
+        .mac-dot.yellow { background: #ffbd2e; }
+        .mac-dot.green { background: #27c93f; }
+
+        .chat-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .chat-content h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 40px;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 20px 24px;
+            max-width: 600px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .icon-circle {
+            width: 32px;
+            height: 32px;
+            background: var(--text-primary);
+            color: var(--bg-base);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .welcome-text h3 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .welcome-text p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Input Area */
+        .input-area-container {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .input-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-box textarea {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            height: 24px;
+            font-family: inherit;
+        }
+
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .left-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-pill {
+            background: transparent;
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .action-pill:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+        .submit-btn {
+            background: var(--text-primary);
+            color: var(--bg-base);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Horizon Core
+        </div>
+
+        <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            New chat
+        </div>
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            Projects
+        </div>
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Recents
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">
+                Try these steps <span>0/3</span>
+            </div>
+            
+            <div class="step-item">
+                <div class="step-circle"></div>
+                <div>Start a new project</div>
+            </div>
+            <div class="step-item">
+                <div class="step-circle"></div>
+                <div>Select the Horizon Core folder</div>
+            </div>
+            <div class="step-item">
+                <div class="step-circle"></div>
+                <div>Get context on the repo</div>
+            </div>
+        </div>
+
+        <div style="margin-top: auto;">
+            <button class="learn-more-btn">Learn more →</button>
+        </div>
+    </aside>
+
+    <!-- Main Content (Blurred Background) -->
+    <main class="main-area">
+        <div class="top-nav">
+            <span>Home</span>
+            <span>Docs</span>
+            <span>Use cases</span>
+            <span>Pricing</span>
+            <span>Resources</span>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-step active"><div class="progress-dot"></div>Project</div>
+            <div style="color: #333;">—</div>
+            <div class="progress-step"><div class="progress-dot"></div>Context</div>
+            <div style="color: #333;">—</div>
+            <div class="progress-step"><div class="progress-dot"></div>Prepare</div>
+            <div style="color: #333;">—</div>
+            <div class="progress-step"><div class="progress-dot"></div>Build</div>
+            <div style="color: #333;">—</div>
+            <div class="progress-step"><div class="progress-dot"></div>Verify</div>
+            <div style="color: #333;">—</div>
+            <div class="progress-step"><div class="progress-dot"></div>Ship</div>
+        </div>
+    </main>
+
+    <!-- Central Modal -->
+    <div class="modal-overlay">
+        <div class="chat-window">
+            <div class="chat-header">
+                <div class="mac-dots">
+                    <div class="mac-dot red"></div>
+                    <div class="mac-dot yellow"></div>
+                    <div class="mac-dot green"></div>
+                </div>
+                <div class="chat-title">Horizon Core Agent Workspace</div>
+            </div>
+
+            <div class="chat-content">
+                <h1>What should we work on?</h1>
+                
+                <div class="welcome-card">
+                    <div class="icon-circle">H</div>
+                    <div class="welcome-text">
+                        <h3>Welcome to Horizon Core</h3>
+                        <p>You're a new engineer onboarding on Horizon Core's ledger project. First, explore the existing project and understand how its main components (Angel Nodes & Switch) work together.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area-container">
+                <div class="input-box">
+                    <textarea placeholder="Do anything..."></textarea>
+                    <div class="input-actions">
+                        <div class="left-actions">
+                            <button class="action-pill">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                Choose project
+                            </button>
+                            <button class="action-pill">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                Require 8/8 Consensus
+                            </button>
+                        </div>
+                        <div style="display:flex; align-items:center; gap: 12px;">
+                            <span style="font-size:12px; color:var(--text-secondary);">Horizon AI v1.4</span>
+                            <button class="submit-btn">↑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
