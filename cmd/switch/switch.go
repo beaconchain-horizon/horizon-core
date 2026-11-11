@@ -19,6 +19,7 @@ import (
 	"os/signal"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -104,6 +105,7 @@ type BankAccount struct {
 // ============================================================
 
 var (
+	globalTxCounter uint64
 	db           *gorm.DB
 	unlockedKey  *ecdsa.PrivateKey
 	unlockedAt   time.Time
@@ -557,7 +559,7 @@ func createTxHandler(c *gin.Context) {
 		return
 	}
 
-	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixNano(), hashData([]byte(req.From + req.To))[:8])
+	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixMilli(), hashData([]byte(req.From + req.To))[:8])
 	tx := &Transaction{
 		TxID:       txID,
 		From:       req.From,
@@ -649,8 +651,8 @@ func mineBlockHandler(c *gin.Context) {
 	var lastBlock Block
 	db.Order("block_num desc").First(&lastBlock)
 	prevHash := "genesis"
-	blockNum := 0
-	if lastBlock.BlockNum >= 0 { prevHash = lastBlock.Hash; blockNum = lastBlock.BlockNum + 1 }
+	blockNum := int(time.Now().Unix())
+	if lastBlock.BlockNum >= 0 { prevHash = lastBlock.Hash }
 
 	ts := time.Now().Unix()
 	
@@ -925,7 +927,7 @@ func createCeremonyAttestation(ceremonyType, operatorID string) {
 	pubKeyFP := hex.EncodeToString(h[:])
 
 	att := CeremonyAttestation{
-		AttestationID:   fmt.Sprintf("CEREMONY-%d", time.Now().UnixNano()),
+		AttestationID:   fmt.Sprintf("CEREMONY-%d", time.Now().UnixMilli()),
 		CeremonyType:    ceremonyType,
 		Timestamp:       time.Now().Unix(),
 		OperatorID:      operatorID,
@@ -1327,7 +1329,7 @@ func createTxBatchHandler(c *gin.Context) {
 			failed++
 			continue
 		}
-		txID := fmt.Sprintf("tx_%d_%d_%s", time.Now().UnixNano(), i, hashData([]byte(t.From + t.To))[:6])
+		txID := fmt.Sprintf("tx_%d_%d_%s", time.Now().UnixMilli(), i, hashData([]byte(t.From + t.To))[:6])
 		if t.Type == "" {
 			t.Type = "transfer"
 		}
