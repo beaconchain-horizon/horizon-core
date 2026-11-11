@@ -1,142 +1,106 @@
 version: '3.8'
-
-# ─── تنظیمات مشترک برای ۸ آنجل ───
-x-angel-template: &angel-template
-  build: .
-  restart: always
-  depends_on:
-    - horizon-switch
-  networks:
-    - horizon-net
-
 services:
-  # ─── دیتابیس آنلاین ───
   postgres:
-    image: postgres:16-alpine
-    restart: always
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: horizon_switch
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - horizon-net
+      - horizon_net
 
-  # ─── سوئیچ آنلاین (۸۰۹۱) ───
-  horizon-switch:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: horizon_switch
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - horizon_net
+
+  switch:
     build: .
-    restart: always
-    command: ["/app/horizon-switch"]
-    depends_on:
-      - postgres
+    command: ["./switch"]
     environment:
       - DB_ENGINE=postgres
       - DB_DSN=host=postgres port=5432 user=postgres password=postgres dbname=horizon_switch sslmode=disable
-      - HORIZON_LICENSE_PUBLIC_KEY=04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214
-      - ADMIN_TOKEN=bench0000000000000000000000000000000000000000000000000000000bench
       - SWITCH_PORT=8091
     ports:
       - "8091:8091"
+    depends_on:
+      - postgres
     networks:
-      - horizon-net
+      - horizon_net
 
-  # ─── سوئیچ آفلاین (۸۰۹۲) ───
-  horizon-switch-offline:
+  angel-merkle:
     build: .
-    restart: always
-    command: ["/app/horizon-switch"]
-    environment:
-      - DB_ENGINE=sqlite
-      - HORIZON_LICENSE_PUBLIC_KEY=04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214
-      - ADMIN_TOKEN=bench0000000000000000000000000000000000000000000000000000000bench
-      - SWITCH_PORT=8092
-    ports:
-      - "8092:8092"
-    networks:
-      - horizon-net
+    command: ["./angel"]
+    environment: [NODE_ROLE=Merkle, NODE_PORT=9001]
+    networks: [horizon_net]
 
-  # ─── بک‌اند / API (۸۰۸۰) ───
-  horizon-api:
+  angel-hash:
     build: .
-    restart: always
-    command: ["/app/horizon-api"]
-    environment:
-      - PORT=8080
-      - CN_TOKEN=bench0000000000000000000000000000000000000000000000000000000bench
-      - API_KEY=bench0000000000000000000000000000000000000000000000000000000bench
-    ports:
-      - "8080:8080"
-    networks:
-      - horizon-net
+    command: ["./angel"]
+    environment: [NODE_ROLE=Hash, NODE_PORT=9002]
+    networks: [horizon_net]
 
-  # ─── ۷ آنجل تخصصی ───
-  angel-9001:
-    <<: *angel-template
-    command: ["/app/horizon-angel"]
-    environment: [ "NODE_ROLE=Merkle", "NODE_PORT=9001" ]
-    ports: [ "9001:9001" ]
+  angel-ecdsa:
+    build: .
+    command: ["./angel"]
+    environment: [NODE_ROLE=ECDSA, NODE_PORT=9003]
+    networks: [horizon_net]
 
-  angel-9002:
-    <<: *angel-template
-    command: ["/app/horizon-angel"]
-    environment: [ "NODE_ROLE=Hash", "NODE_PORT=9002" ]
-    ports: [ "9002:9002" ]
+  angel-type:
+    build: .
+    command: ["./angel"]
+    environment: [NODE_ROLE=Type, NODE_PORT=9004]
+    networks: [horizon_net]
 
-  angel-9003:
-    <<: *angel-template
-    command: ["/app/horizon-angel"]
-    environment: [ "NODE_ROLE=ECDSA", "NODE_PORT=9003" ]
-    ports: [ "9003:9003" ]
+  angel-volume:
+    build: .
+    command: ["./angel"]
+    environment: [NODE_ROLE=Volume, NODE_PORT=9005]
+    networks: [horizon_net]
 
-  angel-9004:
-    <<: *angel-template
-    command: ["/app/horizon-angel"]
-    environment: [ "NODE_ROLE=Type", "NODE_PORT=9004" ]
-    ports: [ "9004:9004" ]
+  angel-time:
+    build: .
+    command: ["./angel"]
+    environment: [NODE_ROLE=Time, NODE_PORT=9006]
+    networks: [horizon_net]
 
-  angel-9005:
-    <<: *angel-template
-    command: ["/app/horizon-angel"]
-    environment: [ "NODE_ROLE=Volume", "NODE_PORT=9005" ]
-    ports: [ "9005:9005" ]
+  angel-user:
+    build: .
+    command: ["./angel"]
+    environment: [NODE_ROLE=User, NODE_PORT=9007]
+    networks: [horizon_net]
 
-  angel-9006:
-    <<: *angel-template
-    command: ["/app/horizon-angel"]
-    environment: [ "NODE_ROLE=Time", "NODE_PORT=9006" ]
-    ports: [ "9006:9006" ]
+  agent-guardian:
+    build: .
+    command: ["./angel"]
+    environment: [NODE_ROLE=Guardian, NODE_PORT=9008]
+    networks: [horizon_net]
 
-  angel-9007:
-    <<: *angel-template
-    command: ["/app/horizon-angel"]
-    environment: [ "NODE_ROLE=User", "NODE_PORT=9007" ]
-    ports: [ "9007:9007" ]
+  backend:
+    build: .
+    command: ["./backend"]
+    environment: [PORT=8080]
+    ports: ["8080:8080"]
+    networks: [horizon_net]
 
-  # ─── ایجنت گاردین (نود ۸) ───
-  agent-9008:
-    <<: *angel-template
-    command: ["/app/horizon-agent"]
-    environment: [ "NODE_ROLE=AgentGuardian", "NODE_PORT=9008" ]
-    ports: [ "9008:9008" ]
-
-  # ─── مغز سیستم (۹۳۰۰) ───
   brain:
     build: .
-    restart: always
-    command: ["/app/brain"]
-    depends_on:
-      - horizon-switch
-    ports:
-      - "9300:9300"
-    networks:
-      - horizon-net
+    command: ["./brain"]
+    environment: [BRAIN_PORT=9300]
+    ports: ["9300:9300"]
+    networks: [horizon_net]
 
 networks:
-  horizon-net:
+  horizon_net:
     driver: bridge
 
 volumes:
   pgdata:
+  mysqldata:
