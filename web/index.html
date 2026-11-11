@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Core — Agent Workspace</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        :root {
+            --bg-base: #121212; --bg-glass: rgba(30, 30, 30, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.1); --text-primary: #ffffff;
+            --text-secondary: #a0a0a0; --accent: #4f46e5; --success: #10b981; --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body {
+            background-color: var(--bg-base); color: var(--text-primary); height: 100vh;
+            display: flex; background-image: radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 25%);
+        }
+        .sidebar { width: 260px; background-color: #181818; border-right: 1px solid var(--border-glass); display: flex; flex-direction: column; padding: 16px; z-index: 10; }
+        .sidebar-header { display: flex; align-items: center; gap: 10px; font-weight: 600; margin-bottom: 24px; padding-left: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); }
+        .nav-item.active { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+        .status-box { margin-top: auto; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 12px; }
+        .status-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .dot.offline { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+        .main-area { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); z-index: 100; }
+        .chat-window { width: 900px; height: 650px; background: var(--bg-glass); backdrop-filter: blur(24px); border: 1px solid var(--border-glass); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .chat-header { padding: 16px; border-bottom: 1px solid var(--border-glass); display: flex; gap: 12px; align-items: center; }
+        .mac-dots { display: flex; gap: 8px; } .mac-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .chat-content { flex: 1; display: flex; flex-direction: column; padding: 40px; overflow-y: auto; gap: 20px; }
+        .chat-content h1 { font-size: 28px; font-weight: 500; text-align: center; margin-bottom: 20px; }
+        .msg { display: flex; gap: 16px; max-width: 80%; }
+        .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+        .msg .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .msg.user .avatar { background: var(--accent); }
+        .msg.ai .avatar { background: var(--text-primary); color: var(--bg-base); }
+        .msg .bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); white-space: pre-wrap; }
+        .msg.user .bubble { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .input-area { padding: 20px; background: rgba(0, 0, 0, 0.2); border-top: 1px solid var(--border-glass); }
+        .input-box { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .input-box textarea { background: transparent; border: none; color: var(--text-primary); resize: none; outline: none; font-size: 15px; height: 24px; font-family: inherit; }
+        .input-actions { display: flex; justify-content: space-between; align-items: center; }
+        .action-pill { background: transparent; border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .submit-btn { background: var(--text-primary); color: var(--bg-base); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .submit-btn:hover { background: var(--accent); color: #fff; }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Horizon Core
+        </div>
+        <div class="nav-item active">New Chat</div>
+        <div class="nav-item">Projects</div>
+        <div class="nav-item">Licenses</div>
+        <div class="status-box">
+            <div class="status-row"><span>Switch (8091)</span><span id="switch-status"><span class="dot offline"></span> Offline</span></div>
+            <div class="status-row"><span>Brain (9300)</span><span id="brain-status"><span class="dot offline"></span> Offline</span></div>
+            <div class="status-row"><span>License</span><span id="lic-status">Unknown</span></div>
+        </div>
+    </aside>
+    <main class="main-area">
+        <div class="modal-overlay">
+            <div class="chat-window">
+                <div class="chat-header">
+                    <div class="mac-dots"><div class="mac-dot" style="background:#ff5f56"></div><div class="mac-dot" style="background:#ffbd2e"></div><div class="mac-dot" style="background:#27c93f"></div></div>
+                    <div style="font-size:14px; font-weight:500">Horizon Core Agent Workspace</div>
+                </div>
+                <div class="chat-content" id="chatContent">
+                    <h1>What should we work on?</h1>
+                    <div class="msg ai">
+                        <div class="avatar">H</div>
+                        <div class="bubble">
+                            <strong>Welcome to Horizon Core</strong><br>
+                            You are connected to the 8-Node consensus engine. Ask me about system stats, TPS, or agent status.
+                        </div>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <div class="input-box">
+                        <textarea id="chatInput" placeholder="Ask the brain (e.g., آمار، TPS، بلاک)..." rows="1"></textarea>
+                        <div class="input-actions">
+                            <div style="display:flex; gap:8px;">
+                                <button class="action-pill" onclick="checkSystem()">🔄 Check System</button>
+                                <button class="action-pill">🔒 Require 8/8 Consensus</button>
+                            </div>
+                            <button class="submit-btn" id="sendBtn" onclick="sendMessage()">↑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        const SWITCH_URL = "http://localhost:8091";
+        const BRAIN_URL = "http://localhost:9300";
+
+        async function checkSystem() {
+            try {
+                const swRes = await fetch(`${SWITCH_URL}/health`);
+                if(swRes.ok) { document.getElementById('switch-status').innerHTML = '<span class="dot online"></span> Online'; }
+                else { throw new Error(); }
+            } catch(e) { document.getElementById('switch-status').innerHTML = '<span class="dot offline"></span> Offline'; }
+
+            try {
+                const brRes = await fetch(`${BRAIN_URL}/api/health`);
+                if(brRes.ok) {
+                    document.getElementById('brain-status').innerHTML = '<span class="dot online"></span> Online';
+                    const data = await brRes.json();
+                    document.getElementById('lic-status').innerText = `${data.agents} Agents`;
+                } else { throw new Error(); }
+            } catch(e) { document.getElementById('brain-status').innerHTML = '<span class="dot offline"></span> Offline'; }
+        }
+
+        checkSystem();
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if(!msg) return;
+            
+            appendMessage('user', msg);
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+            const loadingId = appendMessage('ai', '...');
+
+            try {
+                const res = await fetch(`${BRAIN_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg, field: "engineering" })
+                });
+                const data = await res.json();
+                document.getElementById(loadingId).innerText = data.response;
+            } catch (e) {
+                document.getElementById(loadingId).innerText = "Error connecting to Brain API. Is it running?";
+            }
+            document.getElementById('sendBtn').disabled = false;
+        }
+
+        function appendMessage(role, text) {
+            const content = document.getElementById('chatContent');
+            const div = document.createElement('div');
+            div.className = `msg ${role}`;
+            const id = 'msg-' + Date.now();
+            div.innerHTML = `<div class="avatar">${role === 'user' ? 'U' : 'H'}</div><div class="bubble" id="${id}">${text}</div>`;
+            content.appendChild(div);
+            content.scrollTop = content.scrollHeight;
+            return id;
+        }
+    </script>
+</body>
+</html>
