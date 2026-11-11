@@ -1,3 +1,27 @@
+
+---
+
+## International Standards Referenced
+
+Horizon Core is built to meet and exceed global standards for security, cryptography, and financial interoperability. Every standard below is publicly verifiable.
+
+| Standard | Issuer | Region | Purpose in Horizon | Reference |
+|:---------|:-------|:------:|:-------------------|:----------|
+| **SEC 2 v2 — secp256k1** | SECG | 🇺🇸 · 🌍 | Elliptic curve for all signatures | [secg.org/sec2-v2.pdf](https://www.secg.org/sec2-v2.pdf) |
+| **RFC 6979 — Deterministic ECDSA** | IETF | 🌍 | No RNG in signing → reproducible signatures | [datatracker.ietf.org](https://datatracker.ietf.org/doc/html/rfc6979) |
+| **BIP-62 — Low-S enforcement** | Bitcoin Core | 🌍 | `s ≤ n/2` → malleability eliminated | [bitcoin/bips](https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki) |
+| **FIPS 180-4 — SHA-256** | NIST | 🇺🇸 | Block hashing, Merkle root, license ID | [csrc.nist.gov](https://csrc.nist.gov/publications/detail/fips/180/4/final) |
+| **ISO/IEC 25010 — Software quality** | ISO | 🇨🇭 · 🌍 | Architecture quality criteria | [iso25000.com](https://iso25000.com/index.php/en/iso-25000-standards/iso-25010) |
+| **ISO 8583 — Financial transactions** | ISO | 🇨🇭 · 🌍 | Transaction interchange compatibility | [iso.org](https://www.iso.org/standard/79451.html) |
+| **ISO 20022 — Financial messaging** | ISO | 🇨🇭 · 🌍 | License and settlement message semantics | [iso20022.org](https://www.iso20022.org/) |
+| **Basel III — Banking regulation** | BIS | 🇨🇭 · 🌍 | Operational risk & capital framework alignment | [bis.org](https://www.bis.org/basel_framework/) |
+| **GDPR — Data protection** | EU | 🇪🇺 | User data minimisation, right to erasure | [eur-lex.europa.eu](https://eur-lex.europa.eu/eli/reg/2016/679/oj) |
+
+> **Full detailed compliance matrix:** [`docs/immutable/HORIZON-CORE-v1.4-STANDARDS.md`](docs/immutable/HORIZON-CORE-v1.4-STANDARDS.md)
+> **Protocol Design:** [`docs/immutable/HORIZON-CORE-v1.4-CANONICAL.md`](docs/immutable/HORIZON-CORE-v1.4-CANONICAL.md)
+> **Security Design:** [`docs/immutable/HORIZON-CORE-v1.4-SECURITY-DESIGN.md`](docs/immutable/HORIZON-CORE-v1.4-SECURITY-DESIGN.md)
+
+---
 <div align="center">
   <img src="assets/logo.png" width="300" alt="Horizon Core Logo"/>
   <br/>
