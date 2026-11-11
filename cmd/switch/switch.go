@@ -443,21 +443,20 @@ func createTxHandler(c *gin.Context) {
 		return
 	}
 	
-	// ═══ License Volume Enforcement ═══
-	if licID := c.GetHeader("X-License-ID"); licID != "" {
-		var lic License
-		if err := db.Where("license_id = ?", licID).First(&lic).Error; err == nil {
-			if int64(lic.Used) >= int64(lic.Volume) {
-				c.JSON(http.StatusPaymentRequired, gin.H{
-					"error":      "license volume exhausted",
-					"license_id": licID,
-					"volume":     lic.Volume,
-					"used":       lic.Used,
-				})
-				return
-			}
-			db.Model(&License{}).Where("license_id = ?", licID).Update("used", gorm.Expr("used + 1"))
-		}
+	// ═══ Fail-Closed License Validation ═══
+	licID := c.GetHeader("X-License-ID")
+	if licID == "" {
+		c.JSON(400, gin.H{"error": "missing X-License-ID"})
+		return
+	}
+	var lic License
+	if err := db.Where("license_id = ?", licID).First(&lic).Error; err != nil {
+		c.JSON(401, gin.H{"error": "license not found"})
+		return
+	}
+	if lic.Status != "active" {
+		c.JSON(403, gin.H{"error": "license inactive"})
+		return
 	}
 
 	// === Grace Period Check ===

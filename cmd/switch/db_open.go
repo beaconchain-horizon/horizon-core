@@ -14,7 +14,7 @@ func openDB(dbPath string) (*gorm.DB, error) {
 	if os.Getenv("DB_ENGINE") == "postgres" {
 		dsn := os.Getenv("DB_DSN")
 		if dsn == "" {
-			dsn = "host=localhost port=5432 user=postgres password=postgres dbname=horizon_switch sslmode=disable"
+			log.Fatal("SECURITY FATAL: DB_DSN not set")
 		}
 		log.Println("🐘 PostgreSQL (online mode)")
 		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

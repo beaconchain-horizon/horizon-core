@@ -35,7 +35,7 @@ func autoSetupKeyFromEnv() {
 
 	password := os.Getenv("KEY_VAULT_PASSWORD")
 	if password == "" {
-		password = "testpass123"
+		log.Fatal("SECURITY FATAL: KEY_VAULT_PASSWORD not set")
 	}
 
 	encrypted, iv, err := encryptPrivateKey(hexKey, password)
