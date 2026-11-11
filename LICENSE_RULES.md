@@ -14,8 +14,3 @@
 - A Block REQUIRES a License to be generated (to maintain the chain).
 - Transactions within a Block consume the License volume.
 - When volume is exhausted, the block is sealed, and a new Block + License must be generated.
-
-## 4. Security Hardening (Layer 2)
-- Hardcoded DB credentials and Key Vault passwords have been removed (Fail-Closed on missing ENV).
-- License validation is now Fail-Closed (Rejects forged licenses).
-- `used++` is strictly moved to post-consensus (MineBlockHandler).
