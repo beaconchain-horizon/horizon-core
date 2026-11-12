@@ -635,12 +635,8 @@ func mineBlockHandler(c *gin.Context) {
 	for _, t := range txs {
 			// LICENSE MINTING LAW: Only activate license if mined into a block
 			if t.Type == "license_mint" {
-				var lic License
-				if err := json.Unmarshal([]byte(t.Payload), &lic); err == nil {
-					lic.Status = "active"
-					db.Create(&lic)
-					log.Printf("🔑 License activated via block: %s", lic.LicenseID)
-				}
+				db.Model(&License{}).Where("license_id = ?", t.LicenseID).Update("status", "active")
+				log.Printf("🔑 License ACTIVATED in block: %s", t.LicenseID)
 			}
 		licID := t.LicenseID
 		if licID == "" {
