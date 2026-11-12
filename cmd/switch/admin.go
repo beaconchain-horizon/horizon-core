@@ -262,7 +262,7 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		MerkleRoot: req.MerkleRoot,
 		IssuedAt:   now,
 		ExpiresAt:  now + int64(req.Duration*86400),
-		Status:     "active",
+		Status:     "pending",
 			LicenseType: req.LicenseType,
 	}
 
