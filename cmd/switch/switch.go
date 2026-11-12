@@ -259,7 +259,7 @@ func mineBlock() (*Block, error) {
 	}
 	merkleRoot := simpleMerkleRoot(txIDs, merkleAlgo)
 
-	newIndex := last.BlockNum + 1
+	newIndex := int(time.Now().Unix())
 	timestamp := time.Now().Unix()
 	dataStr := fmt.Sprintf("%d|%d|%s|%s", newIndex, timestamp, last.Hash, merkleRoot)
 	blockHash := hashData([]byte(dataStr))
@@ -717,7 +717,10 @@ func mineBlockHandler(c *gin.Context) {
 		MerkleRoot: merkleRoot, MerkleAlgo: "v1", TxCount: len(txs),
 		CreatedAt: time.Now(), Signature: sigHex, SignerAddr: signerAddr,
 	}
-	if err := db.Create(&newBlock).Error; err != nil { c.JSON(500, gin.H{"error": "failed to save block"}); return }
+	if err := db.Exec("INSERT INTO chain_blocks (block_num, prev_hash, merkle_root, tx_count, timestamp, hash, signature, signer_addr, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", newBlock.BlockNum, newBlock.PrevHash, newBlock.MerkleRoot, newBlock.TxCount, newBlock.Timestamp, newBlock.Hash, newBlock.Signature, newBlock.SignerAddr, time.Now()).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to save block: " + err.Error()})
+		return
+	}
 
 	for _, t := range txs {
 		db.Model(&t).Updates(map[string]interface{}{"synced": true, "block_index": blockNum})
