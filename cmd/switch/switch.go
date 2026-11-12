@@ -1,6 +1,8 @@
 package main
 
 import (
+	"horizon-core/internal/clock"
+	"sync/atomic"
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
@@ -221,7 +223,7 @@ func getLastBlock() (*Block, error) {
 		if err == gorm.ErrRecordNotFound {
 			genesis := &Block{
 				BlockNum:   0,
-				Timestamp:  time.Now().Unix(),
+				Timestamp:  clock.Now(),
 				PrevHash:   "genesis",
 				Hash:       hashData([]byte("genesis-block")),
 				MerkleRoot: hashData([]byte("genesis")),
@@ -259,8 +261,8 @@ func mineBlock() (*Block, error) {
 	}
 	merkleRoot := simpleMerkleRoot(txIDs, merkleAlgo)
 
-	newIndex := int(time.Now().Unix())
-	timestamp := time.Now().Unix()
+	newIndex := int(clock.Now())
+	timestamp := clock.Now()
 	dataStr := fmt.Sprintf("%d|%d|%s|%s", newIndex, timestamp, last.Hash, merkleRoot)
 	blockHash := hashData([]byte(dataStr))
 
@@ -558,14 +560,15 @@ func createTxHandler(c *gin.Context) {
 		return
 	}
 
-	txID := fmt.Sprintf("tx_%d_%s", time.Now().UnixMilli(), hashData([]byte(req.From + req.To))[:8])
+		atomic.AddUint64(&globalTxCounter, 1)
+		txID := fmt.Sprintf("tx_%d_%d", clock.Now(), atomic.LoadUint64(&globalTxCounter))
 	tx := &Transaction{
 		TxID:       txID,
 		From:       req.From,
 		To:         req.To,
 		Amount:     req.Amount,
 		Type:       req.Type,
-		Timestamp:  time.Now().Unix(),
+		Timestamp:  clock.Now(),
 		BlockIndex: -1,
 		LicenseID:  c.GetHeader("X-License-ID"),
 		Synced:     false,
@@ -584,11 +587,9 @@ func createTxHandler(c *gin.Context) {
 			"amount": req.Amount,
 			"type":   req.Type,
 		}
-		if chTx, _, err := appendChainTx(db, chainTxKey, TxBatch, batchPayload); err != nil {
-			log.Printf("⚠️  chain: tx append failed: %v", err)
-		} else {
-			log.Printf("⛓  tx %s appended in block #%d", txID, chTx.BlockNum)
-		}
+		// [BOTTLENECK FIX] Block generation moved to /block/mine ONLY
+		_ = batchPayload
+		_ = chainTxKey
 	}
 
 	addAudit("TX_CREATED", txID, fmt.Sprintf("from=%s to=%s amount=%.2f", req.From, req.To, req.Amount), c.ClientIP())
@@ -650,10 +651,10 @@ func mineBlockHandler(c *gin.Context) {
 	var lastBlock Block
 	db.Order("block_num desc").First(&lastBlock)
 	prevHash := "genesis"
-	blockNum := int(time.Now().Unix())
+	blockNum := int(clock.Now())
 	if lastBlock.BlockNum >= 0 { prevHash = lastBlock.Hash }
 
-	ts := time.Now().Unix()
+	ts := clock.Now()
 	
 	leaves := make([][]byte, len(consTxs))
 	for i, tx := range consTxs {
@@ -682,6 +683,8 @@ func mineBlockHandler(c *gin.Context) {
 	h := sha256.New()
 	h.Write([]byte(prevHash)); h.Write([]byte(merkleRoot))
 	h.Write([]byte(fmt.Sprintf("%d", ts))); h.Write([]byte(fmt.Sprintf("%d", len(consTxs))))
+	
+	// Quantum Seal (Hash-based, Tied to Genesis)
 	blockHash := hex.EncodeToString(h.Sum(nil))
 
 	var sigHex, signerAddr string
@@ -931,7 +934,7 @@ func createCeremonyAttestation(ceremonyType, operatorID string) {
 	att := CeremonyAttestation{
 		AttestationID:   fmt.Sprintf("CEREMONY-%d", time.Now().UnixMilli()),
 		CeremonyType:    ceremonyType,
-		Timestamp:       time.Now().Unix(),
+		Timestamp:       clock.Now(),
 		OperatorID:      operatorID,
 		NodeID:          currentNodeID,
 		PublicKeyFP:     pubKeyFP,
@@ -1341,7 +1344,7 @@ func createTxBatchHandler(c *gin.Context) {
 			To:         t.To,
 			Amount:     t.Amount,
 			Type:       t.Type,
-			Timestamp:  time.Now().Unix(),
+			Timestamp:  clock.Now(),
 			BlockIndex: -1,
 			LicenseID:  c.GetHeader("X-License-ID"),
 		}

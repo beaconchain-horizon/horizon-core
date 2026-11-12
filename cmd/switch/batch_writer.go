@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var txQueue chan *Transaction
@@ -103,7 +104,7 @@ func txWriterLoop(stopCh chan struct{}) {
 		if len(batch) == 0 {
 			return
 		}
-		if err := db.CreateInBatches(batch, 1000).Error; err != nil {
+		if err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(batch, 1000).Error; err != nil {
 			log.Printf("tx batch write error: %v", err)
 		}
 		batch = batch[:0]
