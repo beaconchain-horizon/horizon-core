@@ -324,6 +324,8 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		Timestamp: clock.Now(),
 	})
 
+	
+
 	c.JSON(http.StatusCreated, lic)
 }
 
