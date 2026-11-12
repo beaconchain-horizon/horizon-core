@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"horizon-core/internal/clock"
 	"fmt"
 	"crypto/rand"
 	"encoding/hex"
@@ -309,6 +311,18 @@ func adminIssueLicenseHandler(c *gin.Context) {
 
 	// refresh license state in memory (so isLicenseValid becomes true)
 	checkLicenseNow()
+
+	payloadBytes, _ := json.Marshal(lic)
+	queueTransaction(&Transaction{
+		TxID:      "lic_mint_" + lic.LicenseID,
+		From:      "system",
+		To:        "network",
+		Amount:    0,
+		Type:      "license_mint",
+		LicenseID: lic.LicenseID,
+		Payload:   string(payloadBytes),
+		Timestamp: clock.Now(),
+	})
 
 	c.JSON(http.StatusCreated, lic)
 }
