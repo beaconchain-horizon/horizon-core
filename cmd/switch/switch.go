@@ -684,6 +684,11 @@ func mineBlockHandler(c *gin.Context) {
 	h.Write([]byte(prevHash)); h.Write([]byte(merkleRoot))
 	h.Write([]byte(fmt.Sprintf("%d", ts))); h.Write([]byte(fmt.Sprintf("%d", len(consTxs))))
 	
+	// QUANTUM SEAL
+	genesisHash := "8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603"
+	qSeal := crypto.QuantumSeal(genesisHash, int64(ts), merkleRoot)
+	h.Write([]byte(qSeal))
+	
 	// Quantum Seal (Hash-based, Tied to Genesis)
 	blockHash := hex.EncodeToString(h.Sum(nil))
 

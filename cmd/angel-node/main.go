@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha256"
+	"horizon-core/internal/crypto"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -133,6 +134,11 @@ func evaluate(p ConsensusPayload) VoteResponse {
 		h.Write([]byte(p.MerkleRoot))
 		h.Write([]byte(fmt.Sprintf("%d", p.Timestamp)))
 		h.Write([]byte(fmt.Sprintf("%d", p.TxCount)))
+				
+				// QUANTUM SEAL (Must match switch.go)
+				genesisHash := "8c0763dd5b1345cba0782f03163e8a69de49bede54c91bb878126742c7990603"
+				qSeal := crypto.QuantumSeal(genesisHash, int64(p.Timestamp), p.MerkleRoot)
+				h.Write([]byte(qSeal))
 		exp := hex.EncodeToString(h.Sum(nil))
 		if exp == p.BlockHash { return VoteResponse{Vote: "ACCEPT", Reason: "hash ok"} }
 		return VoteResponse{Vote: "REJECT", Reason: "hash mismatch"}
