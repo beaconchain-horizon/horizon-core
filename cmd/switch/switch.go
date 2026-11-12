@@ -619,7 +619,7 @@ func listTxHandler(c *gin.Context) {
 
 func mineBlockHandler(c *gin.Context) {
 	var txs []Transaction
-	if err := db.Where("synced = ?", false).Limit(5000).Find(&txs).Error; err != nil {
+	if err := db.Where("synced = ?", false).Limit(100000).Find(&txs).Error; err != nil {
 		c.JSON(500, gin.H{"error": "db error fetching txs"}); return
 	}
 	if len(txs) == 0 {
@@ -633,6 +633,15 @@ func mineBlockHandler(c *gin.Context) {
 
 	var consTxs []ConsensusTx
 	for _, t := range txs {
+			// LICENSE MINTING LAW: Only activate license if mined into a block
+			if t.Type == "license_mint" {
+				var lic License
+				if err := json.Unmarshal([]byte(t.Payload), &lic); err == nil {
+					lic.Status = "active"
+					db.Create(&lic)
+					log.Printf("🔑 License activated via block: %s", lic.LicenseID)
+				}
+			}
 		licID := t.LicenseID
 		if licID == "" {
 			for _, l := range licenses {
