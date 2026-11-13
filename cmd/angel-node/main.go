@@ -1,7 +1,10 @@
 package main
 
 import (
+	secp256k1 "github.com/decred/dcrd/dcrec/secp256k1/v4"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 	"crypto/sha256"
+	"horizon-core/internal/crypto/wots"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -23,14 +26,20 @@ type Tx struct {
 }
 
 type License struct {
-	LicenseID string `json:"license_id"`
-	UserID    string `json:"user_id"`
-	ProductID string `json:"product_id"`
-	Volume    int64  `json:"volume"`
-	Used      int64  `json:"used"`
-	IssuedAt  int64  `json:"issued_at"`
-	ExpiresAt int64  `json:"expires_at"`
-	Status    string `json:"status"`
+	LicenseID     string `json:"license_id"`
+	UserID        string `json:"user_id"`
+	ProductID     string `json:"product_id"`
+	Volume        int64  `json:"volume"`
+	Used          int64  `json:"used"`
+	IssuedAt      int64  `json:"issued_at"`
+	ExpiresAt     int64  `json:"expires_at"`
+	Status        string `json:"status"`
+	Signature     string `json:"signature"`
+	MerkleRoot    string `json:"merkle_root"`
+	WOTSSignature string `json:"wots_signature"`
+	WOTSPubKey    string `json:"wots_pubkey"`
+	Duration      int64  `json:"duration"`
+	HardwareID    string `json:"hardware_id"`
 }
 
 type ConsensusPayload struct {
@@ -98,6 +107,34 @@ func handleConsensus(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(v)
 }
 
+type licenseSigningPayload struct {
+	LicenseID  string `json:"license_id"`
+	UserID     string `json:"user_id"`
+	ProductID  string `json:"product_id"`
+	Volume     int64  `json:"volume"`
+	Duration   int64  `json:"duration"`
+	MerkleRoot string `json:"merkle_root"`
+	IssuedAt   int64  `json:"issued_at"`
+	ExpiresAt  int64  `json:"expires_at"`
+	HardwareID string `json:"hardware_id"`
+}
+
+func licenseCanonicalMessageForNode(lic License) string {
+	payload := licenseSigningPayload{
+		LicenseID:  lic.LicenseID,
+		UserID:     lic.UserID,
+		ProductID:  lic.ProductID,
+		Volume:     lic.Volume,
+		Duration:   lic.Duration,
+		MerkleRoot: lic.MerkleRoot,
+		IssuedAt:   lic.IssuedAt,
+		ExpiresAt:  lic.ExpiresAt,
+		HardwareID: "",
+	}
+	data, _ := json.Marshal(payload)
+	return string(data)
+}
+
 func evaluate(p ConsensusPayload) VoteResponse {
 	switch role {
 	case "Merkle":
@@ -138,10 +175,60 @@ func evaluate(p ConsensusPayload) VoteResponse {
 		return VoteResponse{Vote: "REJECT", Reason: "hash mismatch"}
 
 	case "ECDSA":
+		// ۱. چک اولیه فرمت
 		if len(p.Signature) != 128 { return VoteResponse{Vote: "REJECT", Reason: "sig not 64B hex"} }
 		if len(p.SignerAddr) == 0 { return VoteResponse{Vote: "REJECT", Reason: "no signer"} }
-		return VoteResponse{Vote: "ACCEPT", Reason: "sig format ok"}
 
+		// ۲. وریفای ریاضی امضا با کلید عمومی Authority
+		authorityPubKey := "04cf6aaaba8e7a6fddde63a2e2588553dc95503d2de6b2a5c78f4a30a0b91b0aca4d28d06fc1ccbaf730abe1dcda7c29726dab18008353b521c9253c04b1641214"
+		pubBytes, err := hex.DecodeString(authorityPubKey)
+		if err != nil { return VoteResponse{Vote: "REJECT", Reason: "invalid authority pubkey hex"} }
+		pubKey, err := secp256k1.ParsePubKey(pubBytes)
+		if err != nil { return VoteResponse{Vote: "REJECT", Reason: "failed to parse authority pubkey"} }
+
+		sigBytes, err := hex.DecodeString(p.Signature)
+		if err != nil { return VoteResponse{Vote: "REJECT", Reason: "invalid signature hex"} }
+		var rVal, sVal secp256k1.ModNScalar
+		rVal.SetByteSlice(sigBytes[:32])
+		sVal.SetByteSlice(sigBytes[32:])
+
+		hashBytes, err := hex.DecodeString(p.BlockHash)
+		if err != nil { return VoteResponse{Vote: "REJECT", Reason: "invalid block hash hex"} }
+
+		sig := ecdsa.NewSignature(&rVal, &sVal)
+		if sig.Verify(hashBytes, pubKey) {
+			// ۳. چک امضای لایسنس‌های داخل بلاک
+			for _, lic := range p.Licenses {
+				if lic.Signature == "" {
+					return VoteResponse{Vote: "REJECT", Reason: "license has no signature: " + lic.LicenseID}
+				}
+				// بازسازی پیام لایسنس (دقیقاً مثل admin.go)
+				canonicalMsg := licenseCanonicalMessageForNode(lic)
+				hash := sha256.Sum256([]byte(canonicalMsg))
+				licSigBytes, _ := hex.DecodeString(lic.Signature[:128])
+				
+				var rLic, sLic secp256k1.ModNScalar
+				rLic.SetByteSlice(licSigBytes[:32])
+				sLic.SetByteSlice(licSigBytes[32:])
+				
+				licSig := ecdsa.NewSignature(&rLic, &sLic)
+				if !licSig.Verify(hash[:], pubKey) {
+					return VoteResponse{Vote: "REJECT", Reason: "license signature invalid: " + lic.LicenseID}
+				}
+				// [PQC] WOTS+ Verification
+				if lic.WOTSSignature != "" && lic.WOTSPubKey != "" {
+					wotsCanonical := licenseCanonicalMessageForNode(lic)
+					wotsHash := sha256.Sum256([]byte(wotsCanonical))
+					wotsPub, _ := hex.DecodeString(lic.WOTSPubKey)
+					wotsSig, _ := hex.DecodeString(lic.WOTSSignature)
+					if !wots.Verify(wotsPub, wotsHash[:], wotsSig) {
+						return VoteResponse{Vote: "REJECT", Reason: "license WOTS+ invalid: " + lic.LicenseID}
+					}
+				}
+			}
+			return VoteResponse{Vote: "ACCEPT", Reason: "ECDSA signature mathematically verified (block + licenses)"}
+		}
+		return VoteResponse{Vote: "REJECT", Reason: "ECDSA signature INVALID"}
 	case "Type":
 		if p.MerkleType != "binary" && p.MerkleType != "ternary" {
 			return VoteResponse{Vote: "REJECT", Reason: "bad type: " + p.MerkleType}
@@ -187,6 +274,8 @@ func evaluate(p ConsensusPayload) VoteResponse {
 		}
 		for _, tx := range p.Txs {
 			if tx.Type == "CEREMONY" { continue }
+			// [FIX] Allow system transactions
+			if tx.From == "system" { continue }
 			if tx.LicenseID == "" {
 				return VoteResponse{Vote: "REJECT", Reason: "tx missing license_id"}
 			}

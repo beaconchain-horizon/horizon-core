@@ -64,21 +64,23 @@ type Transaction struct {
 }
 
 type License struct {
-	ID          uint      `gorm:"primaryKey" json:"id"`
-	LicenseID   string    `gorm:"uniqueIndex" json:"license_id"`
-	UserID      string    `gorm:"index" json:"user_id"`
-	ProductID   string    `json:"product_id"`
-	Volume      int       `json:"volume"`
-	LicenseType string    `gorm:"default:client" json:"license_type"`
-	Used        int       `json:"used"`
-	Duration    int       `json:"duration"`
-	Signature   string    `json:"signature"`
-	MerkleRoot  string    `json:"merkle_root"`
-	IssuedAt    int64     `json:"issued_at"`
-	ExpiresAt   int64     `json:"expires_at"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	HardwareID  string    `json:"hardware_id"`
+	ID            uint      `gorm:"primaryKey" json:"id"`
+	LicenseID     string    `gorm:"uniqueIndex" json:"license_id"`
+	UserID        string    `gorm:"index" json:"user_id"`
+	ProductID     string    `json:"product_id"`
+	Volume        int       `json:"volume"`
+	LicenseType   string    `gorm:"default:client" json:"license_type"`
+	Used          int       `json:"used"`
+	Duration      int       `json:"duration"`
+	Signature     string    `json:"signature"`
+	MerkleRoot    string    `json:"merkle_root"`
+	WOTSSignature string    `json:"wots_signature"`
+	WOTSPubKey    string    `json:"wots_pubkey"`
+	IssuedAt      int64     `json:"issued_at"`
+	ExpiresAt     int64     `json:"expires_at"`
+	Status        string    `json:"status"`
+	CreatedAt     time.Time `json:"created_at"`
+	HardwareID    string    `json:"hardware_id"`
 }
 
 type KeyVault struct {
@@ -313,96 +315,55 @@ func healthHandler(c *gin.Context) {
 // ============ KEY VAULT ============
 
 func setupKeyHandler(c *gin.Context) {
-	var req struct {
-		PrivateKey string `json:"private_key" binding:"required"`
-		Password   string `json:"password" binding:"required"`
-		Label      string `json:"label"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "private_key and password required"})
-		return
-	}
-
-	priv, err := hexToECDSA(req.PrivateKey)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid private key: " + err.Error()})
-		return
-	}
-
-	encrypted, iv, err := encryptPrivateKey(req.PrivateKey, req.Password)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "encryption failed"})
-		return
-	}
-
-	addr := publicAddressFromKey(priv)
-
-	vault := &KeyVault{
-		EncryptedKey: encrypted,
-		IV:           iv,
-		PublicAddr:   addr,
-		Label:        req.Label,
-	}
-
-	db.Where("1 = 1").Delete(&KeyVault{})
-	if err := db.Create(vault).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "save failed"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":      "saved",
-		"public_addr": addr,
-		"message":     "key encrypted and saved",
-	})
+	c.JSON(http.StatusGone, gin.H{"error": "Key setup via API is permanently disabled. The key must only exist on the USB drive."})
 }
 
 func unlockKeyHandler(c *gin.Context) {
-	var req struct {
-		Password string `json:"password" binding:"required"`
+	// Read from USB drive (strictly from file, no DB)
+	paths := []string{"D:/mykey.txt", "E:/mykey.txt", "F:/mykey.txt", "/d/mykey.txt", "/e/mykey.txt"}
+	var keyBytes []byte
+	var err error
+	for _, p := range paths {
+		keyBytes, err = os.ReadFile(p)
+		if err == nil && len(keyBytes) > 0 {
+			break
+		}
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "password required"})
+	if len(keyBytes) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "USB key not found. Please connect the drive."})
 		return
 	}
 
-	var vault KeyVault
-	if err := db.First(&vault).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "no key found, please setup first"})
-		return
-	}
-
-	privateKeyHex, err := decryptPrivateKey(vault.EncryptedKey, vault.IV, req.Password)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "wrong password"})
+	privateKeyHex := strings.TrimSpace(strings.TrimPrefix(strings.TrimPrefix(string(keyBytes), "0x"), "0X"))
+	if len(privateKeyHex) != 64 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid key length on USB (must be 64 hex chars)"})
 		return
 	}
 
 	priv, err := hexToECDSA(privateKeyHex)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "key parse failed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid key format on USB"})
 		return
 	}
+
+	pubAddr := publicAddressFromKey(priv)
 
 	stateMutex.Lock()
 	unlockedKey = priv
 	unlockedAt = time.Now()
-	unlockedAddr = vault.PublicAddr
+	unlockedAddr = pubAddr
 	stateMutex.Unlock()
 
-	// init blockchain chain on first unlock
 	if err := ensureChainGenesis(db, priv); err != nil {
 		log.Printf("⚠️  chain genesis: %v", err)
 	}
 
-	log.Printf("Key unlocked: %s", vault.PublicAddr)
-
+	log.Printf("Key unlocked from USB: %s", pubAddr)
 	checkLicenseNow()
-	go createCeremonyAttestation("UNLOCK", "admin-operator")
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":      "unlocked",
-		"public_addr": vault.PublicAddr,
+		"status": "unlocked",
+		"public_addr": pubAddr,
 	})
 }
 
@@ -643,7 +604,7 @@ func mineBlockHandler(c *gin.Context) {
 
 	var consLicenses []ConsensusLicense
 	for _, l := range licenses {
-		consLicenses = append(consLicenses, ConsensusLicense{LicenseID: l.LicenseID, UserID: l.UserID, Volume: int64(l.Volume), Used: int64(l.Used), IssuedAt: l.IssuedAt, ExpiresAt: l.ExpiresAt, Status: l.Status})
+		consLicenses = append(consLicenses, ConsensusLicense{LicenseID: l.LicenseID, UserID: l.UserID, ProductID: l.ProductID, Volume: int64(l.Volume), Used: int64(l.Used), Duration: int64(l.Duration), IssuedAt: l.IssuedAt, ExpiresAt: l.ExpiresAt, Status: l.Status, Signature: l.Signature, MerkleRoot: l.MerkleRoot, WOTSSignature: l.WOTSSignature, WOTSPubKey: l.WOTSPubKey})
 	}
 
 	var lastBlock Block

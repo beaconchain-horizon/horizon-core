@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"horizon-core/internal/crypto/wots"
 	"fmt"
 	"crypto/rand"
 	"encoding/hex"
@@ -275,6 +277,20 @@ func adminIssueLicenseHandler(c *gin.Context) {
 		return
 	}
 	lic.Signature = sig
+
+		// ── [PQC LAYER] WOTS+ ──
+		pqcSeed := []byte("horizon-pqc-fallback-seed-2026-11-13-authority")
+		if usbSeed, err := os.ReadFile("D:/pqkey.txt"); err == nil && len(usbSeed) > 0 {
+			pqcSeed = usbSeed
+		}
+		wotsPriv, wotsPub, _ := wots.GenerateKeyPair(pqcSeed)
+		canonicalMsg := licenseCanonicalMessage(lic)
+			licHash := sha256.Sum256([]byte(canonicalMsg))
+		if wotsSig, err := wots.Sign(wotsPriv, licHash[:]); err == nil {
+			lic.WOTSSignature = hex.EncodeToString(wotsSig)
+			lic.WOTSPubKey = hex.EncodeToString(wotsPub)
+		}
+
 
 	if err := db.Create(lic).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "save failed: " + err.Error()})

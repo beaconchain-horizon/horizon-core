@@ -18,13 +18,19 @@ type ConsensusTx struct {
 }
 
 type ConsensusLicense struct {
-	LicenseID string `json:"license_id"`
-	UserID    string `json:"user_id"`
-	Volume    int64  `json:"volume"`
-	Used      int64  `json:"used"`
-	IssuedAt  int64  `json:"issued_at"`
-	ExpiresAt int64  `json:"expires_at"`
-	Status    string `json:"status"`
+	LicenseID     string `json:"license_id"`
+	UserID        string `json:"user_id"`
+	ProductID     string `json:"product_id"`
+	Volume        int64  `json:"volume"`
+	Used          int64  `json:"used"`
+	Duration      int64  `json:"duration"`
+	IssuedAt      int64  `json:"issued_at"`
+	ExpiresAt     int64  `json:"expires_at"`
+	Status        string `json:"status"`
+	Signature     string `json:"signature"`
+	MerkleRoot    string `json:"merkle_root"`
+	WOTSSignature string `json:"wots_signature"`
+	WOTSPubKey    string `json:"wots_pubkey"`
 }
 
 type ConsensusPayload struct {

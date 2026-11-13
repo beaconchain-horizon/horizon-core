@@ -67,10 +67,6 @@ func licenseCheckHandler(c *gin.Context) {
 	}
 
 	// v2 injection: persist verified license and flip global state
-	if injErr := InjectV2License(req.Data, req.Signature); injErr != nil {
-		log.Printf("[license/check] v2 injection failed: %v", injErr)
-	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"valid": true, "verified": true,
 		"license_id": req.LicenseID,
